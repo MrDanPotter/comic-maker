@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Draggable, Droppable } from 'react-beautiful-dnd';
+import { Draggable, Droppable } from '@hello-pangea/dnd';
 
 interface ImageLibraryProps {
   onImageUpload: (file: File) => void;
