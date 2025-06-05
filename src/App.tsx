@@ -39,7 +39,7 @@ interface ComicPanel {
   id: string;
   width: string;
   height: string;
-  imageId?: string;
+  imageUrl?: string;
 }
 
 interface ComicPage {
@@ -50,6 +50,7 @@ interface ComicPage {
 interface LibraryImage {
   id: string;
   url: string;
+  isPlaced?: boolean;
 }
 
 const layouts = {
@@ -100,6 +101,16 @@ function App() {
     if (destId.includes('-')) {
       const [destPageId, destPanelId] = destId.split('-');
       
+      // Find the image that was dragged
+      const draggedImage = images.find(img => img.id === imageId);
+      if (!draggedImage) return;
+
+      // Update the image's placed status
+      setImages(prevImages => prevImages.map(img => 
+        img.id === imageId ? { ...img, isPlaced: true } : img
+      ));
+
+      // Update the panel with the image URL
       setPages(prevPages => {
         return prevPages.map(page => {
           if (page.id === destPageId) {
@@ -107,7 +118,7 @@ function App() {
               ...page,
               layout: page.layout.map(panel => {
                 if (panel.id === destPanelId) {
-                  return { ...panel, imageId };
+                  return { ...panel, imageUrl: draggedImage.url };
                 }
                 return panel;
               }),

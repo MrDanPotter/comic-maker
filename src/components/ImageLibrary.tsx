@@ -1,12 +1,14 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Draggable, Droppable } from '@hello-pangea/dnd';
+import LibraryImage from './LibraryImage';
 
 interface ImageLibraryProps {
   onImageUpload: (file: File) => void;
   images: Array<{
     id: string;
     url: string;
+    isPlaced?: boolean;
   }>;
 }
 
@@ -56,12 +58,6 @@ const DraggableImage = styled.div<{ $isDragging?: boolean }>`
   &:hover {
     border-color: #2196f3;
   }
-  
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
 `;
 
 const ImageLibrary: React.FC<ImageLibraryProps> = ({ onImageUpload, images }) => {
@@ -99,7 +95,11 @@ const ImageLibrary: React.FC<ImageLibraryProps> = ({ onImageUpload, images }) =>
                     {...provided.dragHandleProps}
                     $isDragging={snapshot.isDragging}
                   >
-                    <img src={image.url} alt={`Library item ${index + 1}`} />
+                    <LibraryImage 
+                      src={image.url} 
+                      alt={`Library item ${index + 1}`}
+                      isPlaced={image.isPlaced}
+                    />
                   </DraggableImage>
                 )}
               </Draggable>

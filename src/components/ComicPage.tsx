@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Droppable } from '@hello-pangea/dnd';
+import PanelImage from './PanelImage';
 
 interface ComicPageProps {
   pageId: string;
@@ -8,7 +9,7 @@ interface ComicPageProps {
     id: string;
     width: string;
     height: string;
-    imageId?: string;
+    imageUrl?: string;
   }>;
 }
 
@@ -44,12 +45,6 @@ const DroppablePanel = styled(Panel)`
   }
 `;
 
-const Image = styled.img`
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
-`;
-
 const ComicPage: React.FC<ComicPageProps> = ({ pageId, layout }) => {
   return (
     <PageContainer>
@@ -63,8 +58,8 @@ const ComicPage: React.FC<ComicPageProps> = ({ pageId, layout }) => {
               width={panel.width}
               height={panel.height}
             >
-              {panel.imageId && (
-                <Image src={panel.imageId} alt="Comic panel content" />
+              {panel.imageUrl && (
+                <PanelImage src={panel.imageUrl} alt="Comic panel content" />
               )}
               {provided.placeholder}
             </DroppablePanel>
