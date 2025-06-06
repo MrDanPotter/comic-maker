@@ -16,8 +16,8 @@ export const calculateAspectRatio = (dimensions: Dimensions): number => {
 };
 
 /**
- * Calculates the scale factor needed to make the image's largest dimension
- * match the panel's smallest dimension while maintaining aspect ratio
+ * Calculates the scale factor needed to make the image's smallest dimension
+ * match the panel's largest dimension, ensuring the image fills the panel completely
  */
 export const calculateImageScale = (
   containerDimensions: Dimensions,
@@ -28,10 +28,12 @@ export const calculateImageScale = (
 
   if (imageAspect > containerAspect) {
     // Image is wider than container
-    return containerDimensions.width / imageDimensions.width;
+    // Match image height to container height to ensure full width coverage
+    return containerDimensions.height / imageDimensions.height;
   } else {
     // Image is taller than container
-    return containerDimensions.height / imageDimensions.height;
+    // Match image width to container width to ensure full height coverage
+    return containerDimensions.width / imageDimensions.width;
   }
 };
 

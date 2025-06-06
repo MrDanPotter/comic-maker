@@ -27,34 +27,34 @@ describe('mathUtils', () => {
     describe('when image is wider than container (landscape)', () => {
       const containerDimensions = { width: 800, height: 600 };
 
-      it('should scale based on width for wider aspect ratio', () => {
+      it('should scale based on height for wider aspect ratio to ensure full coverage', () => {
         const imageDimensions = { width: 1600, height: 900 };
         const scale = calculateImageScale(containerDimensions, imageDimensions);
-        expect(scale).toBe(800/1600); // Should match container width
+        expect(scale).toBe(600/900); // Should match container height
       });
 
-      it('should maintain aspect ratio', () => {
+      it('should ensure image width exceeds container width', () => {
         const imageDimensions = { width: 1600, height: 900 };
         const scale = calculateImageScale(containerDimensions, imageDimensions);
-        const scaledHeight = imageDimensions.height * scale;
-        expect(scaledHeight).toBeLessThan(containerDimensions.height);
+        const scaledWidth = imageDimensions.width * scale;
+        expect(scaledWidth).toBeGreaterThan(containerDimensions.width);
       });
     });
 
     describe('when image is taller than container (portrait)', () => {
       const containerDimensions = { width: 800, height: 600 };
 
-      it('should scale based on height for taller aspect ratio', () => {
+      it('should scale based on width for taller aspect ratio to ensure full coverage', () => {
         const imageDimensions = { width: 900, height: 1600 };
         const scale = calculateImageScale(containerDimensions, imageDimensions);
-        expect(scale).toBe(600/1600); // Should match container height
+        expect(scale).toBe(800/900); // Should match container width
       });
 
-      it('should maintain aspect ratio', () => {
+      it('should ensure image height exceeds container height', () => {
         const imageDimensions = { width: 900, height: 1600 };
         const scale = calculateImageScale(containerDimensions, imageDimensions);
-        const scaledWidth = imageDimensions.width * scale;
-        expect(scaledWidth).toBeLessThan(containerDimensions.width);
+        const scaledHeight = imageDimensions.height * scale;
+        expect(scaledHeight).toBeGreaterThan(containerDimensions.height);
       });
     });
 
@@ -63,14 +63,14 @@ describe('mathUtils', () => {
         const containerDimensions = { width: 1000, height: 1000 };
         const imageDimensions = { width: 1600, height: 900 };
         const scale = calculateImageScale(containerDimensions, imageDimensions);
-        expect(scale).toBe(1000/1600);
+        expect(scale).toBe(1000/900); // Match height to ensure full width coverage
       });
 
       it('should handle square image with rectangular container', () => {
         const containerDimensions = { width: 800, height: 600 };
         const imageDimensions = { width: 1000, height: 1000 };
         const scale = calculateImageScale(containerDimensions, imageDimensions);
-        expect(scale).toBe(600/1000);
+        expect(scale).toBe(800/1000); // Match width to ensure full height coverage
       });
     });
   });
@@ -78,26 +78,25 @@ describe('mathUtils', () => {
   describe('calculateMaxOffset', () => {
     const containerDimensions = { width: 800, height: 600 };
     const imageDimensions = { width: 1600, height: 900 };
-    const scale = 0.5; // Will result in 800x450 scaled image
+    const scale = 600/900; // Scale based on container height
 
     it('should calculate correct horizontal offset', () => {
       const maxOffset = calculateMaxOffset(containerDimensions, imageDimensions, scale);
-      // Scaled image is 800x450, container is 800x600
-      // No horizontal offset possible as widths match
-      expect(maxOffset.x).toBe(0);
+      // Scaled image is (1600 * 600/900)=1066.67 x 600
+      // Horizontal offset should be (1066.67 - 800) / 2 = 133.33
+      expect(maxOffset.x).toBeCloseTo(133.33, 1);
     });
 
     it('should calculate correct vertical offset', () => {
       const maxOffset = calculateMaxOffset(containerDimensions, imageDimensions, scale);
-      // Scaled image is 800x450, container is 800x600
-      // Vertical offset should be (600 - 450) / 2 = 75
-      expect(maxOffset.y).toBe(-75);
+      // Scaled image is 1066.67x600, container is 800x600
+      // No vertical offset as heights match
+      expect(maxOffset.y).toBe(0);
     });
 
     it('should handle larger scaled dimensions', () => {
       const largerScale = 2; // Will result in 3200x1800 scaled image
       const maxOffset = calculateMaxOffset(containerDimensions, imageDimensions, largerScale);
-      // Scaled image is 3200x1800, container is 800x600
       expect(maxOffset.x).toBe(1200); // (3200 - 800) / 2
       expect(maxOffset.y).toBe(600); // (1800 - 600) / 2
     });
