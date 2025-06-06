@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
+import { calculateImageScale, calculateMaxOffset, constrainPosition } from '../utils/mathUtils';
 
 interface PanelImageProps {
   src: string;
@@ -39,26 +40,22 @@ const PanelImage: React.FC<PanelImageProps> = ({ src, alt }) => {
       
       if (containerRef.current) {
         const container = containerRef.current;
-        const containerAspect = container.clientWidth / container.clientHeight;
-        const imageAspect = img.width / img.height;
-        
-        // Scale the image so its largest dimension matches the panel's smallest dimension
-        if (imageAspect > containerAspect) {
-          // Image is wider than container
-          const scale = container.clientWidth / img.width;
-          setScale(scale);
-        } else {
-          // Image is taller than container
-          const scale = container.clientHeight / img.height;
-          setScale(scale);
-        }
+        const containerDimensions = {
+          width: container.clientWidth,
+          height: container.clientHeight
+        };
+        const newScale = calculateImageScale(containerDimensions, {
+          width: img.width,
+          height: img.height
+        });
+        setScale(newScale);
       }
     };
     img.src = src;
   }, [src]);
 
   const handleMouseDown = (e: React.MouseEvent) => {
-    e.preventDefault(); // Prevent text selection
+    e.preventDefault();
     setIsDragging(true);
     setDragStart({
       x: e.clientX - position.x,
@@ -70,24 +67,26 @@ const PanelImage: React.FC<PanelImageProps> = ({ src, alt }) => {
     if (!isDragging || !containerRef.current) return;
 
     const container = containerRef.current;
-    const scaledWidth = imageDimensions.width * scale;
-    const scaledHeight = imageDimensions.height * scale;
-    
-    // Calculate new position
-    let newX = e.clientX - dragStart.x;
-    let newY = e.clientY - dragStart.y;
-
-    // Calculate bounds
-    const maxOffset = {
-      x: (scaledWidth - container.clientWidth) / 2,
-      y: (scaledHeight - container.clientHeight) / 2
+    const containerDimensions = {
+      width: container.clientWidth,
+      height: container.clientHeight
     };
 
-    // Constrain movement within bounds
-    newX = Math.max(-maxOffset.x, Math.min(maxOffset.x, newX));
-    newY = Math.max(-maxOffset.y, Math.min(maxOffset.y, newY));
+    // Calculate new position
+    const newPosition = {
+      x: e.clientX - dragStart.x,
+      y: e.clientY - dragStart.y
+    };
 
-    setPosition({ x: newX, y: newY });
+    const maxOffset = calculateMaxOffset(
+      containerDimensions,
+      imageDimensions,
+      scale
+    );
+
+    // Constrain movement within bounds
+    const constrainedPosition = constrainPosition(newPosition, maxOffset);
+    setPosition(constrainedPosition);
   };
 
   const handleMouseUp = () => {
