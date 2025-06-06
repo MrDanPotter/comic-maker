@@ -166,13 +166,23 @@ function App() {
     console.log('Added new page:', newPage.id);
   };
 
+  const handlePageDelete = (pageId: string) => {
+    setPages(prevPages => prevPages.filter(page => page.id !== pageId));
+  };
+
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
       <AppContainer>
         <TemplateSelector onTemplateSelect={handleTemplateSelect} templates={layouts} />
         <ComicContainer>
-          {pages.map(page => (
-            <ComicPage key={page.id} pageId={page.id} layout={page.layout} />
+          {pages.map((page, index) => (
+            <ComicPage 
+              key={page.id} 
+              pageId={page.id}
+              displayNumber={index + 1}
+              layout={page.layout}
+              onDelete={() => handlePageDelete(page.id)}
+            />
           ))}
         </ComicContainer>
         <ImageLibrary onImageUpload={handleImageUpload} images={images} />
