@@ -61,23 +61,23 @@ const layouts = {
     { id: '4', width: '48%', height: '48%' },
   ],
   threePanel: [
-    { id: '1', width: '100%', height: '60%' }, // Large top panel
-    { id: '2', width: '48%', height: '38%' },  // Bottom left panel
-    { id: '3', width: '48%', height: '38%' },  // Bottom right panel
+    { id: '1', width: '100%', height: '48%' }, // Large top panel
+    { id: '2', width: '48%', height: '48%' },  // Bottom left panel
+    { id: '3', width: '48%', height: '48%' },  // Bottom right panel
   ],
   mangaStyle: [
-    { id: '1', width: '60%', height: '60%' },  // Large main panel
-    { id: '2', width: '38%', height: '48%' },  // Top right panel
-    { id: '3', width: '38%', height: '48%' },  // Bottom right panel
-    { id: '4', width: '48%', height: '38%' },  // Bottom left panel
+    { id: '1', width: '65%', height: '65%' },  // Large main panel
+    { id: '2', width: '32%', height: '31%' },  // Top right panel
+    { id: '3', width: '32%', height: '31%' },  // Bottom right panel
+    { id: '4', width: '65%', height: '31%' },  // Bottom panel
   ],
   sixPanel: [
-    { id: '1', width: '31%', height: '31%' },
-    { id: '2', width: '31%', height: '31%' },
-    { id: '3', width: '31%', height: '31%' },
-    { id: '4', width: '31%', height: '31%' },
-    { id: '5', width: '31%', height: '31%' },
-    { id: '6', width: '31%', height: '31%' },
+    { id: '1', width: '31%', height: '48%' },
+    { id: '2', width: '31%', height: '48%' },
+    { id: '3', width: '31%', height: '48%' },
+    { id: '4', width: '31%', height: '48%' },
+    { id: '5', width: '31%', height: '48%' },
+    { id: '6', width: '31%', height: '48%' },
   ]
 };
 

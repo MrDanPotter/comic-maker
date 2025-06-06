@@ -21,14 +21,14 @@ const Title = styled.h2`
 
 const TemplatePreview = styled.div`
   width: 100%;
-  height: 200px;
+  padding-bottom: 125%; /* Creates a 4:5 aspect ratio container */
   background: white;
   margin-bottom: 20px;
-  padding: 10px;
   border-radius: 8px;
   cursor: pointer;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   transition: transform 0.2s, box-shadow 0.2s;
+  position: relative; /* For absolute positioning of PreviewContainer */
 
   &:hover {
     transform: translateY(-2px);
@@ -37,27 +37,42 @@ const TemplatePreview = styled.div`
 `;
 
 const PreviewContainer = styled.div`
-  width: 100%;
-  height: 100%;
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  bottom: 10px;
   background: white;
-  position: relative;
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: 2%;
+  padding: 10px;
+  align-content: flex-start;
 `;
 
 const PreviewPanel = styled.div<{ width: string; height: string }>`
   background: #e0e0e0;
-  width: ${props => props.width};
-  height: ${props => props.height};
+  width: calc(${props => props.width} - 2px);
+  height: calc(${props => {
+    // Convert percentage string to number
+    const heightPercent = parseFloat(props.height);
+    // Scale the height relative to width to maintain aspect ratio
+    return `${heightPercent * 0.8}%`;
+  }});
   border: 1px solid #999;
+  min-height: 20px;
+  margin-bottom: 2%;
 `;
 
 const TemplateName = styled.div`
-  margin-top: 8px;
+  position: absolute;
+  bottom: -25px;
+  left: 0;
+  right: 0;
   text-align: center;
   font-weight: 500;
   color: #666;
+  margin-bottom: 10px;
 `;
 
 interface TemplateSelectorProps {
@@ -72,13 +87,19 @@ const TemplateSelector: React.FC<TemplateSelectorProps> = ({ onTemplateSelect, t
       {Object.entries(templates).map(([templateName, layout]) => (
         <TemplatePreview key={templateName} onClick={() => onTemplateSelect(templateName as "quadrant" | "threePanel" | "mangaStyle" | "sixPanel")}>
           <PreviewContainer>
-            {layout.map(panel => (
-              <PreviewPanel
-                key={panel.id}
-                width={panel.width}
-                height={panel.height}
-              />
-            ))}
+            {layout.map(panel => {
+              // Adjust panel dimensions for preview
+              const width = panel.width;
+              const height = panel.height;
+              
+              return (
+                <PreviewPanel
+                  key={panel.id}
+                  width={width}
+                  height={height}
+                />
+              );
+            })}
           </PreviewContainer>
           <TemplateName>
             {templateName.charAt(0).toUpperCase() + templateName.slice(1)} Layout
