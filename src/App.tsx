@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { DragDropContext, DropResult } from '@hello-pangea/dnd';
 import styled from 'styled-components';
-import ComicPage from './components/ComicPage';
-import ImageLibrary from './components/ImageLibrary';
-import TemplateSelector from './components/TemplateSelector';
+import ComicPage from './components/ComicAssembly/ComicPage';
+import ImageLibrary from './components/ImageLibrary/ImageLibrary';
+import TemplateSelector from './components/TemplateSelector/TemplateSelector';
 
 const AppContainer = styled.div`
   display: flex;

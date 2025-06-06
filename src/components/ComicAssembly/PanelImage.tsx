@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
-import { calculateImageScale, calculateMaxOffset, constrainPosition } from '../utils/mathUtils';
+import { calculateImageScale, calculateMaxOffset, constrainPosition } from '../../utils/mathUtils';
 
 interface PanelImageProps {
   src: string;
