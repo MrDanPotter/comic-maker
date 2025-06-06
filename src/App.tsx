@@ -87,7 +87,7 @@ const defaultPageLayout = layouts.quadrant;
 
 function App() {
   const [pages, setPages] = useState<ComicPage[]>([
-    { id: '1', layout: [...layouts.quadrant] },
+    { id: "1", layout: [...layouts.quadrant] },
   ]);
   const [images, setImages] = useState<LibraryImage[]>([]);
 
@@ -112,7 +112,7 @@ function App() {
 
       // Update the panel with the image URL
       setPages(prevPages => {
-        return prevPages.map(page => {
+        const updatedPages = prevPages.map(page => {
           if (page.id === destPageId) {
             return {
               ...page,
@@ -126,6 +126,18 @@ function App() {
           }
           return page;
         });
+
+        // If no page was updated (meaning it was a new page), return the original array
+        const wasPageUpdated = updatedPages.some(page => 
+          page.id === destPageId && 
+          page.layout.some(panel => panel.id === destPanelId && panel.imageUrl === draggedImage.url)
+        );
+
+        if (!wasPageUpdated) {
+          console.warn('Failed to update page:', destPageId, 'panel:', destPanelId);
+        }
+
+        return updatedPages;
       });
     }
   };
@@ -145,11 +157,13 @@ function App() {
   };
 
   const handleTemplateSelect = (templateName: keyof typeof layouts) => {
+    const pageNumber = pages.length + 1;
     const newPage: ComicPage = {
-      id: `page-${pages.length + 1}`,
+      id: pageNumber.toString(), // Match the format of the initial page ID
       layout: [...layouts[templateName]],
     };
     setPages(prev => [...prev, newPage]);
+    console.log('Added new page:', newPage.id);
   };
 
   return (
