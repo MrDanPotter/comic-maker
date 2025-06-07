@@ -1,17 +1,12 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Droppable } from '@hello-pangea/dnd';
-import PanelImage from './PanelImage';
+import { Panel } from '../../types/comic';
+import SvgPanel from './SvgPanel';
 
 interface ComicPageProps {
   pageId: string;
   displayNumber: number;
-  layout: Array<{
-    id: string;
-    width: string;
-    height: string;
-    imageUrl?: string;
-  }>;
+  panels: Panel[];
   onDelete: () => void;
 }
 
@@ -22,10 +17,6 @@ const PageContainer = styled.div`
   margin: 20px auto;
   padding: 20px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  align-content: flex-start;
   position: relative;
 `;
 
@@ -72,32 +63,13 @@ const DeleteButton = styled.button`
   }
 `;
 
-const Panel = styled.div<{ width: string; height: string }>`
-  border: 2px solid #333;
-  background: #f5f5f5;
-  width: ${props => props.width};
-  height: ${props => props.height};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  box-sizing: border-box;
-`;
-
-const DroppablePanel = styled(Panel)`
-  &.dragging-over {
-    background: #e0e0e0;
-    border: 2px dashed #666;
-  }
-`;
-
 const TrashIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
     <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
   </svg>
 );
 
-const ComicPage: React.FC<ComicPageProps> = ({ pageId, displayNumber, layout, onDelete }) => {
+const ComicPage: React.FC<ComicPageProps> = ({ pageId, displayNumber, panels, onDelete }) => {
   return (
     <PageContainer>
       <PageControls>
@@ -106,23 +78,12 @@ const ComicPage: React.FC<ComicPageProps> = ({ pageId, displayNumber, layout, on
           <TrashIcon />
         </DeleteButton>
       </PageControls>
-      {layout.map((panel) => (
-        <Droppable key={panel.id} droppableId={`${pageId}-${panel.id}`} type="IMAGE_LIBRARY">
-          {(provided, snapshot) => (
-            <DroppablePanel
-              ref={provided.innerRef}
-              {...provided.droppableProps}
-              className={snapshot.isDraggingOver ? 'dragging-over' : ''}
-              width={panel.width}
-              height={panel.height}
-            >
-              {panel.imageUrl && (
-                <PanelImage src={panel.imageUrl} alt="Comic panel content" />
-              )}
-              {provided.placeholder}
-            </DroppablePanel>
-          )}
-        </Droppable>
+      {panels.map((panel) => (
+        <SvgPanel
+          key={panel.id}
+          panel={panel}
+          pageId={pageId}
+        />
       ))}
     </PageContainer>
   );

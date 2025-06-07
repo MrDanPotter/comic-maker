@@ -4,6 +4,8 @@ import styled from 'styled-components';
 import ComicPage from './components/ComicAssembly/ComicPage';
 import ImageLibrary from './components/ImageLibrary/ImageLibrary';
 import TemplateSelector from './components/TemplateSelector/TemplateSelector';
+import { Panel } from './types/comic';
+import { threeByThreeLayout, diagonalLayout, radialLayout, mangaLayout } from './utils/layouts';
 
 const AppContainer = styled.div`
   display: flex;
@@ -35,16 +37,9 @@ const AddPageButton = styled.button`
   }
 `;
 
-interface ComicPanel {
-  id: string;
-  width: string;
-  height: string;
-  imageUrl?: string;
-}
-
 interface ComicPage {
   id: string;
-  layout: ComicPanel[];
+  panels: Panel[];
 }
 
 interface LibraryImage {
@@ -53,41 +48,20 @@ interface LibraryImage {
   isPlaced?: boolean;
 }
 
-const layouts = {
-  quadrant: [
-    { id: '1', width: '48%', height: '48%' },
-    { id: '2', width: '48%', height: '48%' },
-    { id: '3', width: '48%', height: '48%' },
-    { id: '4', width: '48%', height: '48%' },
-  ],
-  threePanel: [
-    { id: '1', width: '100%', height: '48%' }, // Large top panel
-    { id: '2', width: '48%', height: '48%' },  // Bottom left panel
-    { id: '3', width: '48%', height: '48%' },  // Bottom right panel
-  ],
-  mangaStyle: [
-    { id: '1', width: '65%', height: '65%' },  // Large main panel
-    { id: '2', width: '32%', height: '31%' },  // Top right panel
-    { id: '3', width: '32%', height: '31%' },  // Bottom right panel
-    { id: '4', width: '65%', height: '31%' },  // Bottom panel
-  ],
-  sixPanel: [
-    { id: '1', width: '31%', height: '48%' },
-    { id: '2', width: '31%', height: '48%' },
-    { id: '3', width: '31%', height: '48%' },
-    { id: '4', width: '31%', height: '48%' },
-    { id: '5', width: '31%', height: '48%' },
-    { id: '6', width: '31%', height: '48%' },
-  ]
+type LayoutType = "threeByThree" | "diagonal" | "radial" | "manga";
+
+const layouts: Record<LayoutType, () => Panel[]> = {
+  threeByThree: threeByThreeLayout,
+  diagonal: diagonalLayout,
+  radial: radialLayout,
+  manga: mangaLayout
 };
 
-type LayoutType = keyof typeof layouts;
-
-const defaultPageLayout = layouts.quadrant;
+const defaultPageLayout = layouts.threeByThree;
 
 function App() {
   const [pages, setPages] = useState<ComicPage[]>([
-    { id: "1", layout: [...layouts.quadrant] },
+    { id: "1", panels: defaultPageLayout() },
   ]);
   const [images, setImages] = useState<LibraryImage[]>([]);
 
@@ -116,7 +90,7 @@ function App() {
           if (page.id === destPageId) {
             return {
               ...page,
-              layout: page.layout.map(panel => {
+              panels: page.panels.map(panel => {
                 if (panel.id === destPanelId) {
                   return { ...panel, imageUrl: draggedImage.url };
                 }
@@ -130,7 +104,7 @@ function App() {
         // If no page was updated (meaning it was a new page), return the original array
         const wasPageUpdated = updatedPages.some(page => 
           page.id === destPageId && 
-          page.layout.some(panel => panel.id === destPanelId && panel.imageUrl === draggedImage.url)
+          page.panels.some(panel => panel.id === destPanelId && panel.imageUrl === draggedImage.url)
         );
 
         if (!wasPageUpdated) {
@@ -156,11 +130,11 @@ function App() {
     reader.readAsDataURL(file);
   };
 
-  const handleTemplateSelect = (templateName: keyof typeof layouts) => {
+  const handleTemplateSelect = (templateName: LayoutType) => {
     const pageNumber = pages.length + 1;
     const newPage: ComicPage = {
-      id: pageNumber.toString(), // Match the format of the initial page ID
-      layout: [...layouts[templateName]],
+      id: pageNumber.toString(),
+      panels: layouts[templateName](),
     };
     setPages(prev => [...prev, newPage]);
     console.log('Added new page:', newPage.id);
@@ -180,7 +154,7 @@ function App() {
               key={page.id} 
               pageId={page.id}
               displayNumber={index + 1}
-              layout={page.layout}
+              panels={page.panels}
               onDelete={() => handlePageDelete(page.id)}
             />
           ))}

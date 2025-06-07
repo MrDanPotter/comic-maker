@@ -5,13 +5,15 @@ import { calculateImageScale, calculateMaxOffset, constrainPosition } from '../.
 interface PanelImageProps {
   src: string;
   alt: string;
+  style?: React.CSSProperties;
 }
 
-const ImageContainer = styled.div`
+const ImageContainer = styled.div<{ $customStyle?: React.CSSProperties }>`
   width: 100%;
   height: 100%;
   overflow: hidden;
   position: relative;
+  ${props => props.$customStyle && { ...props.$customStyle }}
 `;
 
 const DraggableImage = styled.img<{ $x: number; $y: number; $scale: number }>`
@@ -24,7 +26,7 @@ const DraggableImage = styled.img<{ $x: number; $y: number; $scale: number }>`
   transform-origin: center;
 `;
 
-const PanelImage: React.FC<PanelImageProps> = ({ src, alt }) => {
+const PanelImage: React.FC<PanelImageProps> = ({ src, alt, style }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [scale, setScale] = useState(1);
@@ -100,6 +102,7 @@ const PanelImage: React.FC<PanelImageProps> = ({ src, alt }) => {
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
+      $customStyle={style}
     >
       <DraggableImage
         src={src}
