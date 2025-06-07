@@ -71,13 +71,20 @@ function App() {
     const destId = result.destination.droppableId;
     const imageId = result.draggableId;
 
+    console.log('Drop event:', { destId, imageId });
+
     // Only handle drops into comic panels
     if (destId.includes('-')) {
-      const [destPageId, destPanelId] = destId.split('-');
-      
+      // Get the full panel ID by taking everything after the first dash
+      const destPageId = destId.split('-')[0];
+      const destPanelId = destId.substring(destId.indexOf('-') + 1);
+     
       // Find the image that was dragged
       const draggedImage = images.find(img => img.id === imageId);
-      if (!draggedImage) return;
+      if (!draggedImage) {
+        console.warn('Image not found:', imageId);
+        return;
+      }
 
       // Update the image's placed status
       setImages(prevImages => prevImages.map(img => 
@@ -86,6 +93,8 @@ function App() {
 
       // Update the panel with the image URL
       setPages(prevPages => {
+        console.log('Current pages:', prevPages);
+        
         const updatedPages = prevPages.map(page => {
           if (page.id === destPageId) {
             return {
@@ -101,7 +110,7 @@ function App() {
           return page;
         });
 
-        // If no page was updated (meaning it was a new page), return the original array
+        // Log the update result
         const wasPageUpdated = updatedPages.some(page => 
           page.id === destPageId && 
           page.panels.some(panel => panel.id === destPanelId && panel.imageUrl === draggedImage.url)
@@ -109,6 +118,9 @@ function App() {
 
         if (!wasPageUpdated) {
           console.warn('Failed to update page:', destPageId, 'panel:', destPanelId);
+          console.log('Updated pages:', updatedPages);
+        } else {
+          console.log('Successfully updated panel');
         }
 
         return updatedPages;
