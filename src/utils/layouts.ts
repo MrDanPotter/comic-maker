@@ -12,6 +12,23 @@ function createPanel(points: [number, number][]): Panel {
   };
 }
 
+// Single centered square panel
+export const singleSquareLayout = (): Panel[] => {
+  const margin = 200; // 200px margin on all sides
+  const size = 600; // 600x600 square
+  const x = margin;
+  const y = margin;
+  
+  return [
+    createPanel([
+      [x, y],
+      [x + size, y],
+      [x + size, y + size],
+      [x, y + size]
+    ])
+  ];
+};
+
 // Classic 3x3 grid layout
 export const threeByThreeLayout = (): Panel[] => {
   const panelWidth = 240;

@@ -5,7 +5,7 @@ import ComicPage from './components/ComicAssembly/ComicPage';
 import ImageLibrary from './components/ImageLibrary/ImageLibrary';
 import TemplateSelector from './components/TemplateSelector/TemplateSelector';
 import { Panel } from './types/comic';
-import { threeByThreeLayout, diagonalLayout, radialLayout, mangaLayout } from './utils/layouts';
+import { threeByThreeLayout, diagonalLayout, radialLayout, mangaLayout, singleSquareLayout } from './utils/layouts';
 
 const AppContainer = styled.div`
   display: flex;
@@ -48,16 +48,17 @@ interface LibraryImage {
   isPlaced?: boolean;
 }
 
-type LayoutType = "threeByThree" | "diagonal" | "radial" | "manga";
+type LayoutType = "threeByThree" | "diagonal" | "radial" | "manga" | "singleSquare";
 
 const layouts: Record<LayoutType, () => Panel[]> = {
+  singleSquare: singleSquareLayout,
   threeByThree: threeByThreeLayout,
   diagonal: diagonalLayout,
   radial: radialLayout,
   manga: mangaLayout
 };
 
-const defaultPageLayout = layouts.threeByThree;
+const defaultPageLayout = layouts.singleSquare;
 
 function App() {
   const [pages, setPages] = useState<ComicPage[]>([
@@ -178,3 +179,4 @@ function App() {
 }
 
 export default App;
+

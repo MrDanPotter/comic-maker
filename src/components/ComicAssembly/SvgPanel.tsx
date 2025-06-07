@@ -24,11 +24,17 @@ const PanelSvg = styled.svg`
   left: 0;
   width: 100%;
   height: 100%;
+  z-index: 1;
 `;
 
 const PanelPolygon = styled.path`
   stroke: #333;
   stroke-width: 2px;
+  cursor: pointer;
+
+  &:hover {
+    cursor: move;
+  }
 `;
 
 const DroppableOverlay = styled.div<{ $dropZone: BoundingBox }>`
@@ -37,9 +43,12 @@ const DroppableOverlay = styled.div<{ $dropZone: BoundingBox }>`
   left: ${props => props.$dropZone.left}px;
   width: ${props => props.$dropZone.width}px;
   height: ${props => props.$dropZone.height}px;
-  pointer-events: auto;
+  pointer-events: none;
+  z-index: 0;
   
   &.dragging-over {
+    pointer-events: all;
+    z-index: 2;
     background: rgba(224, 224, 224, 0.5);
     border: 2px dashed #666;
   }
@@ -51,6 +60,19 @@ const SvgPanel: React.FC<SvgPanelProps> = ({ panel, pageId }) => {
 
   return (
     <PanelContainer>
+      <Droppable droppableId={`${pageId}-${panel.id}`} type="IMAGE_LIBRARY">
+        {(provided, snapshot) => (
+          <DroppableOverlay
+            ref={provided.innerRef}
+            {...provided.droppableProps}
+            className={snapshot.isDraggingOver ? 'dragging-over' : ''}
+            $dropZone={dropZone}
+          >
+            {provided.placeholder}
+          </DroppableOverlay>
+        )}
+      </Droppable>
+
       <PanelSvg>
         {panel.imageUrl && (
           <PanelImage
@@ -66,19 +88,6 @@ const SvgPanel: React.FC<SvgPanelProps> = ({ panel, pageId }) => {
           fill={panel.imageUrl ? `url(#pattern-${panel.id})` : '#f5f5f5'}
         />
       </PanelSvg>
-
-      <Droppable droppableId={`${pageId}-${panel.id}`} type="IMAGE_LIBRARY">
-        {(provided, snapshot) => (
-          <DroppableOverlay
-            ref={provided.innerRef}
-            {...provided.droppableProps}
-            className={snapshot.isDraggingOver ? 'dragging-over' : ''}
-            $dropZone={dropZone}
-          >
-            {provided.placeholder}
-          </DroppableOverlay>
-        )}
-      </Droppable>
     </PanelContainer>
   );
 };
