@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Droppable } from '@hello-pangea/dnd';
 import { Panel, BoundingBox } from '../../types/comic';
@@ -58,6 +58,34 @@ const SvgPanel: React.FC<SvgPanelProps> = ({ panel, pageId }) => {
   const svgPath = pointsToSvgPath(panel.points);
   const dropZone = panel.dropZone || { top: 0, left: 0, width: 0, height: 0 };
 
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isDragging || !panel.imageUrl) return;
+
+      const dx = e.clientX - dragStart.x;
+      const dy = e.clientY - dragStart.y;
+
+      setPosition({
+        x: dragStart.posX + dx,
+        y: dragStart.posY + dy
+      });
+    };
+
+    const handleMouseUp = () => {
+      setIsDragging(false);
+    };
+
+    if (isDragging) {
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
+    }
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isDragging, dragStart, panel.imageUrl]);
+
   const handleMouseDown = (e: React.MouseEvent) => {
     if (!panel.imageUrl) return;
     e.preventDefault();
@@ -68,23 +96,6 @@ const SvgPanel: React.FC<SvgPanelProps> = ({ panel, pageId }) => {
       posX: position.x,
       posY: position.y
     });
-  };
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging || !panel.imageUrl) return;
-
-    const dx = e.clientX - dragStart.x;
-    const dy = e.clientY - dragStart.y;
-
-    // Just accumulate the new offset
-    setPosition({
-      x: dragStart.posX + dx,
-      y: dragStart.posY + dy
-    });
-  };
-
-  const handleMouseUp = () => {
-    setIsDragging(false);
   };
 
   return (
@@ -118,9 +129,6 @@ const SvgPanel: React.FC<SvgPanelProps> = ({ panel, pageId }) => {
           d={svgPath}
           fill={panel.imageUrl ? `url(#pattern-${panel.id})` : '#f5f5f5'}
           onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseUp}
         />
       </PanelSvg>
     </PanelContainer>
