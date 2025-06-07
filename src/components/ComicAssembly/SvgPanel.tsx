@@ -6,19 +6,11 @@ import { pointsToSvgPath } from '../../utils/polygonUtils';
 import PanelImage from './PanelImage';
 
 interface SvgPanelProps {
-  panel: Panel;
+  panels: Panel[];
   pageId: string;
 }
 
-const PanelContainer = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-`;
-
-const PanelSvg = styled.svg`
+const PanelContainer = styled.svg`
   position: absolute;
   top: 0;
   left: 0;
@@ -50,41 +42,42 @@ const DroppableOverlay = styled.div<{ $dropZone: BoundingBox }>`
   }
 `;
 
-const SvgPanel: React.FC<SvgPanelProps> = ({ panel, pageId }) => {
-  const svgPath = pointsToSvgPath(panel.points);
-  const dropZone = panel.dropZone || { top: 0, left: 0, width: 0, height: 0 };
-
+const SvgPanel: React.FC<SvgPanelProps> = ({ panels, pageId }) => {
   return (
     <PanelContainer>
-      {panel.imageUrl ? (
-        <PanelImage
-          src={panel.imageUrl}
-          panelId={panel.id}
-          pageId={pageId}
-          width={dropZone.width}
-          height={dropZone.height}
-          points={panel.points}
-          dropZone={dropZone}
-        />
-      ) : (
-        <>
-          <PanelSvg>
+      {panels.map(panel => {
+        const svgPath = pointsToSvgPath(panel.points);
+        const dropZone = panel.dropZone || { top: 0, left: 0, width: 0, height: 0 };
+
+        return panel.imageUrl ? (
+          <PanelImage
+            key={panel.id}
+            src={panel.imageUrl}
+            panelId={panel.id}
+            pageId={pageId}
+            width={dropZone.width}
+            height={dropZone.height}
+            points={panel.points}
+            dropZone={dropZone}
+          />
+        ) : (
+          <React.Fragment key={panel.id}>
             <EmptyPanelPolygon d={svgPath} />
-          </PanelSvg>
-          <Droppable droppableId={`${pageId}-${panel.id}`} type="IMAGE_LIBRARY">
-            {(provided, snapshot) => (
-              <DroppableOverlay
-                ref={provided.innerRef}
-                {...provided.droppableProps}
-                className={snapshot.isDraggingOver ? 'dragging-over' : ''}
-                $dropZone={dropZone}
-              >
-                {provided.placeholder}
-              </DroppableOverlay>
-            )}
-          </Droppable>
-        </>
-      )}
+            <Droppable droppableId={`${pageId}-${panel.id}`} type="IMAGE_LIBRARY">
+              {(provided, snapshot) => (
+                <DroppableOverlay
+                  ref={provided.innerRef}
+                  {...provided.droppableProps}
+                  className={snapshot.isDraggingOver ? 'dragging-over' : ''}
+                  $dropZone={dropZone}
+                >
+                  {provided.placeholder}
+                </DroppableOverlay>
+              )}
+            </Droppable>
+          </React.Fragment>
+        );
+      })}
     </PanelContainer>
   );
 };

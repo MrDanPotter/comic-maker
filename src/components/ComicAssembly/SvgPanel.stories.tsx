@@ -24,10 +24,10 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-// Basic square panel without an image
+// Single empty panel
 export const EmptyPanel: Story = {
   args: {
-    panel: {
+    panels: [{
       id: '1',
       shape: 'polygon',
       points: [
@@ -42,15 +42,15 @@ export const EmptyPanel: Story = {
         width: 300,
         height: 300,
       },
-    },
+    }],
     pageId: 'page-1',
   },
 };
 
-// Panel with a placeholder image
+// Single panel with a placeholder image
 export const WithImage: Story = {
   args: {
-    panel: {
+    panels: [{
       id: '2',
       shape: 'polygon',
       points: [
@@ -66,31 +66,50 @@ export const WithImage: Story = {
         height: 300,
       },
       imageUrl: placeholderImage,
-    },
+    }],
     pageId: 'page-1',
   },
 };
 
-// Diagonal panel with image
-export const DiagonalPanel: Story = {
+// Multiple panels with different shapes
+export const MultiplePanels: Story = {
   args: {
-    panel: {
-      id: '3',
-      shape: 'polygon',
-      points: [
-        [50, 50],
-        [350, 150],
-        [250, 350],
-        [50, 250],
-      ],
-      dropZone: {
-        top: 50,
-        left: 50,
-        width: 300,
-        height: 300,
+    panels: [
+      {
+        id: '3',
+        shape: 'polygon',
+        points: [
+          [50, 50],
+          [175, 50],
+          [175, 175],
+          [50, 175],
+        ],
+        dropZone: {
+          top: 50,
+          left: 50,
+          width: 125,
+          height: 125,
+        },
+        imageUrl: placeholderImage,
       },
-      imageUrl: placeholderImage,
-    },
+      {
+        id: '4',
+        shape: 'polygon',
+        points: [
+          [225, 50],  // 175 + 50px spacing
+          [350, 50],
+          [350, 175],
+          [225, 175],
+        ],
+        dropZone: {
+          top: 50,
+          left: 225,
+          width: 125,
+          height: 125,
+        },
+        imageUrl: placeholderImage,
+      },
+    ],
     pageId: 'page-1',
   },
 }; 
