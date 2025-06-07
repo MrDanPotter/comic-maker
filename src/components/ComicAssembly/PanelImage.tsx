@@ -1,118 +1,60 @@
-import React, { useState, useRef, useEffect } from 'react';
-import styled from 'styled-components';
-import { calculateImageScale, calculateMaxOffset, constrainPosition } from '../../utils/mathUtils';
+import React, { useState, useEffect } from 'react';
 
 interface PanelImageProps {
   src: string;
   alt: string;
-  style?: React.CSSProperties;
+  panelId: string;
+  width: number;
+  height: number;
 }
 
-const ImageContainer = styled.div<{ $customStyle?: React.CSSProperties }>`
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  position: relative;
-  ${props => props.$customStyle && { ...props.$customStyle }}
-`;
-
-const DraggableImage = styled.img<{ $x: number; $y: number; $scale: number }>`
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(calc(-50% + ${props => props.$x}px), calc(-50% + ${props => props.$y}px)) scale(${props => props.$scale});
-  cursor: move;
-  user-select: none;
-  transform-origin: center;
-`;
-
-const PanelImage: React.FC<PanelImageProps> = ({ src, alt, style }) => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-  const [scale, setScale] = useState(1);
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+const PanelImage: React.FC<PanelImageProps> = ({ src, alt, panelId, width, height }) => {
   const [imageDimensions, setImageDimensions] = useState({ width: 0, height: 0 });
+  const patternId = `pattern-${panelId}`;
 
-  // Load image dimensions and calculate initial scale
+  // Load image dimensions
   useEffect(() => {
     const img = new Image();
     img.onload = () => {
-      setImageDimensions({ width: img.width, height: img.height });
-      
-      if (containerRef.current) {
-        const container = containerRef.current;
-        const containerDimensions = {
-          width: container.clientWidth,
-          height: container.clientHeight
-        };
-        const newScale = calculateImageScale(containerDimensions, {
-          width: img.width,
-          height: img.height
-        });
-        setScale(newScale);
-      }
+      setImageDimensions({
+        width: img.width,
+        height: img.height
+      });
     };
     img.src = src;
   }, [src]);
 
-  const handleMouseDown = (e: React.MouseEvent) => {
-    e.preventDefault();
-    setIsDragging(true);
-    setDragStart({
-      x: e.clientX - position.x,
-      y: e.clientY - position.y
-    });
-  };
+  // Calculate scale to cover the panel
+  const scale = Math.max(
+    width / imageDimensions.width,
+    height / imageDimensions.height
+  );
 
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging || !containerRef.current) return;
+  const scaledWidth = imageDimensions.width * scale;
+  const scaledHeight = imageDimensions.height * scale;
 
-    const container = containerRef.current;
-    const containerDimensions = {
-      width: container.clientWidth,
-      height: container.clientHeight
-    };
-
-    // Calculate new position
-    const newPosition = {
-      x: e.clientX - dragStart.x,
-      y: e.clientY - dragStart.y
-    };
-
-    const maxOffset = calculateMaxOffset(
-      containerDimensions,
-      imageDimensions,
-      scale
-    );
-
-    // Constrain movement within bounds
-    const constrainedPosition = constrainPosition(newPosition, maxOffset);
-    setPosition(constrainedPosition);
-  };
-
-  const handleMouseUp = () => {
-    setIsDragging(false);
-  };
+  // Center the image in the pattern
+  const x = (width - scaledWidth) / 2;
+  const y = (height - scaledHeight) / 2;
 
   return (
-    <ImageContainer
-      ref={containerRef}
-      onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
-      onMouseLeave={handleMouseUp}
-      $customStyle={style}
-    >
-      <DraggableImage
-        src={src}
-        alt={alt}
-        $x={position.x}
-        $y={position.y}
-        $scale={scale}
-        draggable={false}
-      />
-    </ImageContainer>
+    <defs>
+      <pattern
+        id={patternId}
+        patternUnits="userSpaceOnUse"
+        width={width}
+        height={height}
+      >
+        <image
+          href={src}
+          x={x}
+          y={y}
+          width={scaledWidth}
+          height={scaledHeight}
+          preserveAspectRatio="xMidYMid slice"
+        />
+      </pattern>
+    </defs>
   );
 };
 

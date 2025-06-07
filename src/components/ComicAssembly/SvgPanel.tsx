@@ -16,7 +16,6 @@ const PanelContainer = styled.div`
   left: 0;
   width: 100%;
   height: 100%;
-  pointer-events: none;
 `;
 
 const PanelSvg = styled.svg`
@@ -25,11 +24,9 @@ const PanelSvg = styled.svg`
   left: 0;
   width: 100%;
   height: 100%;
-  pointer-events: none;
 `;
 
 const PanelPolygon = styled.path`
-  fill: #f5f5f5;
   stroke: #333;
   stroke-width: 2px;
 `;
@@ -55,28 +52,20 @@ const SvgPanel: React.FC<SvgPanelProps> = ({ panel, pageId }) => {
   return (
     <PanelContainer>
       <PanelSvg>
-        <PanelPolygon d={svgPath} />
         {panel.imageUrl && (
-          <clipPath id={`clip-${panel.id}`}>
-            <path d={svgPath} />
-          </clipPath>
+          <PanelImage
+            src={panel.imageUrl}
+            alt="Comic panel content"
+            panelId={panel.id}
+            width={dropZone.width}
+            height={dropZone.height}
+          />
         )}
-      </PanelSvg>
-      
-      {panel.imageUrl && (
-        <PanelImage 
-          src={panel.imageUrl} 
-          alt="Comic panel content"
-          style={{
-            position: 'absolute',
-            top: dropZone.top,
-            left: dropZone.left,
-            width: dropZone.width,
-            height: dropZone.height,
-            clipPath: `url(#clip-${panel.id})`
-          }}
+        <PanelPolygon 
+          d={svgPath} 
+          fill={panel.imageUrl ? `url(#pattern-${panel.id})` : '#f5f5f5'}
         />
-      )}
+      </PanelSvg>
 
       <Droppable droppableId={`${pageId}-${panel.id}`} type="IMAGE_LIBRARY">
         {(provided, snapshot) => (
