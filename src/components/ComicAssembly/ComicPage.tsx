@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { Panel } from '../../types/comic';
 import SvgPanel from './SvgPanel';
+import DragDropLayer from './DragDropLayer';
 
 interface ComicPageProps {
   pageId: string;
@@ -71,6 +72,7 @@ const ComicPage: React.FC<ComicPageProps> = ({ pageId, displayNumber, panels, on
         </DeleteButton>
       </PageControls>
       <SvgPanel panels={panels} pageId={pageId} />
+      <DragDropLayer panels={panels} pageId={pageId} />
     </PageContainer>
   );
 };

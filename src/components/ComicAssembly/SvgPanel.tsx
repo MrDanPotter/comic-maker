@@ -1,7 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Droppable } from '@hello-pangea/dnd';
-import { Panel, BoundingBox } from '../../types/comic';
+import { Panel } from '../../types/comic';
 import { pointsToSvgPath } from '../../utils/polygonUtils';
 import PanelImage from './PanelImage';
 
@@ -25,23 +24,6 @@ const EmptyPanelPolygon = styled.path`
   fill: #f5f5f5;
 `;
 
-const DroppableOverlay = styled.div<{ $dropZone: BoundingBox }>`
-  position: absolute;
-  top: ${props => props.$dropZone.top}px;
-  left: ${props => props.$dropZone.left}px;
-  width: ${props => props.$dropZone.width}px;
-  height: ${props => props.$dropZone.height}px;
-  pointer-events: none;
-  z-index: 0;
-
-  &.dragging-over {
-    pointer-events: all;
-    z-index: 2;
-    background: rgba(224, 224, 224, 0.5);
-    border: 2px dashed #666;
-  }
-`;
-
 const SvgPanel: React.FC<SvgPanelProps> = ({ panels, pageId }) => {
   return (
     <PanelContainer>
@@ -61,21 +43,7 @@ const SvgPanel: React.FC<SvgPanelProps> = ({ panels, pageId }) => {
             dropZone={dropZone}
           />
         ) : (
-          <React.Fragment key={panel.id}>
-            <EmptyPanelPolygon d={svgPath} />
-            <Droppable droppableId={`${pageId}-${panel.id}`} type="IMAGE_LIBRARY">
-              {(provided, snapshot) => (
-                <DroppableOverlay
-                  ref={provided.innerRef}
-                  {...provided.droppableProps}
-                  className={snapshot.isDraggingOver ? 'dragging-over' : ''}
-                  $dropZone={dropZone}
-                >
-                  {provided.placeholder}
-                </DroppableOverlay>
-              )}
-            </Droppable>
-          </React.Fragment>
+          <EmptyPanelPolygon key={panel.id} d={svgPath} />
         );
       })}
     </PanelContainer>

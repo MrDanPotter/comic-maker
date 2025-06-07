@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { Droppable } from '@hello-pangea/dnd';
 import { Point, BoundingBox } from '../../types/comic';
 import { pointsToSvgPath } from '../../utils/polygonUtils';
 
@@ -13,23 +12,6 @@ interface PanelImageProps {
   points: Point[];
   dropZone: BoundingBox;
 }
-
-const DroppableOverlay = styled.div<{ $dropZone: BoundingBox }>`
-  position: absolute;
-  top: ${props => props.$dropZone.top}px;
-  left: ${props => props.$dropZone.left}px;
-  width: ${props => props.$dropZone.width}px;
-  height: ${props => props.$dropZone.height}px;
-  pointer-events: none;
-  z-index: 0;
-
-  &.dragging-over {
-    pointer-events: all;
-    z-index: 2;
-    background: rgba(224, 224, 224, 0.5);
-    border: 2px dashed #666;
-  }
-`;
 
 const PanelSvg = styled.svg`
   position: absolute;
@@ -49,11 +31,9 @@ const PanelPolygon = styled.path`
 const PanelImage: React.FC<PanelImageProps> = ({
   src,
   panelId,
-  pageId,
   width,
   height,
   points,
-  dropZone
 }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -124,50 +104,35 @@ const PanelImage: React.FC<PanelImageProps> = ({
   const panelOffsetY = Math.min(...points.map(p => p[1]));
 
   return (
-    <>
-      <Droppable droppableId={`${pageId}-${panelId}`} type="IMAGE_LIBRARY">
-        {(provided, snapshot) => (
-          <DroppableOverlay
-            ref={provided.innerRef}
-            {...provided.droppableProps}
-            className={snapshot.isDraggingOver ? 'dragging-over' : ''}
-            $dropZone={dropZone}
-          >
-            {provided.placeholder}
-          </DroppableOverlay>
-        )}
-      </Droppable>
+    <PanelSvg>
+      <defs>
+        <pattern
+          id={`pattern-${panelId}`}
+          patternUnits="userSpaceOnUse"
+          patternContentUnits="userSpaceOnUse"
+          x={panelOffsetX}
+          y={panelOffsetY}
+          width={width}
+          height={height}
+        >
+          <image
+            href={src}
+            x={baseX + position.x}
+            y={baseY + position.y}
+            width={scaledWidth}
+            height={scaledHeight}
+            preserveAspectRatio="xMidYMid slice"
+            style={{ pointerEvents: 'none' }}
+          />
+        </pattern>
+      </defs>
 
-      <PanelSvg>
-        <defs>
-          <pattern
-            id={`pattern-${panelId}`}
-            patternUnits="userSpaceOnUse"
-            patternContentUnits="userSpaceOnUse"
-            x={panelOffsetX}
-            y={panelOffsetY}
-            width={width}
-            height={height}
-          >
-            <image
-              href={src}
-              x={baseX + position.x}
-              y={baseY + position.y}
-              width={scaledWidth}
-              height={scaledHeight}
-              preserveAspectRatio="xMidYMid slice"
-              style={{ pointerEvents: 'none' }}
-            />
-          </pattern>
-        </defs>
-
-        <PanelPolygon
-          d={svgPath}
-          fill={`url(#pattern-${panelId})`}
-          onMouseDown={handleMouseDown}
-        />
-      </PanelSvg>
-    </>
+      <PanelPolygon
+        d={svgPath}
+        fill={`url(#pattern-${panelId})`}
+        onMouseDown={handleMouseDown}
+      />
+    </PanelSvg>
   );
 };
 
