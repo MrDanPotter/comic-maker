@@ -6,12 +6,21 @@ interface PanelImageProps {
   panelId: string;
   width: number;
   height: number;
+  position: { x: number, y: number };
+  onPositionChange: (position: { x: number, y: number }) => void;
 }
 
-const PanelImage: React.FC<PanelImageProps> = ({ src, alt, panelId, width, height }) => {
+const PanelImage: React.FC<PanelImageProps> = ({ 
+  src, 
+  alt, 
+  panelId, 
+  width, 
+  height,
+  position,
+  onPositionChange
+}) => {
   const [imageDimensions, setImageDimensions] = useState({ width: 0, height: 0 });
   const [isDragging, setIsDragging] = useState(false);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
   const [dragStart, setDragStart] = useState({ x: 0, y: 0, posX: 0, posY: 0 });
   const patternId = `pattern-${panelId}`;
 
@@ -62,7 +71,7 @@ const PanelImage: React.FC<PanelImageProps> = ({ src, alt, panelId, width, heigh
     const maxOffsetY = Math.max(0, (scaledHeight - height) / 2);
 
     // Update position with constraints
-    setPosition({
+    onPositionChange({
       x: Math.max(-maxOffsetX, Math.min(maxOffsetX, dragStart.posX + dx)),
       y: Math.max(-maxOffsetY, Math.min(maxOffsetY, dragStart.posY + dy))
     });

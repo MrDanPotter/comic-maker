@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Droppable } from '@hello-pangea/dnd';
 import { Panel, BoundingBox } from '../../types/comic';
@@ -30,11 +30,7 @@ const PanelSvg = styled.svg`
 const PanelPolygon = styled.path`
   stroke: #333;
   stroke-width: 2px;
-  cursor: pointer;
-
-  &:hover {
-    cursor: move;
-  }
+  cursor: move;
 `;
 
 const DroppableOverlay = styled.div<{ $dropZone: BoundingBox }>`
@@ -55,8 +51,49 @@ const DroppableOverlay = styled.div<{ $dropZone: BoundingBox }>`
 `;
 
 const SvgPanel: React.FC<SvgPanelProps> = ({ panel, pageId }) => {
+  const [isDragging, setIsDragging] = useState(false);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0, posX: 0, posY: 0 });
+  
   const svgPath = pointsToSvgPath(panel.points);
   const dropZone = panel.dropZone || { top: 0, left: 0, width: 0, height: 0 };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (!panel.imageUrl) return;
+    e.preventDefault();
+    setIsDragging(true);
+    setDragStart({
+      x: e.clientX,
+      y: e.clientY,
+      posX: position.x,
+      posY: position.y
+    });
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging || !panel.imageUrl) return;
+
+    const dx = e.clientX - dragStart.x;
+    const dy = e.clientY - dragStart.y;
+
+    // Calculate maximum allowed movement based on image scale
+    const scale = Math.max(
+      dropZone.width / dropZone.width,
+      dropZone.height / dropZone.height
+    );
+    const maxOffsetX = Math.max(0, (dropZone.width * scale - dropZone.width) / 2);
+    const maxOffsetY = Math.max(0, (dropZone.height * scale - dropZone.height) / 2);
+
+    // Update position with constraints
+    setPosition({
+      x: Math.max(-maxOffsetX, Math.min(maxOffsetX, dragStart.posX + dx)),
+      y: Math.max(-maxOffsetY, Math.min(maxOffsetY, dragStart.posY + dy))
+    });
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
 
   return (
     <PanelContainer>
@@ -81,11 +118,17 @@ const SvgPanel: React.FC<SvgPanelProps> = ({ panel, pageId }) => {
             panelId={panel.id}
             width={dropZone.width}
             height={dropZone.height}
+            position={position}
+            onPositionChange={setPosition}
           />
         )}
         <PanelPolygon 
           d={svgPath} 
           fill={panel.imageUrl ? `url(#pattern-${panel.id})` : '#f5f5f5'}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseUp}
         />
       </PanelSvg>
     </PanelContainer>
