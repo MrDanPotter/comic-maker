@@ -78,7 +78,9 @@ type LayoutType =
   | "topTallBottomSquares"
   | "bottomTallTopSquares"
   | "threeVerticalPanels"
-  | "threeHorizontalPanels";
+  | "threeHorizontalPanels"
+  | "twoVerticalPanels"
+  | "twoHorizontalPanels";
 
 interface TemplateSelectorProps {
   onTemplateSelect: (templateName: LayoutType) => void;

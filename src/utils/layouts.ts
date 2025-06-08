@@ -390,4 +390,56 @@ export const mangaLayout = (): Panel[] => {
       [20, 960]
     ])
   ];
+};
+
+// Two vertical panels side by side
+export const twoVerticalPanelsLayout = (): Panel[] => {
+  const margin = 20;
+  const gap = 15;
+  const availableWidth = 800 - (2 * margin);
+  const availableHeight = 1000 - (2 * margin);
+  const panelWidth = (availableWidth - gap) / 2;
+  
+  return [
+    // Left panel
+    createPanel([
+      [margin, margin],
+      [margin + panelWidth, margin],
+      [margin + panelWidth, margin + availableHeight],
+      [margin, margin + availableHeight]
+    ]),
+    // Right panel
+    createPanel([
+      [margin + panelWidth + gap, margin],
+      [margin + panelWidth * 2 + gap, margin],
+      [margin + panelWidth * 2 + gap, margin + availableHeight],
+      [margin + panelWidth + gap, margin + availableHeight]
+    ])
+  ];
+};
+
+// Two horizontal panels stacked
+export const twoHorizontalPanelsLayout = (): Panel[] => {
+  const margin = 20;
+  const gap = 15;
+  const availableWidth = 800 - (2 * margin);
+  const availableHeight = 1000 - (2 * margin);
+  const panelHeight = (availableHeight - gap) / 2;
+  
+  return [
+    // Top panel
+    createPanel([
+      [margin, margin],
+      [margin + availableWidth, margin],
+      [margin + availableWidth, margin + panelHeight],
+      [margin, margin + panelHeight]
+    ]),
+    // Bottom panel
+    createPanel([
+      [margin, margin + panelHeight + gap],
+      [margin + availableWidth, margin + panelHeight + gap],
+      [margin + availableWidth, margin + panelHeight * 2 + gap],
+      [margin, margin + panelHeight * 2 + gap]
+    ])
+  ];
 }; 

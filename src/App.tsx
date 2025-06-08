@@ -13,7 +13,9 @@ import {
   topTallBottomSquaresLayout,
   bottomTallTopSquaresLayout,
   threeVerticalPanelsLayout,
-  threeHorizontalPanelsLayout
+  threeHorizontalPanelsLayout,
+  twoVerticalPanelsLayout,
+  twoHorizontalPanelsLayout
 } from './utils/layouts';
 
 const AppContainer = styled.div`
@@ -65,7 +67,9 @@ type LayoutType =
   | "topTallBottomSquares"
   | "bottomTallTopSquares"
   | "threeVerticalPanels"
-  | "threeHorizontalPanels";
+  | "threeHorizontalPanels"
+  | "twoVerticalPanels"
+  | "twoHorizontalPanels";
 
 const layouts: Record<LayoutType, () => Panel[]> = {
   fullPage: fullPageLayout,
@@ -75,7 +79,9 @@ const layouts: Record<LayoutType, () => Panel[]> = {
   topTallBottomSquares: topTallBottomSquaresLayout,
   bottomTallTopSquares: bottomTallTopSquaresLayout,
   threeVerticalPanels: threeVerticalPanelsLayout,
-  threeHorizontalPanels: threeHorizontalPanelsLayout
+  threeHorizontalPanels: threeHorizontalPanelsLayout,
+  twoVerticalPanels: twoVerticalPanelsLayout,
+  twoHorizontalPanels: twoHorizontalPanelsLayout
 };
 
 const defaultPageLayout = layouts.fullPage;
