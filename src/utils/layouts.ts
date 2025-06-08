@@ -25,6 +25,26 @@ export const fullPageLayout = (): Panel[] => {
   ];
 };
 
+// Wide page panel (5:4 aspect ratio)
+export const widePageLayout = (): Panel[] => {
+  const margin = 20; // 20px margin on all sides
+  const availableWidth = 800 - (2 * margin);
+  // If width is 760 (availableWidth) and aspect ratio is 5:4,
+  // then height should be (760 * 4/5) = 608
+  const panelHeight = Math.floor(availableWidth * 4/5);
+  const pageCenter = 1000 / 2;
+  const startY = pageCenter - (panelHeight / 2); // Center the panel vertically
+  
+  return [
+    createPanel([
+      [margin, startY],
+      [margin + availableWidth, startY],
+      [margin + availableWidth, startY + panelHeight],
+      [margin, startY + panelHeight]
+    ])
+  ];
+};
+
 // 2x3 grid layout (2 rows, 3 columns)
 export const twoByThreeLayout = (): Panel[] => {
   const margin = 20;

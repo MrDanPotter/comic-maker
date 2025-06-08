@@ -71,7 +71,8 @@ const TemplateName = styled.div`
 `;
 
 type LayoutType = 
-  | "fullPage" 
+  | "fullPage"
+  | "widePage" 
   | "twoByThree" 
   | "leftTallRightSquares" 
   | "rightTallLeftSquares"

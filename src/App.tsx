@@ -7,6 +7,7 @@ import TemplateSelector from './components/TemplateSelector/TemplateSelector';
 import { Panel } from './types/comic';
 import { 
   fullPageLayout,
+  widePageLayout,
   twoByThreeLayout,
   leftTallRightSquaresLayout,
   rightTallLeftSquaresLayout,
@@ -60,7 +61,8 @@ interface LibraryImage {
 }
 
 type LayoutType = 
-  | "fullPage" 
+  | "fullPage"
+  | "widePage" 
   | "twoByThree" 
   | "leftTallRightSquares" 
   | "rightTallLeftSquares"
@@ -73,6 +75,7 @@ type LayoutType =
 
 const layouts: Record<LayoutType, () => Panel[]> = {
   fullPage: fullPageLayout,
+  widePage: widePageLayout,
   twoByThree: twoByThreeLayout,
   leftTallRightSquares: leftTallRightSquaresLayout,
   rightTallLeftSquares: rightTallLeftSquaresLayout,
