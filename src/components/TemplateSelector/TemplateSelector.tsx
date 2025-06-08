@@ -70,7 +70,15 @@ const TemplateName = styled.div`
   margin-bottom: 10px;
 `;
 
-type LayoutType = "threeByThree" | "diagonal" | "radial" | "manga";
+type LayoutType = 
+  | "fullPage" 
+  | "twoByThree" 
+  | "leftTallRightSquares" 
+  | "rightTallLeftSquares"
+  | "topTallBottomSquares"
+  | "bottomTallTopSquares"
+  | "threeVerticalPanels"
+  | "threeHorizontalPanels";
 
 interface TemplateSelectorProps {
   onTemplateSelect: (templateName: LayoutType) => void;

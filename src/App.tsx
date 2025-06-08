@@ -5,7 +5,16 @@ import ComicPage from './components/ComicAssembly/ComicPage';
 import ImageLibrary from './components/ImageLibrary/ImageLibrary';
 import TemplateSelector from './components/TemplateSelector/TemplateSelector';
 import { Panel } from './types/comic';
-import { threeByThreeLayout, diagonalLayout, radialLayout, mangaLayout, singleSquareLayout } from './utils/layouts';
+import { 
+  fullPageLayout,
+  twoByThreeLayout,
+  leftTallRightSquaresLayout,
+  rightTallLeftSquaresLayout,
+  topTallBottomSquaresLayout,
+  bottomTallTopSquaresLayout,
+  threeVerticalPanelsLayout,
+  threeHorizontalPanelsLayout
+} from './utils/layouts';
 
 const AppContainer = styled.div`
   display: flex;
@@ -48,17 +57,28 @@ interface LibraryImage {
   isPlaced?: boolean;
 }
 
-type LayoutType = "threeByThree" | "diagonal" | "radial" | "manga" | "singleSquare";
+type LayoutType = 
+  | "fullPage" 
+  | "twoByThree" 
+  | "leftTallRightSquares" 
+  | "rightTallLeftSquares"
+  | "topTallBottomSquares"
+  | "bottomTallTopSquares"
+  | "threeVerticalPanels"
+  | "threeHorizontalPanels";
 
 const layouts: Record<LayoutType, () => Panel[]> = {
-  singleSquare: singleSquareLayout,
-  threeByThree: threeByThreeLayout,
-  diagonal: diagonalLayout,
-  radial: radialLayout,
-  manga: mangaLayout
+  fullPage: fullPageLayout,
+  twoByThree: twoByThreeLayout,
+  leftTallRightSquares: leftTallRightSquaresLayout,
+  rightTallLeftSquares: rightTallLeftSquaresLayout,
+  topTallBottomSquares: topTallBottomSquaresLayout,
+  bottomTallTopSquares: bottomTallTopSquaresLayout,
+  threeVerticalPanels: threeVerticalPanelsLayout,
+  threeHorizontalPanels: threeHorizontalPanelsLayout
 };
 
-const defaultPageLayout = layouts.singleSquare;
+const defaultPageLayout = layouts.fullPage;
 
 function App() {
   const [pages, setPages] = useState<ComicPage[]>([
