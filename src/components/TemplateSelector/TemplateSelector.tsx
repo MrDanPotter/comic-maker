@@ -79,17 +79,19 @@ interface TemplateSelectorProps {
 
 const TemplateSelector: React.FC<TemplateSelectorProps> = ({ onTemplateSelect, templates }) => {
   // Scale points to fit preview container
-  const scalePoints = (points: [number, number][], scale: number): [number, number][] => {
-    return points.map(([x, y]) => [x * scale, y * scale]);
+  const scalePoints = (points: [number, number][]): [number, number][] => {
+    // Assuming the original points are in a 800x1000 coordinate space
+    // Scale them down to fit in our 100x125 viewBox
+    const scaleX = 100 / 800;
+    const scaleY = 125 / 1000;
+    return points.map(([x, y]) => [x * scaleX, y * scaleY]);
   };
 
   return (
     <SelectorContainer>
       <Title>Add a Page</Title>
       {(Object.keys(templates) as LayoutType[]).map(templateName => {
-        // Get a sample layout and scale it down for preview
         const sampleLayout = templates[templateName]();
-        const scale = 0.3; // Scale down to 30% of original size
         
         return (
           <TemplatePreview 
@@ -97,11 +99,11 @@ const TemplateSelector: React.FC<TemplateSelectorProps> = ({ onTemplateSelect, t
             onClick={() => onTemplateSelect(templateName)}
           >
             <PreviewContainer>
-              <PreviewSvg viewBox="0 0 800 1000">
+              <PreviewSvg viewBox="0 0 100 125">
                 {sampleLayout.map(panel => (
                   <PreviewPanel
                     key={panel.id}
-                    d={pointsToSvgPath(scalePoints(panel.points, scale))}
+                    d={pointsToSvgPath(scalePoints(panel.points))}
                   />
                 ))}
               </PreviewSvg>
