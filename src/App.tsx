@@ -32,22 +32,6 @@ const ComicContainer = styled.div`
   overflow-y: auto;
 `;
 
-const AddPageButton = styled.button`
-  display: block;
-  margin: 20px auto;
-  padding: 10px 20px;
-  background: #4caf50;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 16px;
-
-  &:hover {
-    background: #388e3c;
-  }
-`;
-
 interface ComicPage {
   id: string;
   panels: Panel[];
@@ -86,13 +70,6 @@ function App() {
   ]);
   const [images, setImages] = useState<LibraryImage[]>([]);
   const [draggedImageUrl, setDraggedImageUrl] = useState<string | null>(null);
-
-  const handleAddPage = () => {
-    setPages(prevPages => [
-      ...prevPages,
-      { id: uuidv4(), panels: defaultPageLayout() }
-    ]);
-  };
 
   const handleMovePageUp = (pageIndex: number) => {
     if (pageIndex > 0) {
@@ -251,9 +228,6 @@ function App() {
               draggedImageUrl={draggedImageUrl}
             />
           ))}
-          <AddPageButton onClick={handleAddPage}>
-            Add Page
-          </AddPageButton>
         </ComicContainer>
         <ImageLibrary images={images} onImageUpload={handleImageUpload} />
       </AppContainer>

@@ -51,113 +51,107 @@ const SvgPanel: React.FC<SvgPanelProps> = ({ panels, pageId }) => {
     const GAP_THRESHOLD = 20; // Maximum gap width to consider for resizing
 
     // Helper function to get panel bounds
-    const getPanelBounds = (panel: Panel): PanelBounds => {
-      return {
-        left: Math.min(...panel.points.map(p => p[0])),
-        right: Math.max(...panel.points.map(p => p[0])),
-        top: Math.min(...panel.points.map(p => p[1])),
-        bottom: Math.max(...panel.points.map(p => p[1]))
-      };
-    };
+    const getPanelBounds = (panel: Panel): PanelBounds => ({
+      left: Math.min(...panel.points.map(p => p[0])),
+      right: Math.max(...panel.points.map(p => p[0])),
+      top: Math.min(...panel.points.map(p => p[1])),
+      bottom: Math.max(...panel.points.map(p => p[1]))
+    });
 
-    // Helper function to check if two panels share a vertical edge
-    const hasVerticalEdge = (panel1Bounds: PanelBounds, panel2Bounds: PanelBounds): boolean => {
-      return Math.abs(panel1Bounds.right - panel2Bounds.left) < GAP_THRESHOLD ||
-             Math.abs(panel1Bounds.left - panel2Bounds.right) < GAP_THRESHOLD;
-    };
-
-    // Helper function to check if two panels share a horizontal edge
-    const hasHorizontalEdge = (panel1Bounds: PanelBounds, panel2Bounds: PanelBounds): boolean => {
-      return Math.abs(panel1Bounds.bottom - panel2Bounds.top) < GAP_THRESHOLD ||
-             Math.abs(panel1Bounds.top - panel2Bounds.bottom) < GAP_THRESHOLD;
-    };
-
-    // Process each panel
-    panels.forEach((mainPanel, i) => {
-      const mainBounds = getPanelBounds(mainPanel);
+    // Find vertical gaps (panels side by side)
+    panels.forEach((panel1, i) => {
+      const bounds1 = getPanelBounds(panel1);
       
-      // Find all panels that share a vertical edge with the main panel
-      const rightNeighbors: { panel: Panel; bounds: PanelBounds }[] = [];
-      const leftNeighbors: { panel: Panel; bounds: PanelBounds }[] = [];
-
-      // Find all panels that share a horizontal edge with the main panel
-      const topNeighbors: { panel: Panel; bounds: PanelBounds }[] = [];
-      const bottomNeighbors: { panel: Panel; bounds: PanelBounds }[] = [];
-
-      panels.slice(i + 1).forEach(otherPanel => {
-        const otherBounds = getPanelBounds(otherPanel);
-
-        // Check vertical alignment
-        if (hasVerticalEdge(mainBounds, otherBounds)) {
-          // Check if there's any vertical overlap
-          const verticalOverlap = !(mainBounds.bottom < otherBounds.top || otherBounds.bottom < mainBounds.top);
-          if (verticalOverlap) {
-            if (Math.abs(mainBounds.right - otherBounds.left) < GAP_THRESHOLD) {
-              rightNeighbors.push({ panel: otherPanel, bounds: otherBounds });
-            } else if (Math.abs(mainBounds.left - otherBounds.right) < GAP_THRESHOLD) {
-              leftNeighbors.push({ panel: otherPanel, bounds: otherBounds });
-            }
-          }
-        }
-
-        // Check horizontal alignment
-        if (hasHorizontalEdge(mainBounds, otherBounds)) {
-          // Check if there's any horizontal overlap
-          const horizontalOverlap = !(mainBounds.right < otherBounds.left || otherBounds.right < mainBounds.left);
-          if (horizontalOverlap) {
-            if (Math.abs(mainBounds.bottom - otherBounds.top) < GAP_THRESHOLD) {
-              bottomNeighbors.push({ panel: otherPanel, bounds: otherBounds });
-            } else if (Math.abs(mainBounds.top - otherBounds.bottom) < GAP_THRESHOLD) {
-              topNeighbors.push({ panel: otherPanel, bounds: otherBounds });
-            }
-          }
-        }
+      // Find all panels that share a vertical border with panel1
+      const rightNeighbors = panels.slice(i + 1).filter(panel2 => {
+        const bounds2 = getPanelBounds(panel2);
+        return Math.abs(bounds1.right - bounds2.left) < GAP_THRESHOLD;
       });
 
-      // Create vertical resize indicators
+      const leftNeighbors = panels.slice(i + 1).filter(panel2 => {
+        const bounds2 = getPanelBounds(panel2);
+        return Math.abs(bounds1.left - bounds2.right) < GAP_THRESHOLD;
+      });
+
+      // Process right neighbors
       if (rightNeighbors.length > 0) {
-        const x = (mainBounds.right + Math.min(...rightNeighbors.map(n => n.bounds.left))) / 2;
-        gaps.push({
-          x1: x,
-          y1: mainBounds.top,
-          x2: x,
-          y2: mainBounds.bottom,
-          isVertical: true
-        });
+        // Find the full extent of the shared border
+        const y1 = Math.min(...rightNeighbors.map(p => getPanelBounds(p).top));
+        const y2 = Math.max(...rightNeighbors.map(p => getPanelBounds(p).bottom));
+        const x = (bounds1.right + Math.min(...rightNeighbors.map(p => getPanelBounds(p).left))) / 2;
+
+        // Only add if there's a meaningful vertical overlap
+        if (y2 > y1 && y1 < bounds1.bottom && y2 > bounds1.top) {
+          gaps.push({
+            x1: x,
+            y1: Math.max(y1, bounds1.top),
+            x2: x,
+            y2: Math.min(y2, bounds1.bottom),
+            isVertical: true
+          });
+        }
       }
 
+      // Process left neighbors
       if (leftNeighbors.length > 0) {
-        const x = (mainBounds.left + Math.max(...leftNeighbors.map(n => n.bounds.right))) / 2;
-        gaps.push({
-          x1: x,
-          y1: mainBounds.top,
-          x2: x,
-          y2: mainBounds.bottom,
-          isVertical: true
-        });
+        const y1 = Math.min(...leftNeighbors.map(p => getPanelBounds(p).top));
+        const y2 = Math.max(...leftNeighbors.map(p => getPanelBounds(p).bottom));
+        const x = (bounds1.left + Math.max(...leftNeighbors.map(p => getPanelBounds(p).right))) / 2;
+
+        if (y2 > y1 && y1 < bounds1.bottom && y2 > bounds1.top) {
+          gaps.push({
+            x1: x,
+            y1: Math.max(y1, bounds1.top),
+            x2: x,
+            y2: Math.min(y2, bounds1.bottom),
+            isVertical: true
+          });
+        }
       }
 
-      // Create horizontal resize indicators
+      // Find horizontal gaps (panels stacked)
+      const bottomNeighbors = panels.slice(i + 1).filter(panel2 => {
+        const bounds2 = getPanelBounds(panel2);
+        return Math.abs(bounds1.bottom - bounds2.top) < GAP_THRESHOLD;
+      });
+
+      const topNeighbors = panels.slice(i + 1).filter(panel2 => {
+        const bounds2 = getPanelBounds(panel2);
+        return Math.abs(bounds1.top - bounds2.bottom) < GAP_THRESHOLD;
+      });
+
+      // Process bottom neighbors
       if (bottomNeighbors.length > 0) {
-        const y = (mainBounds.bottom + Math.min(...bottomNeighbors.map(n => n.bounds.top))) / 2;
-        gaps.push({
-          x1: mainBounds.left,
-          y1: y,
-          x2: mainBounds.right,
-          y2: y,
-          isVertical: false
-        });
+        const x1 = Math.min(...bottomNeighbors.map(p => getPanelBounds(p).left));
+        const x2 = Math.max(...bottomNeighbors.map(p => getPanelBounds(p).right));
+        const y = (bounds1.bottom + Math.min(...bottomNeighbors.map(p => getPanelBounds(p).top))) / 2;
+
+        if (x2 > x1 && x1 < bounds1.right && x2 > bounds1.left) {
+          gaps.push({
+            x1: Math.max(x1, bounds1.left),
+            y1: y,
+            x2: Math.min(x2, bounds1.right),
+            y2: y,
+            isVertical: false
+          });
+        }
       }
 
+      // Process top neighbors
       if (topNeighbors.length > 0) {
-        const y = (mainBounds.top + Math.max(...topNeighbors.map(n => n.bounds.bottom))) / 2;
-        gaps.push({
-          x1: mainBounds.left,
-          y1: y,
-          x2: mainBounds.right,
-          y2: y,
-          isVertical: false
-        });
+        const x1 = Math.min(...topNeighbors.map(p => getPanelBounds(p).left));
+        const x2 = Math.max(...topNeighbors.map(p => getPanelBounds(p).right));
+        const y = (bounds1.top + Math.max(...topNeighbors.map(p => getPanelBounds(p).bottom))) / 2;
+
+        if (x2 > x1 && x1 < bounds1.right && x2 > bounds1.left) {
+          gaps.push({
+            x1: Math.max(x1, bounds1.left),
+            y1: y,
+            x2: Math.min(x2, bounds1.right),
+            y2: y,
+            isVertical: false
+          });
+        }
       }
     });
 
