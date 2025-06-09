@@ -204,6 +204,16 @@ function App() {
     console.log('Added new page:', newPage.id);
   };
 
+  const handleRotatePage = (pageId: string) => {
+    // Will implement later
+    console.log('Rotate page:', pageId);
+  };
+
+  const handleMirrorPage = (pageId: string) => {
+    // Will implement later
+    console.log('Mirror page:', pageId);
+  };
+
   return (
     <DragDropContext 
       onDragEnd={handleDragEnd}
@@ -221,6 +231,8 @@ function App() {
               onDelete={() => handleDeletePage(page.id)}
               onMoveUp={() => handleMovePageUp(index)}
               onMoveDown={() => handleMovePageDown(index)}
+              onRotate={() => handleRotatePage(page.id)}
+              onMirror={() => handleMirrorPage(page.id)}
               isFirstPage={index === 0}
               isLastPage={index === pages.length - 1}
               draggedImageUrl={draggedImageUrl}

@@ -12,6 +12,8 @@ interface ComicPageProps {
   onDelete: () => void;
   onMoveUp?: () => void;
   onMoveDown?: () => void;
+  onRotate?: () => void;
+  onMirror?: () => void;
   isFirstPage?: boolean;
   isLastPage?: boolean;
   draggedImageUrl: string | null;
@@ -47,6 +49,8 @@ const ComicPage: React.FC<ComicPageProps> = ({
   onDelete,
   onMoveUp,
   onMoveDown,
+  onRotate,
+  onMirror,
   isFirstPage,
   isLastPage,
   draggedImageUrl
@@ -59,6 +63,8 @@ const ComicPage: React.FC<ComicPageProps> = ({
           onDelete={onDelete}
           onMoveUp={onMoveUp}
           onMoveDown={onMoveDown}
+          onRotate={onRotate}
+          onMirror={onMirror}
           isFirstPage={isFirstPage}
           isLastPage={isLastPage}
         />

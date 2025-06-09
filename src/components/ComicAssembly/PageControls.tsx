@@ -6,6 +6,8 @@ interface PageControlsProps {
   onDelete: () => void;
   onMoveUp?: () => void;
   onMoveDown?: () => void;
+  onRotate?: () => void;
+  onMirror?: () => void;
   isFirstPage?: boolean;
   isLastPage?: boolean;
 }
@@ -83,6 +85,30 @@ const ArrowButton = styled(IconButton)`
   color: #666;
 `;
 
+const RotateButton = styled(IconButton)`
+  color: #2196f3;
+  
+  &:hover {
+    background: rgba(33, 150, 243, 0.1);
+  }
+
+  &:active {
+    background: rgba(33, 150, 243, 0.2);
+  }
+`;
+
+const MirrorButton = styled(IconButton)`
+  color: #9c27b0;
+  
+  &:hover {
+    background: rgba(156, 39, 176, 0.1);
+  }
+
+  &:active {
+    background: rgba(156, 39, 176, 0.2);
+  }
+`;
+
 const TrashIcon = () => (
   <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor">
     <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
@@ -102,11 +128,26 @@ const ArrowDownIcon = () => (
   </svg>
 );
 
+const RotateIcon = () => (
+  <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor">
+    <path fillRule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
+    <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
+  </svg>
+);
+
+const MirrorIcon = () => (
+  <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor">
+    <path fillRule="evenodd" d="M8.5 2.687a.5.5 0 1 1-.998-.062v.062a.5.5 0 0 1 .998 0zm-1.5 1.096V4h-.5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1h-.5v-.217l6.25-3.625a.5.5 0 0 0 0-.866l-6.25-3.625a.5.5 0 0 0-.5 0l-6.25 3.625a.5.5 0 0 0 0 .866L7 3.783z"/>
+  </svg>
+);
+
 const PageControls: React.FC<PageControlsProps> = ({ 
   displayNumber, 
   onDelete, 
   onMoveUp, 
-  onMoveDown, 
+  onMoveDown,
+  onRotate,
+  onMirror,
   isFirstPage = false, 
   isLastPage = false 
 }) => {
@@ -122,6 +163,16 @@ const PageControls: React.FC<PageControlsProps> = ({
         <ArrowButton onClick={onMoveDown} title="Move page down">
           <ArrowDownIcon />
         </ArrowButton>
+      )}
+      {onRotate && (
+        <RotateButton onClick={onRotate} title="Rotate page">
+          <RotateIcon />
+        </RotateButton>
+      )}
+      {onMirror && (
+        <MirrorButton onClick={onMirror} title="Mirror page">
+          <MirrorIcon />
+        </MirrorButton>
       )}
       <DeleteButton onClick={onDelete} title="Delete page">
         <TrashIcon />
