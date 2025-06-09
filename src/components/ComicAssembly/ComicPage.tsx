@@ -14,6 +14,7 @@ interface ComicPageProps {
   onMoveDown?: () => void;
   isFirstPage?: boolean;
   isLastPage?: boolean;
+  draggedImageUrl: string | null;
 }
 
 const PageContainer = styled.div`
@@ -47,7 +48,8 @@ const ComicPage: React.FC<ComicPageProps> = ({
   onMoveUp,
   onMoveDown,
   isFirstPage,
-  isLastPage
+  isLastPage,
+  draggedImageUrl
 }) => {
   return (
     <PageContainer>
@@ -62,7 +64,7 @@ const ComicPage: React.FC<ComicPageProps> = ({
         />
       </PageControlsWrapper>
       <SvgPanel panels={panels} pageId={pageId} />
-      <DragDropLayer panels={panels} pageId={pageId} />
+      <DragDropLayer panels={panels} pageId={pageId} draggedImageUrl={draggedImageUrl} />
     </PageContainer>
   );
 };

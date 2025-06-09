@@ -94,6 +94,7 @@ function App() {
     { id: "1", panels: defaultPageLayout() },
   ]);
   const [images, setImages] = useState<LibraryImage[]>([]);
+  const [draggedImageUrl, setDraggedImageUrl] = useState<string | null>(null);
 
   const handleMovePageUp = (pageIndex: number) => {
     if (pageIndex > 0) {
@@ -119,13 +120,20 @@ function App() {
     setPages(prevPages => prevPages.filter(page => page.id !== pageId));
   };
 
+  const handleDragStart = (result: any) => {
+    const imageId = result.draggableId;
+    const draggedImage = images.find(img => img.id === imageId);
+    if (draggedImage) {
+      setDraggedImageUrl(draggedImage.url);
+    }
+  };
+
   const handleDragEnd = (result: DropResult) => {
+    setDraggedImageUrl(null);
     if (!result.destination) return;
 
     const destId = result.destination.droppableId;
     const imageId = result.draggableId;
-
-    console.log('Drop event:', { destId, imageId });
 
     // Only handle drops into comic panels
     if (destId.includes('-')) {
@@ -147,8 +155,6 @@ function App() {
 
       // Update the panel with the image URL
       setPages(prevPages => {
-        console.log('Current pages:', prevPages);
-        
         const updatedPages = prevPages.map(page => {
           if (page.id === destPageId) {
             return {
@@ -163,19 +169,6 @@ function App() {
           }
           return page;
         });
-
-        // Log the update result
-        const wasPageUpdated = updatedPages.some(page => 
-          page.id === destPageId && 
-          page.panels.some(panel => panel.id === destPanelId && panel.imageUrl === draggedImage.url)
-        );
-
-        if (!wasPageUpdated) {
-          console.warn('Failed to update page:', destPageId, 'panel:', destPanelId);
-          console.log('Updated pages:', updatedPages);
-        } else {
-          console.log('Successfully updated panel');
-        }
 
         return updatedPages;
       });
@@ -209,7 +202,10 @@ function App() {
   };
 
   return (
-    <DragDropContext onDragEnd={handleDragEnd}>
+    <DragDropContext 
+      onDragEnd={handleDragEnd}
+      onDragStart={handleDragStart}
+    >
       <AppContainer>
         <TemplateSelector onTemplateSelect={handleTemplateSelect} templates={layouts} />
         <ComicContainer>
@@ -224,11 +220,9 @@ function App() {
               onMoveDown={() => handleMovePageDown(index)}
               isFirstPage={index === 0}
               isLastPage={index === pages.length - 1}
+              draggedImageUrl={draggedImageUrl}
             />
           ))}
-          <AddPageButton onClick={() => handleTemplateSelect('fullPage')}>
-            Add Page
-          </AddPageButton>
         </ComicContainer>
         <ImageLibrary onImageUpload={handleImageUpload} images={images} />
       </AppContainer>
