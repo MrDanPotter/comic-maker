@@ -17,7 +17,9 @@ import {
   threeHorizontalPanelsLayout,
   twoVerticalPanelsLayout,
   twoHorizontalPanelsLayout,
-  twoByTwoLayout
+  twoByTwoLayout,
+  rotatePanels,
+  mirrorPanels
 } from './utils/layouts';
 
 const AppContainer = styled.div`
@@ -205,13 +207,37 @@ function App() {
   };
 
   const handleRotatePage = (pageId: string) => {
-    // Will implement later
-    console.log('Rotate page:', pageId);
+    setPages(prevPages => prevPages.map(page => {
+      if (page.id === pageId) {
+        // Create new panels with rotated points, preserving image URLs
+        const rotatedPanels = rotatePanels(page.panels);
+        return {
+          ...page,
+          panels: rotatedPanels.map((panel, index) => ({
+            ...panel,
+            imageUrl: page.panels[index]?.imageUrl
+          }))
+        };
+      }
+      return page;
+    }));
   };
 
   const handleMirrorPage = (pageId: string) => {
-    // Will implement later
-    console.log('Mirror page:', pageId);
+    setPages(prevPages => prevPages.map(page => {
+      if (page.id === pageId) {
+        // Create new panels with mirrored points, preserving image URLs
+        const mirroredPanels = mirrorPanels(page.panels);
+        return {
+          ...page,
+          panels: mirroredPanels.map((panel, index) => ({
+            ...panel,
+            imageUrl: page.panels[index]?.imageUrl
+          }))
+        };
+      }
+      return page;
+    }));
   };
 
   return (

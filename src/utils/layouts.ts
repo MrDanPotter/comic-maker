@@ -2,6 +2,11 @@ import { Panel } from '../types/comic';
 import { getBoundingBox } from './polygonUtils';
 import { v4 as uuidv4 } from 'uuid';
 
+// Constants for page dimensions
+const PAGE_WIDTH = 800;
+const PAGE_HEIGHT = 1000;
+const PAGE_MARGIN = 20;
+
 // Helper function to create a panel with automatic bounding box
 function createPanel(points: [number, number][]): Panel {
   return {
@@ -10,6 +15,87 @@ function createPanel(points: [number, number][]): Panel {
     points,
     dropZone: getBoundingBox(points)
   };
+}
+
+// Helper function to get the bounding box of a panel from its points
+function getPanelBounds(points: [number, number][]) {
+  const xs = points.map(p => p[0]);
+  const ys = points.map(p => p[1]);
+  return {
+    left: Math.min(...xs),
+    right: Math.max(...xs),
+    top: Math.min(...ys),
+    bottom: Math.max(...ys)
+  };
+}
+
+// Rotate a panel's points 90 degrees clockwise while maintaining aspect ratio
+export function rotatePanels(panels: Panel[]): Panel[] {
+  // First, get the overall bounds of all panels
+  const bounds = panels.reduce((acc, panel) => {
+    const panelBounds = getPanelBounds(panel.points);
+    return {
+      left: Math.min(acc.left, panelBounds.left),
+      right: Math.max(acc.right, panelBounds.right),
+      top: Math.min(acc.top, panelBounds.top),
+      bottom: Math.max(acc.bottom, panelBounds.bottom)
+    };
+  }, { left: Infinity, right: -Infinity, top: Infinity, bottom: -Infinity });
+
+  const originalWidth = bounds.right - bounds.left;
+  const originalHeight = bounds.bottom - bounds.top;
+
+  // Calculate the scale factors to maintain aspect ratio after rotation
+  const availableWidth = PAGE_WIDTH - (2 * PAGE_MARGIN);
+  const availableHeight = PAGE_HEIGHT - (2 * PAGE_MARGIN);
+  const scaleX = availableWidth / originalHeight;
+  const scaleY = availableHeight / originalWidth;
+
+  return panels.map(panel => {
+    // Rotate each point 90 degrees clockwise around the center and scale to maintain aspect ratio
+    const newPoints = panel.points.map(([x, y]) => {
+      // Translate to origin
+      const relX = x - bounds.left;
+      const relY = y - bounds.top;
+
+      // Rotate 90 degrees clockwise: (x, y) -> (y, -x)
+      const rotX = relY;
+      const rotY = -relX;
+
+      // Scale and translate back
+      return [
+        PAGE_MARGIN + (rotX * scaleX),
+        PAGE_MARGIN + ((rotY + originalWidth) * scaleY)
+      ] as [number, number];
+    });
+
+    return createPanel(newPoints);
+  });
+}
+
+// Mirror panels horizontally (along Y axis)
+export function mirrorPanels(panels: Panel[]): Panel[] {
+  // Get the overall bounds
+  const bounds = panels.reduce((acc, panel) => {
+    const panelBounds = getPanelBounds(panel.points);
+    return {
+      left: Math.min(acc.left, panelBounds.left),
+      right: Math.max(acc.right, panelBounds.right),
+      top: Math.min(acc.top, panelBounds.top),
+      bottom: Math.max(acc.bottom, panelBounds.bottom)
+    };
+  }, { left: Infinity, right: -Infinity, top: Infinity, bottom: -Infinity });
+
+  return panels.map(panel => {
+    // Mirror each point across the vertical centerline
+    const newPoints = panel.points.map(([x, y]) => {
+      const distanceFromLeft = x - bounds.left;
+      const distanceFromRight = bounds.right - x;
+      return [bounds.left + distanceFromRight, y] as [number, number];
+    });
+
+    return createPanel(newPoints);
+  });
 }
 
 // Full page panel with margins
