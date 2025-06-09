@@ -10,6 +10,10 @@ interface ComicPageProps {
   displayNumber: number;
   panels: Panel[];
   onDelete: () => void;
+  onMoveUp?: () => void;
+  onMoveDown?: () => void;
+  isFirstPage?: boolean;
+  isLastPage?: boolean;
 }
 
 const PageContainer = styled.div`
@@ -20,12 +24,43 @@ const PageContainer = styled.div`
   background: white;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
   border-radius: 8px;
+
+  @media print {
+    margin: 0;
+    box-shadow: none;
+    border-radius: 0;
+    break-inside: avoid;
+  }
 `;
 
-const ComicPage: React.FC<ComicPageProps> = ({ pageId, displayNumber, panels, onDelete }) => {
+const PageControlsWrapper = styled.div`
+  @media print {
+    display: none;
+  }
+`;
+
+const ComicPage: React.FC<ComicPageProps> = ({ 
+  pageId, 
+  displayNumber, 
+  panels, 
+  onDelete,
+  onMoveUp,
+  onMoveDown,
+  isFirstPage,
+  isLastPage
+}) => {
   return (
     <PageContainer>
-      <PageControls displayNumber={displayNumber} onDelete={onDelete} />
+      <PageControlsWrapper>
+        <PageControls 
+          displayNumber={displayNumber} 
+          onDelete={onDelete}
+          onMoveUp={onMoveUp}
+          onMoveDown={onMoveDown}
+          isFirstPage={isFirstPage}
+          isLastPage={isLastPage}
+        />
+      </PageControlsWrapper>
       <SvgPanel panels={panels} pageId={pageId} />
       <DragDropLayer panels={panels} pageId={pageId} />
     </PageContainer>

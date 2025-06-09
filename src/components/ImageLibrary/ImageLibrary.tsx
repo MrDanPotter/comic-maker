@@ -4,7 +4,7 @@ import { Draggable, Droppable } from '@hello-pangea/dnd';
 import LibraryImage from './LibraryImage';
 
 interface ImageLibraryProps {
-  onImageUpload: (file: File) => void;
+  onImageUpload: (files: FileList) => void;
   images: Array<{
     id: string;
     url: string;
@@ -21,6 +21,27 @@ const LibraryContainer = styled.div`
   position: fixed;
   right: 0;
   top: 0;
+`;
+
+const PrintButton = styled.button`
+  display: block;
+  width: 100%;
+  padding: 10px;
+  background: #4caf50;
+  color: white;
+  text-align: center;
+  cursor: pointer;
+  border-radius: 4px;
+  margin-bottom: 10px;
+  border: none;
+  
+  &:hover {
+    background: #45a049;
+  }
+
+  @media print {
+    display: none;
+  }
 `;
 
 const UploadButton = styled.label`
@@ -63,18 +84,24 @@ const DraggableImage = styled.div<{ $isDragging?: boolean }>`
 const ImageLibrary: React.FC<ImageLibraryProps> = ({ onImageUpload, images }) => {
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
-    if (files && files[0]) {
-      onImageUpload(files[0]);
+    if (files && files.length > 0) {
+      onImageUpload(files);
     }
+  };
+
+  const handlePrint = () => {
+    window.print();
   };
 
   return (
     <LibraryContainer>
+      <PrintButton onClick={handlePrint}>Print</PrintButton>
       <UploadButton>
-        Upload Image
+        Upload Images
         <input
           type="file"
           accept="image/*"
+          multiple
           onChange={handleFileChange}
           style={{ display: 'none' }}
         />

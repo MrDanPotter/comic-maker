@@ -95,6 +95,30 @@ function App() {
   ]);
   const [images, setImages] = useState<LibraryImage[]>([]);
 
+  const handleMovePageUp = (pageIndex: number) => {
+    if (pageIndex > 0) {
+      setPages(prevPages => {
+        const newPages = [...prevPages];
+        [newPages[pageIndex - 1], newPages[pageIndex]] = [newPages[pageIndex], newPages[pageIndex - 1]];
+        return newPages;
+      });
+    }
+  };
+
+  const handleMovePageDown = (pageIndex: number) => {
+    if (pageIndex < pages.length - 1) {
+      setPages(prevPages => {
+        const newPages = [...prevPages];
+        [newPages[pageIndex], newPages[pageIndex + 1]] = [newPages[pageIndex + 1], newPages[pageIndex]];
+        return newPages;
+      });
+    }
+  };
+
+  const handleDeletePage = (pageId: string) => {
+    setPages(prevPages => prevPages.filter(page => page.id !== pageId));
+  };
+
   const handleDragEnd = (result: DropResult) => {
     if (!result.destination) return;
 
@@ -158,18 +182,20 @@ function App() {
     }
   };
 
-  const handleImageUpload = (file: File) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      if (e.target?.result) {
-        const newImage: LibraryImage = {
-          id: `image-${Date.now()}`,
-          url: e.target.result as string,
-        };
-        setImages(prev => [...prev, newImage]);
-      }
-    };
-    reader.readAsDataURL(file);
+  const handleImageUpload = (files: FileList) => {
+    Array.from(files).forEach(file => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        if (e.target?.result) {
+          const newImage: LibraryImage = {
+            id: `image-${Date.now()}-${file.name}`,
+            url: e.target.result as string,
+          };
+          setImages(prev => [...prev, newImage]);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
   };
 
   const handleTemplateSelect = (templateName: LayoutType) => {
@@ -182,24 +208,27 @@ function App() {
     console.log('Added new page:', newPage.id);
   };
 
-  const handlePageDelete = (pageId: string) => {
-    setPages(prevPages => prevPages.filter(page => page.id !== pageId));
-  };
-
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
       <AppContainer>
         <TemplateSelector onTemplateSelect={handleTemplateSelect} templates={layouts} />
         <ComicContainer>
           {pages.map((page, index) => (
-            <ComicPage 
-              key={page.id} 
+            <ComicPage
+              key={page.id}
               pageId={page.id}
               displayNumber={index + 1}
               panels={page.panels}
-              onDelete={() => handlePageDelete(page.id)}
+              onDelete={() => handleDeletePage(page.id)}
+              onMoveUp={() => handleMovePageUp(index)}
+              onMoveDown={() => handleMovePageDown(index)}
+              isFirstPage={index === 0}
+              isLastPage={index === pages.length - 1}
             />
           ))}
+          <AddPageButton onClick={() => handleTemplateSelect('fullPage')}>
+            Add Page
+          </AddPageButton>
         </ComicContainer>
         <ImageLibrary onImageUpload={handleImageUpload} images={images} />
       </AppContainer>

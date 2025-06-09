@@ -4,6 +4,10 @@ import styled from 'styled-components';
 interface PageControlsProps {
   displayNumber: number;
   onDelete: () => void;
+  onMoveUp?: () => void;
+  onMoveDown?: () => void;
+  isFirstPage?: boolean;
+  isLastPage?: boolean;
 }
 
 const Container = styled.div`
@@ -31,10 +35,9 @@ const PageNumber = styled.div`
   font-weight: 500;
 `;
 
-const DeleteButton = styled.button`
+const IconButton = styled.button`
   background: none;
   border: none;
-  color: #dc3545;
   cursor: pointer;
   padding: 2px;
   display: flex;
@@ -48,12 +51,36 @@ const DeleteButton = styled.button`
 
   &:hover {
     opacity: 1;
+    background: rgba(0, 0, 0, 0.1);
+  }
+
+  &:active {
+    background: rgba(0, 0, 0, 0.2);
+  }
+
+  &:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    &:hover {
+      background: none;
+    }
+  }
+`;
+
+const DeleteButton = styled(IconButton)`
+  color: #dc3545;
+  
+  &:hover {
     background: rgba(220, 53, 69, 0.1);
   }
 
   &:active {
     background: rgba(220, 53, 69, 0.2);
   }
+`;
+
+const ArrowButton = styled(IconButton)`
+  color: #666;
 `;
 
 const TrashIcon = () => (
@@ -63,10 +90,39 @@ const TrashIcon = () => (
   </svg>
 );
 
-const PageControls: React.FC<PageControlsProps> = ({ displayNumber, onDelete }) => {
+const ArrowUpIcon = () => (
+  <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor">
+    <path fillRule="evenodd" d="M8 15a.5.5 0 0 0 .5-.5V2.707l3.146 3.147a.5.5 0 0 0 .708-.708l-4-4a.5.5 0 0 0-.708 0l-4 4a.5.5 0 1 0 .708.708L7.5 2.707V14.5a.5.5 0 0 0 .5.5z"/>
+  </svg>
+);
+
+const ArrowDownIcon = () => (
+  <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor">
+    <path fillRule="evenodd" d="M8 1a.5.5 0 0 1 .5.5v11.793l3.146-3.147a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 .708-.708L7.5 13.293V1.5A.5.5 0 0 1 8 1z"/>
+  </svg>
+);
+
+const PageControls: React.FC<PageControlsProps> = ({ 
+  displayNumber, 
+  onDelete, 
+  onMoveUp, 
+  onMoveDown, 
+  isFirstPage = false, 
+  isLastPage = false 
+}) => {
   return (
     <Container>
+      {!isFirstPage && onMoveUp && (
+        <ArrowButton onClick={onMoveUp} title="Move page up">
+          <ArrowUpIcon />
+        </ArrowButton>
+      )}
       <PageNumber>Page {displayNumber}</PageNumber>
+      {!isLastPage && onMoveDown && (
+        <ArrowButton onClick={onMoveDown} title="Move page down">
+          <ArrowDownIcon />
+        </ArrowButton>
+      )}
       <DeleteButton onClick={onDelete} title="Delete page">
         <TrashIcon />
       </DeleteButton>
