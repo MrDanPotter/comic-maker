@@ -462,4 +462,33 @@ export const twoHorizontalPanelsLayout = (): Panel[] => {
       [margin, margin + panelHeight * 2 + gap]
     ])
   ];
+};
+
+// 2x2 grid layout (2 rows, 2 columns)
+export const twoByTwoLayout = (): Panel[] => {
+  const margin = 20;
+  const gap = 20;
+  
+  const availableWidth = 800 - (2 * margin);
+  const availableHeight = 1000 - (2 * margin);
+  const panelWidth = (availableWidth - gap) / 2;
+  const panelHeight = (availableHeight - gap) / 2;
+  
+  const panels: Panel[] = [];
+  
+  for (let row = 0; row < 2; row++) {
+    for (let col = 0; col < 2; col++) {
+      const x = margin + (col * (panelWidth + gap));
+      const y = margin + (row * (panelHeight + gap));
+      
+      panels.push(createPanel([
+        [x, y],
+        [x + panelWidth, y],
+        [x + panelWidth, y + panelHeight],
+        [x, y + panelHeight]
+      ]));
+    }
+  }
+  
+  return panels;
 }; 

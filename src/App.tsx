@@ -16,7 +16,8 @@ import {
   threeVerticalPanelsLayout,
   threeHorizontalPanelsLayout,
   twoVerticalPanelsLayout,
-  twoHorizontalPanelsLayout
+  twoHorizontalPanelsLayout,
+  twoByTwoLayout
 } from './utils/layouts';
 
 const AppContainer = styled.div`
@@ -63,7 +64,8 @@ interface LibraryImage {
 type LayoutType = 
   | "fullPage"
   | "widePage" 
-  | "twoByThree" 
+  | "twoByThree"
+  | "twoByTwo"
   | "leftTallRightSquares" 
   | "rightTallLeftSquares"
   | "topTallBottomSquares"
@@ -77,6 +79,7 @@ const layouts: Record<LayoutType, () => Panel[]> = {
   fullPage: fullPageLayout,
   widePage: widePageLayout,
   twoByThree: twoByThreeLayout,
+  twoByTwo: twoByTwoLayout,
   leftTallRightSquares: leftTallRightSquaresLayout,
   rightTallLeftSquares: rightTallLeftSquaresLayout,
   topTallBottomSquares: topTallBottomSquaresLayout,
