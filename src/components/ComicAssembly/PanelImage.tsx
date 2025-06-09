@@ -19,6 +19,12 @@ const PanelPolygon = styled.path`
   cursor: move;
 `;
 
+const PreviewImage = styled.image<{ $isDragging: boolean }>`
+  opacity: ${props => props.$isDragging ? 0.33 : 0};
+  pointer-events: none;
+  transition: opacity 0.1s ease;
+`;
+
 const PanelImage: React.FC<PanelImageProps> = ({
   src,
   panelId,
@@ -94,8 +100,13 @@ const PanelImage: React.FC<PanelImageProps> = ({
   const panelOffsetX = Math.min(...points.map(p => p[0]));
   const panelOffsetY = Math.min(...points.map(p => p[1]));
 
+  // Calculate the absolute position of the image for the preview
+  const absoluteX = panelOffsetX + baseX + position.x;
+  const absoluteY = panelOffsetY + baseY + position.y;
+
   return (
     <>
+      {/* Main clipped image */}
       <defs>
         <pattern
           id={`pattern-${panelId}`}
@@ -118,6 +129,18 @@ const PanelImage: React.FC<PanelImageProps> = ({
         </pattern>
       </defs>
 
+      {/* Full image preview layer */}
+      <PreviewImage
+        href={src}
+        x={absoluteX}
+        y={absoluteY}
+        width={scaledWidth}
+        height={scaledHeight}
+        preserveAspectRatio="xMidYMid slice"
+        $isDragging={isDragging}
+      />
+
+      {/* Panel with clipped image */}
       <PanelPolygon
         d={svgPath}
         fill={`url(#pattern-${panelId})`}
