@@ -8,16 +8,11 @@ import { Panel } from './types/comic';
 import { 
   fullPageLayout,
   widePageLayout,
-  twoByThreeLayout,
-  leftTallRightSquaresLayout,
-  rightTallLeftSquaresLayout,
-  topTallBottomSquaresLayout,
-  bottomTallTopSquaresLayout,
-  threeVerticalPanelsLayout,
-  threeHorizontalPanelsLayout,
-  twoVerticalPanelsLayout,
-  twoHorizontalPanelsLayout,
-  twoByTwoLayout,
+  sixPanelsLayout,
+  fourPanelsLayout,
+  oneBigTwoSmallLayout,
+  threePanelsLayout,
+  twoPanelsLayout,
   rotatePanels,
   mirrorPanels
 } from './utils/layouts';
@@ -67,30 +62,20 @@ interface LibraryImage {
 type LayoutType = 
   | "fullPage"
   | "widePage" 
-  | "twoByThree"
-  | "twoByTwo"
-  | "leftTallRightSquares" 
-  | "rightTallLeftSquares"
-  | "topTallBottomSquares"
-  | "bottomTallTopSquares"
-  | "threeVerticalPanels"
-  | "threeHorizontalPanels"
-  | "twoVerticalPanels"
-  | "twoHorizontalPanels";
+  | "sixPanels"
+  | "fourPanels"
+  | "oneBigTwoSmall"
+  | "threePanels"
+  | "twoPanels";
 
 const layouts: Record<LayoutType, () => Panel[]> = {
   fullPage: fullPageLayout,
   widePage: widePageLayout,
-  twoByThree: twoByThreeLayout,
-  twoByTwo: twoByTwoLayout,
-  leftTallRightSquares: leftTallRightSquaresLayout,
-  rightTallLeftSquares: rightTallLeftSquaresLayout,
-  topTallBottomSquares: topTallBottomSquaresLayout,
-  bottomTallTopSquares: bottomTallTopSquaresLayout,
-  threeVerticalPanels: threeVerticalPanelsLayout,
-  threeHorizontalPanels: threeHorizontalPanelsLayout,
-  twoVerticalPanels: twoVerticalPanelsLayout,
-  twoHorizontalPanels: twoHorizontalPanelsLayout
+  sixPanels: sixPanelsLayout,
+  fourPanels: fourPanelsLayout,
+  oneBigTwoSmall: oneBigTwoSmallLayout,
+  threePanels: threePanelsLayout,
+  twoPanels: twoPanelsLayout
 };
 
 const defaultPageLayout = layouts.fullPage;

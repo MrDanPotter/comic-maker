@@ -73,15 +73,11 @@ const TemplateName = styled.div`
 type LayoutType = 
   | "fullPage"
   | "widePage" 
-  | "twoByThree" 
-  | "leftTallRightSquares" 
-  | "rightTallLeftSquares"
-  | "topTallBottomSquares"
-  | "bottomTallTopSquares"
-  | "threeVerticalPanels"
-  | "threeHorizontalPanels"
-  | "twoVerticalPanels"
-  | "twoHorizontalPanels";
+  | "sixPanels"
+  | "fourPanels"
+  | "oneBigTwoSmall"
+  | "threePanels"
+  | "twoPanels";
 
 interface TemplateSelectorProps {
   onTemplateSelect: (templateName: LayoutType) => void;
@@ -96,6 +92,27 @@ const TemplateSelector: React.FC<TemplateSelectorProps> = ({ onTemplateSelect, t
     const scaleX = 100 / 800;
     const scaleY = 125 / 1000;
     return points.map(([x, y]) => [x * scaleX, y * scaleY]);
+  };
+
+  const getDisplayName = (templateName: LayoutType): string => {
+    switch (templateName) {
+      case 'fullPage':
+        return 'Full Page';
+      case 'widePage':
+        return 'Wide Page';
+      case 'sixPanels':
+        return '6 Panels';
+      case 'fourPanels':
+        return '4 Panels';
+      case 'oneBigTwoSmall':
+        return '1 Big 2 Small';
+      case 'threePanels':
+        return '3 Panels';
+      case 'twoPanels':
+        return '2 Panels';
+      default:
+        return templateName;
+    }
   };
 
   return (
@@ -119,9 +136,7 @@ const TemplateSelector: React.FC<TemplateSelectorProps> = ({ onTemplateSelect, t
                 ))}
               </PreviewSvg>
             </PreviewContainer>
-            <TemplateName>
-              {templateName.charAt(0).toUpperCase() + templateName.slice(1)} Layout
-            </TemplateName>
+            <TemplateName>{getDisplayName(templateName)}</TemplateName>
           </TemplatePreview>
         );
       })}
