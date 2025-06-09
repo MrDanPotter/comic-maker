@@ -22,6 +22,11 @@ const EmptyPanelPolygon = styled.path`
   stroke: #333;
   stroke-width: 2px;
   fill: #f5f5f5;
+  transition: d 0.5s ease-in-out;
+`;
+
+const AnimatedGroup = styled.g`
+  transition: transform 0.5s ease-in-out;
 `;
 
 const SvgPanel: React.FC<SvgPanelProps> = ({ panels, pageId }) => {
@@ -31,19 +36,22 @@ const SvgPanel: React.FC<SvgPanelProps> = ({ panels, pageId }) => {
         const svgPath = pointsToSvgPath(panel.points);
         const dropZone = panel.dropZone || { top: 0, left: 0, width: 0, height: 0 };
 
-        return panel.imageUrl ? (
-          <PanelImage
-            key={panel.id}
-            src={panel.imageUrl}
-            panelId={panel.id}
-            pageId={pageId}
-            width={dropZone.width}
-            height={dropZone.height}
-            points={panel.points}
-            dropZone={dropZone}
-          />
-        ) : (
-          <EmptyPanelPolygon key={panel.id} d={svgPath} />
+        return (
+          <AnimatedGroup key={panel.id}>
+            {panel.imageUrl ? (
+              <PanelImage
+                src={panel.imageUrl}
+                panelId={panel.id}
+                pageId={pageId}
+                width={dropZone.width}
+                height={dropZone.height}
+                points={panel.points}
+                dropZone={dropZone}
+              />
+            ) : (
+              <EmptyPanelPolygon d={svgPath} />
+            )}
+          </AnimatedGroup>
         );
       })}
     </PanelContainer>

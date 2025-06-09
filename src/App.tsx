@@ -21,6 +21,7 @@ import {
   rotatePanels,
   mirrorPanels
 } from './utils/layouts';
+import { v4 as uuidv4 } from 'uuid';
 
 const AppContainer = styled.div`
   display: flex;
@@ -100,6 +101,13 @@ function App() {
   ]);
   const [images, setImages] = useState<LibraryImage[]>([]);
   const [draggedImageUrl, setDraggedImageUrl] = useState<string | null>(null);
+
+  const handleAddPage = () => {
+    setPages(prevPages => [
+      ...prevPages,
+      { id: uuidv4(), panels: defaultPageLayout() }
+    ]);
+  };
 
   const handleMovePageUp = (pageIndex: number) => {
     if (pageIndex > 0) {
@@ -207,37 +215,31 @@ function App() {
   };
 
   const handleRotatePage = (pageId: string) => {
-    setPages(prevPages => prevPages.map(page => {
-      if (page.id === pageId) {
-        // Create new panels with rotated points, preserving image URLs
-        const rotatedPanels = rotatePanels(page.panels);
-        return {
-          ...page,
-          panels: rotatedPanels.map((panel, index) => ({
-            ...panel,
-            imageUrl: page.panels[index]?.imageUrl
-          }))
-        };
-      }
-      return page;
-    }));
+    setPages(prevPages => {
+      return prevPages.map(page => {
+        if (page.id === pageId) {
+          return {
+            ...page,
+            panels: rotatePanels(page.panels)
+          };
+        }
+        return page;
+      });
+    });
   };
 
   const handleMirrorPage = (pageId: string) => {
-    setPages(prevPages => prevPages.map(page => {
-      if (page.id === pageId) {
-        // Create new panels with mirrored points, preserving image URLs
-        const mirroredPanels = mirrorPanels(page.panels);
-        return {
-          ...page,
-          panels: mirroredPanels.map((panel, index) => ({
-            ...panel,
-            imageUrl: page.panels[index]?.imageUrl
-          }))
-        };
-      }
-      return page;
-    }));
+    setPages(prevPages => {
+      return prevPages.map(page => {
+        if (page.id === pageId) {
+          return {
+            ...page,
+            panels: mirrorPanels(page.panels)
+          };
+        }
+        return page;
+      });
+    });
   };
 
   return (
@@ -255,8 +257,8 @@ function App() {
               displayNumber={index + 1}
               panels={page.panels}
               onDelete={() => handleDeletePage(page.id)}
-              onMoveUp={() => handleMovePageUp(index)}
-              onMoveDown={() => handleMovePageDown(index)}
+              onMoveUp={index > 0 ? () => handleMovePageUp(index) : undefined}
+              onMoveDown={index < pages.length - 1 ? () => handleMovePageDown(index) : undefined}
               onRotate={() => handleRotatePage(page.id)}
               onMirror={() => handleMirrorPage(page.id)}
               isFirstPage={index === 0}
@@ -264,8 +266,11 @@ function App() {
               draggedImageUrl={draggedImageUrl}
             />
           ))}
+          <AddPageButton onClick={handleAddPage}>
+            Add Page
+          </AddPageButton>
         </ComicContainer>
-        <ImageLibrary onImageUpload={handleImageUpload} images={images} />
+        <ImageLibrary images={images} onImageUpload={handleImageUpload} />
       </AppContainer>
     </DragDropContext>
   );

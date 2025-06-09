@@ -13,16 +13,21 @@ interface PanelImageProps {
   dropZone: BoundingBox;
 }
 
-const PanelPolygon = styled.path`
+const PanelPolygon = styled.path<{ $isDragging: boolean }>`
   stroke: #333;
   stroke-width: 2px;
   cursor: move;
+  transition: ${props => props.$isDragging ? 'none' : 'd 0.5s ease-in-out'};
 `;
 
 const PreviewImage = styled.image<{ $isDragging: boolean }>`
   opacity: ${props => props.$isDragging ? 0.33 : 0};
   pointer-events: none;
-  transition: opacity 0.1s ease;
+  transition: ${props => props.$isDragging ? 'opacity 0.1s ease' : 'all 0.5s ease-in-out'};
+`;
+
+const PatternImage = styled.image<{ $isDragging: boolean }>`
+  transition: ${props => props.$isDragging ? 'none' : 'all 0.5s ease-in-out'};
 `;
 
 const PanelImage: React.FC<PanelImageProps> = ({
@@ -117,7 +122,7 @@ const PanelImage: React.FC<PanelImageProps> = ({
           width={width}
           height={height}
         >
-          <image
+          <PatternImage
             href={src}
             x={baseX + position.x}
             y={baseY + position.y}
@@ -125,6 +130,7 @@ const PanelImage: React.FC<PanelImageProps> = ({
             height={scaledHeight}
             preserveAspectRatio="xMidYMid slice"
             style={{ pointerEvents: 'none' }}
+            $isDragging={isDragging}
           />
         </pattern>
       </defs>
@@ -145,6 +151,7 @@ const PanelImage: React.FC<PanelImageProps> = ({
         d={svgPath}
         fill={`url(#pattern-${panelId})`}
         onMouseDown={handleMouseDown}
+        $isDragging={isDragging}
       />
     </>
   );

@@ -48,6 +48,7 @@ export function rotatePanels(panels: Panel[]): Panel[] {
   // Calculate the scale factors to maintain aspect ratio after rotation
   const availableWidth = PAGE_WIDTH - (2 * PAGE_MARGIN);
   const availableHeight = PAGE_HEIGHT - (2 * PAGE_MARGIN);
+  
   const scaleX = availableWidth / originalHeight;
   const scaleY = availableHeight / originalWidth;
 
@@ -69,7 +70,11 @@ export function rotatePanels(panels: Panel[]): Panel[] {
       ] as [number, number];
     });
 
-    return createPanel(newPoints);
+    return {
+      ...panel,
+      points: newPoints,
+      dropZone: getBoundingBox(newPoints)
+    };
   });
 }
 
@@ -94,7 +99,11 @@ export function mirrorPanels(panels: Panel[]): Panel[] {
       return [bounds.left + distanceFromRight, y] as [number, number];
     });
 
-    return createPanel(newPoints);
+    return {
+      ...panel,
+      points: newPoints,
+      dropZone: getBoundingBox(newPoints)
+    };
   });
 }
 
