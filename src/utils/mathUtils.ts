@@ -93,4 +93,55 @@ export function normalizePolygon(points: [number, number][]): [number, number][]
     return [...points].reverse();
   }
   return points;
+}
+
+/**
+ * Checks if a polygon is rectangular by verifying:
+ * 1. It has exactly 4 points
+ * 2. All angles are 90 degrees (using dot product)
+ * 3. Opposite sides are parallel and equal length
+ */
+export function isRectangular(points: [number, number][]): boolean {
+  // Must have exactly 4 points
+  if (points.length !== 4) return false;
+
+  // Helper function to calculate vector between two points
+  const getVector = (p1: [number, number], p2: [number, number]): [number, number] => [
+    p2[0] - p1[0],
+    p2[1] - p1[1]
+  ];
+
+  // Helper function to calculate dot product of two vectors
+  const dotProduct = (v1: [number, number], v2: [number, number]): number =>
+    v1[0] * v2[0] + v1[1] * v2[1];
+
+  // Helper function to calculate vector length squared
+  const lengthSquared = (v: [number, number]): number =>
+    v[0] * v[0] + v[1] * v[1];
+
+  // Get vectors for all sides
+  const vectors = [
+    getVector(points[0], points[1]),
+    getVector(points[1], points[2]),
+    getVector(points[2], points[3]),
+    getVector(points[3], points[0])
+  ];
+
+  // Check all angles are 90 degrees (dot product should be 0)
+  // and opposite sides are parallel and equal length
+  for (let i = 0; i < 4; i++) {
+    const nextIndex = (i + 1) % 4;
+    const oppositeIndex = (i + 2) % 4;
+
+    // Check angle is 90 degrees (dot product should be 0)
+    const dot = dotProduct(vectors[i], vectors[nextIndex]);
+    if (Math.abs(dot) > 0.0001) return false;
+
+    // Check opposite sides are equal length
+    const len1 = lengthSquared(vectors[i]);
+    const len2 = lengthSquared(vectors[oppositeIndex]);
+    if (Math.abs(len1 - len2) > 0.0001) return false;
+  }
+
+  return true;
 } 

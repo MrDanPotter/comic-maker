@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import styled from 'styled-components';
 import { Panel } from '../../types/comic';
 import { pointsToSvgPath } from '../../utils/polygonUtils';
+import { isRectangular } from '../../utils/mathUtils';
 import PanelImage from './PanelImage';
 import ResizeIndicator from './ResizeIndicator';
 
@@ -60,17 +61,20 @@ const SvgPanel: React.FC<SvgPanelProps> = ({ panels, pageId }) => {
 
     // Find vertical gaps (panels side by side)
     panels.forEach((panel1, i) => {
+      // Skip if the current panel is not rectangular
+      if (!isRectangular(panel1.points)) return;
+
       const bounds1 = getPanelBounds(panel1);
       
       // Find all panels that share a vertical border with panel1
       const rightNeighbors = panels.slice(i + 1).filter(panel2 => {
         const bounds2 = getPanelBounds(panel2);
-        return Math.abs(bounds1.right - bounds2.left) < GAP_THRESHOLD;
+        return Math.abs(bounds1.right - bounds2.left) < GAP_THRESHOLD && isRectangular(panel2.points);
       });
 
       const leftNeighbors = panels.slice(i + 1).filter(panel2 => {
         const bounds2 = getPanelBounds(panel2);
-        return Math.abs(bounds1.left - bounds2.right) < GAP_THRESHOLD;
+        return Math.abs(bounds1.left - bounds2.right) < GAP_THRESHOLD && isRectangular(panel2.points);
       });
 
       // Process right neighbors
@@ -112,12 +116,12 @@ const SvgPanel: React.FC<SvgPanelProps> = ({ panels, pageId }) => {
       // Find horizontal gaps (panels stacked)
       const bottomNeighbors = panels.slice(i + 1).filter(panel2 => {
         const bounds2 = getPanelBounds(panel2);
-        return Math.abs(bounds1.bottom - bounds2.top) < GAP_THRESHOLD;
+        return Math.abs(bounds1.bottom - bounds2.top) < GAP_THRESHOLD && isRectangular(panel2.points);
       });
 
       const topNeighbors = panels.slice(i + 1).filter(panel2 => {
         const bounds2 = getPanelBounds(panel2);
-        return Math.abs(bounds1.top - bounds2.bottom) < GAP_THRESHOLD;
+        return Math.abs(bounds1.top - bounds2.bottom) < GAP_THRESHOLD && isRectangular(panel2.points);
       });
 
       // Process bottom neighbors

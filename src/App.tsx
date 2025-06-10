@@ -13,6 +13,7 @@ import {
   oneBigTwoSmallLayout,
   threePanelsLayout,
   twoPanelsLayout,
+  threePanelActionLayout,
   rotatePanels,
   mirrorPanels
 } from './utils/layouts';
@@ -50,7 +51,8 @@ type LayoutType =
   | "fourPanels"
   | "oneBigTwoSmall"
   | "threePanels"
-  | "twoPanels";
+  | "twoPanels"
+  | "threePanelAction";
 
 const layouts: Record<LayoutType, () => Panel[]> = {
   fullPage: fullPageLayout,
@@ -59,7 +61,8 @@ const layouts: Record<LayoutType, () => Panel[]> = {
   fourPanels: fourPanelsLayout,
   oneBigTwoSmall: oneBigTwoSmallLayout,
   threePanels: threePanelsLayout,
-  twoPanels: twoPanelsLayout
+  twoPanels: twoPanelsLayout,
+  threePanelAction: threePanelActionLayout
 };
 
 const defaultPageLayout = layouts.fullPage;

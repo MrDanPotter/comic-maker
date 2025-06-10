@@ -1,0 +1,8 @@
+- Project Overview -
+This project is a visual comic book editor which is laid out in three columns.  Visual components can be found in the src/components folder.  
+"TemplateSelector" is the left most column.  It contains page templates that are added to the main comic work area when clicked.
+"ComicAssembly" refers to the center portion of the editor and is the main work area of the app.  When templates are clicked it creates a new comic page in this area.  Once pages are added they can be re-ordered, or their panels can be rotated / flipped.  Comic pages are implemented using SVG, which allows us to have panels that are non rectangular if we wish.  Comic pages also have a html overlay with divs that overaly the svg panels, these divs serve as drag and drop overlays for the panels.  Images can be drag and dropped from the ImageLibrary to a panel in the comic and they will be assigned to the panel.  Additionally once in the panel these images can be dragged around and repositioned inside of the panel itself.
+"ImageLibrary" is the right most column.  It allows users to upload images from their computer to the work area, and drag these images from the work area into comic panels.
+This project also has a storybook instance setup, and I use it as a test / development environment any time there is a component that requires extra work and needs to be seen in isolation.
+- Project Instructions -
+there is another file, ai-memory.md, that you can use to see any learnings you've run into while working on this project.  You should update it any time you've learned new relevant information.  You should also answer my requests with "Yes sir" so I know you have properly read these instructions.

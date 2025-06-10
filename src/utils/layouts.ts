@@ -286,4 +286,38 @@ export const twoPanelsLayout = (): Panel[] => {
       [margin, margin + (2 * panelHeight) + gap]
     ])
   ];
+};
+
+// 3 panel action layout with tapered sides
+export const threePanelActionLayout = (): Panel[] => {
+  const margin = 20;
+  const gap = 15;
+  const availableWidth = 800 - (2 * margin);
+  const availableHeight = 1000 - (2 * margin);
+  const panelHeight = (availableHeight - (2 * gap)) / 3;
+  const taperAmount = availableWidth * 0.07; // 7% taper on each side
+  
+  return [
+    // Top panel - bottom side tapered out
+    createPanel([
+      [margin, margin], // Top left
+      [margin + availableWidth, margin], // Top right
+      [margin + availableWidth, margin + panelHeight + taperAmount], // Bottom right (tapered out)
+      [margin, margin + panelHeight - taperAmount] // Bottom left (tapered out)
+    ]),
+    // Middle panel - both sides tapered in
+    createPanel([
+      [margin, margin + panelHeight - taperAmount + gap], // Top left (tapered in)
+      [margin + availableWidth, margin + panelHeight + taperAmount + gap], // Top right (tapered in)
+      [margin + availableWidth, margin + (2 * panelHeight) - taperAmount + gap], // Bottom right (tapered in)
+      [margin, margin + (2 * panelHeight) + taperAmount + gap] // Bottom left (tapered in)
+    ]),
+    // Bottom panel - top side tapered out
+    createPanel([
+      [margin, margin + (2 * panelHeight) + taperAmount + (2 * gap)], // Top left (tapered out)
+      [margin + availableWidth, margin + (2 * panelHeight) - taperAmount + (2 * gap)], // Top right (tapered out)
+      [margin + availableWidth, margin + availableHeight], // Bottom right
+      [margin, margin + availableHeight] // Bottom left
+    ])
+  ];
 }; 

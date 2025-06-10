@@ -77,7 +77,8 @@ type LayoutType =
   | "fourPanels"
   | "oneBigTwoSmall"
   | "threePanels"
-  | "twoPanels";
+  | "twoPanels"
+  | "threePanelAction";
 
 interface TemplateSelectorProps {
   onTemplateSelect: (templateName: LayoutType) => void;
@@ -110,6 +111,8 @@ const TemplateSelector: React.FC<TemplateSelectorProps> = ({ onTemplateSelect, t
         return '3 Panels';
       case 'twoPanels':
         return '2 Panels';
+      case 'threePanelAction':
+        return '3 Panel Action';
       default:
         return templateName;
     }
