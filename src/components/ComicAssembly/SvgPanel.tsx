@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useCallback } from 'react';
 import styled from 'styled-components';
 import { Panel } from '../../types/comic';
 import { pointsToSvgPath } from '../../utils/polygonUtils';
@@ -53,150 +53,207 @@ interface PanelBounds {
 
 const SvgPanel: React.FC<SvgPanelProps> = ({ panels, pageId, onPanelsUpdate }) => {
   const [isResizing, setIsResizing] = useState(false);
+  const [localPanels, setLocalPanels] = useState(panels);
+
+  // Update local panels when prop changes
+  React.useEffect(() => {
+    setLocalPanels(panels);
+  }, [panels]);
+
+  const getPanelBounds = useCallback((panel: Panel): PanelBounds => ({
+    left: Math.min(...panel.points.map(p => p[0])),
+    right: Math.max(...panel.points.map(p => p[0])),
+    top: Math.min(...panel.points.map(p => p[1])),
+    bottom: Math.max(...panel.points.map(p => p[1]))
+  }), []);
 
   const resizeGaps = useMemo(() => {
     const gaps: ResizeGap[] = [];
     const GAP_THRESHOLD = 20; // Maximum gap width to consider for resizing
 
-    // Helper function to get panel bounds
-    const getPanelBounds = (panel: Panel): PanelBounds => ({
-      left: Math.min(...panel.points.map(p => p[0])),
-      right: Math.max(...panel.points.map(p => p[0])),
-      top: Math.min(...panel.points.map(p => p[1])),
-      bottom: Math.max(...panel.points.map(p => p[1]))
-    });
-
     // Find vertical gaps (panels side by side)
-    panels.forEach((panel1, i) => {
+    localPanels.forEach((panel1, i) => {
       // Skip if the current panel is not rectangular
       if (!isRectangular(panel1.points)) return;
 
       const bounds1 = getPanelBounds(panel1);
       
       // Find all panels that share a vertical border with panel1
-      const rightNeighbors = panels.slice(i + 1).filter(panel2 => {
+      const rightNeighbors = localPanels.slice(i + 1).filter(panel2 => {
         const bounds2 = getPanelBounds(panel2);
-        return Math.abs(bounds1.right - bounds2.left) < GAP_THRESHOLD && isRectangular(panel2.points);
+        // Check if panels are close enough horizontally
+        const isHorizontallyAdjacent = Math.abs(bounds1.right - bounds2.left) < GAP_THRESHOLD;
+        // Check if panels overlap vertically
+        const verticalOverlap = Math.min(bounds1.bottom, bounds2.bottom) - Math.max(bounds1.top, bounds2.top);
+        return isHorizontallyAdjacent && verticalOverlap > 0 && isRectangular(panel2.points);
       });
 
-      const leftNeighbors = panels.slice(i + 1).filter(panel2 => {
+      const leftNeighbors = localPanels.slice(i + 1).filter(panel2 => {
         const bounds2 = getPanelBounds(panel2);
-        return Math.abs(bounds1.left - bounds2.right) < GAP_THRESHOLD && isRectangular(panel2.points);
+        // Check if panels are close enough horizontally
+        const isHorizontallyAdjacent = Math.abs(bounds1.left - bounds2.right) < GAP_THRESHOLD;
+        // Check if panels overlap vertically
+        const verticalOverlap = Math.min(bounds1.bottom, bounds2.bottom) - Math.max(bounds1.top, bounds2.top);
+        return isHorizontallyAdjacent && verticalOverlap > 0 && isRectangular(panel2.points);
       });
 
       // Process right neighbors
       if (rightNeighbors.length > 0) {
-        const y1 = Math.min(...rightNeighbors.map(p => getPanelBounds(p).top));
-        const y2 = Math.max(...rightNeighbors.map(p => getPanelBounds(p).bottom));
+        // Find the overlapping region for all panels
+        const overlapTop = Math.max(
+          bounds1.top,
+          ...rightNeighbors.map(p => getPanelBounds(p).top)
+        );
+        const overlapBottom = Math.min(
+          bounds1.bottom,
+          ...rightNeighbors.map(p => getPanelBounds(p).bottom)
+        );
+
         const x = (bounds1.right + Math.min(...rightNeighbors.map(p => getPanelBounds(p).left))) / 2;
 
-        if (y2 > y1 && y1 < bounds1.bottom && y2 > bounds1.top) {
-          gaps.push({
-            x1: x,
-            y1: Math.max(y1, bounds1.top),
-            x2: x,
-            y2: Math.min(y2, bounds1.bottom),
-            isVertical: true,
-            panels: [
-              { panel: panel1, edge: 'right' },
-              ...rightNeighbors.map(p => ({ panel: p, edge: 'left' as const }))
-            ]
-          });
-        }
+        gaps.push({
+          x1: x,
+          y1: overlapTop,
+          x2: x,
+          y2: overlapBottom,
+          isVertical: true,
+          panels: [
+            { panel: panel1, edge: 'right' },
+            ...rightNeighbors.map(p => ({ panel: p, edge: 'left' as const }))
+          ]
+        });
       }
 
       // Process left neighbors
       if (leftNeighbors.length > 0) {
-        const y1 = Math.min(...leftNeighbors.map(p => getPanelBounds(p).top));
-        const y2 = Math.max(...leftNeighbors.map(p => getPanelBounds(p).bottom));
+        // Find the overlapping region for all panels
+        const overlapTop = Math.max(
+          bounds1.top,
+          ...leftNeighbors.map(p => getPanelBounds(p).top)
+        );
+        const overlapBottom = Math.min(
+          bounds1.bottom,
+          ...leftNeighbors.map(p => getPanelBounds(p).bottom)
+        );
+
         const x = (bounds1.left + Math.max(...leftNeighbors.map(p => getPanelBounds(p).right))) / 2;
 
-        if (y2 > y1 && y1 < bounds1.bottom && y2 > bounds1.top) {
-          gaps.push({
-            x1: x,
-            y1: Math.max(y1, bounds1.top),
-            x2: x,
-            y2: Math.min(y2, bounds1.bottom),
-            isVertical: true,
-            panels: [
-              { panel: panel1, edge: 'left' },
-              ...leftNeighbors.map(p => ({ panel: p, edge: 'right' as const }))
-            ]
-          });
-        }
+        gaps.push({
+          x1: x,
+          y1: overlapTop,
+          x2: x,
+          y2: overlapBottom,
+          isVertical: true,
+          panels: [
+            { panel: panel1, edge: 'left' },
+            ...leftNeighbors.map(p => ({ panel: p, edge: 'right' as const }))
+          ]
+        });
       }
 
       // Find horizontal gaps (panels stacked)
-      const bottomNeighbors = panels.slice(i + 1).filter(panel2 => {
+      const bottomNeighbors = localPanels.slice(i + 1).filter(panel2 => {
         const bounds2 = getPanelBounds(panel2);
-        return Math.abs(bounds1.bottom - bounds2.top) < GAP_THRESHOLD && isRectangular(panel2.points);
+        // Check if panels are close enough vertically
+        const isVerticallyAdjacent = Math.abs(bounds1.bottom - bounds2.top) < GAP_THRESHOLD;
+        // Check if panels overlap horizontally
+        const horizontalOverlap = Math.min(bounds1.right, bounds2.right) - Math.max(bounds1.left, bounds2.left);
+        return isVerticallyAdjacent && horizontalOverlap > 0 && isRectangular(panel2.points);
       });
 
-      const topNeighbors = panels.slice(i + 1).filter(panel2 => {
+      const topNeighbors = localPanels.slice(i + 1).filter(panel2 => {
         const bounds2 = getPanelBounds(panel2);
-        return Math.abs(bounds1.top - bounds2.bottom) < GAP_THRESHOLD && isRectangular(panel2.points);
+        // Check if panels are close enough vertically
+        const isVerticallyAdjacent = Math.abs(bounds1.top - bounds2.bottom) < GAP_THRESHOLD;
+        // Check if panels overlap horizontally
+        const horizontalOverlap = Math.min(bounds1.right, bounds2.right) - Math.max(bounds1.left, bounds2.left);
+        return isVerticallyAdjacent && horizontalOverlap > 0 && isRectangular(panel2.points);
       });
 
       // Process bottom neighbors
       if (bottomNeighbors.length > 0) {
-        const x1 = Math.min(...bottomNeighbors.map(p => getPanelBounds(p).left));
-        const x2 = Math.max(...bottomNeighbors.map(p => getPanelBounds(p).right));
+        // Find the overlapping region for all panels
+        const overlapLeft = Math.max(
+          bounds1.left,
+          ...bottomNeighbors.map(p => getPanelBounds(p).left)
+        );
+        const overlapRight = Math.min(
+          bounds1.right,
+          ...bottomNeighbors.map(p => getPanelBounds(p).right)
+        );
+
         const y = (bounds1.bottom + Math.min(...bottomNeighbors.map(p => getPanelBounds(p).top))) / 2;
 
-        if (x2 > x1 && x1 < bounds1.right && x2 > bounds1.left) {
-          gaps.push({
-            x1: Math.max(x1, bounds1.left),
-            y1: y,
-            x2: Math.min(x2, bounds1.right),
-            y2: y,
-            isVertical: false,
-            panels: [
-              { panel: panel1, edge: 'bottom' },
-              ...bottomNeighbors.map(p => ({ panel: p, edge: 'top' as const }))
-            ]
-          });
-        }
+        gaps.push({
+          x1: overlapLeft,
+          y1: y,
+          x2: overlapRight,
+          y2: y,
+          isVertical: false,
+          panels: [
+            { panel: panel1, edge: 'bottom' },
+            ...bottomNeighbors.map(p => ({ panel: p, edge: 'top' as const }))
+          ]
+        });
       }
 
       // Process top neighbors
       if (topNeighbors.length > 0) {
-        const x1 = Math.min(...topNeighbors.map(p => getPanelBounds(p).left));
-        const x2 = Math.max(...topNeighbors.map(p => getPanelBounds(p).right));
+        // Find the overlapping region for all panels
+        const overlapLeft = Math.max(
+          bounds1.left,
+          ...topNeighbors.map(p => getPanelBounds(p).left)
+        );
+        const overlapRight = Math.min(
+          bounds1.right,
+          ...topNeighbors.map(p => getPanelBounds(p).right)
+        );
+
         const y = (bounds1.top + Math.max(...topNeighbors.map(p => getPanelBounds(p).bottom))) / 2;
 
-        if (x2 > x1 && x1 < bounds1.right && x2 > bounds1.left) {
-          gaps.push({
-            x1: Math.max(x1, bounds1.left),
-            y1: y,
-            x2: Math.min(x2, bounds1.right),
-            y2: y,
-            isVertical: false,
-            panels: [
-              { panel: panel1, edge: 'top' },
-              ...topNeighbors.map(p => ({ panel: p, edge: 'bottom' as const }))
-            ]
-          });
-        }
+        gaps.push({
+          x1: overlapLeft,
+          y1: y,
+          x2: overlapRight,
+          y2: y,
+          isVertical: false,
+          panels: [
+            { panel: panel1, edge: 'top' },
+            ...topNeighbors.map(p => ({ panel: p, edge: 'bottom' as const }))
+          ]
+        });
       }
     });
 
     return gaps;
-  }, [panels]);
+  }, [localPanels, getPanelBounds]);
 
-  const handleResize = (updatedPanels: Panel[]) => {
+  const handleResize = useCallback((updatedPanels: Panel[]) => {
     // Create a map of panel IDs to their updated versions
     const updatedPanelMap = new Map(updatedPanels.map(p => [p.id, p]));
     
     // Update all panels, using the updated version if available
-    const newPanels = panels.map(panel => 
+    const newPanels = localPanels.map(panel => 
       updatedPanelMap.get(panel.id) || panel
     );
+
+    // Update local state immediately for smooth resize indicator updates
+    setLocalPanels(newPanels);
+    // Propagate changes to parent
     onPanelsUpdate(newPanels);
-  };
+  }, [localPanels, onPanelsUpdate]);
+
+  const handleResizeStart = useCallback(() => {
+    setIsResizing(true);
+  }, []);
+
+  const handleResizeEnd = useCallback(() => {
+    setIsResizing(false);
+  }, []);
 
   return (
     <PanelContainer className="comic-page-svg">
-      {panels.map(panel => {
+      {localPanels.map(panel => {
         const svgPath = pointsToSvgPath(panel.points);
         const dropZone = panel.dropZone || { top: 0, left: 0, width: 0, height: 0 };
 
@@ -229,8 +286,8 @@ const SvgPanel: React.FC<SvgPanelProps> = ({ panels, pageId, onPanelsUpdate }) =
           isVertical={gap.isVertical}
           panels={gap.panels}
           onResize={handleResize}
-          onResizeStart={() => setIsResizing(true)}
-          onResizeEnd={() => setIsResizing(false)}
+          onResizeStart={handleResizeStart}
+          onResizeEnd={handleResizeEnd}
         />
       ))}
     </PanelContainer>
