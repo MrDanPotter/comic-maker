@@ -12,7 +12,7 @@ const meta = {
   decorators: [
     (Story) => (
       <DragDropContext onDragEnd={() => {}}>
-        <div style={{ width: '400px', height: '400px', position: 'relative' }}>
+        <div style={{ width: '800px', height: '1000px', position: 'relative', background: 'white' }}>
           <Story />
         </div>
       </DragDropContext>
@@ -24,9 +24,16 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+// Base args that all stories will use
+const baseArgs = {
+  pageId: 'page-1',
+  onPanelsUpdate: console.log,
+};
+
 // Single empty panel
 export const EmptyPanel: Story = {
   args: {
+    ...baseArgs,
     panels: [{
       id: '1',
       shape: 'polygon',
@@ -43,13 +50,13 @@ export const EmptyPanel: Story = {
         height: 300,
       },
     }],
-    pageId: 'page-1',
   },
 };
 
 // Single panel with a placeholder image
 export const WithImage: Story = {
   args: {
+    ...baseArgs,
     panels: [{
       id: '2',
       shape: 'polygon',
@@ -67,13 +74,13 @@ export const WithImage: Story = {
       },
       imageUrl: placeholderImage,
     }],
-    pageId: 'page-1',
   },
 };
 
 // Multiple panels with different shapes
 export const MultiplePanels: Story = {
   args: {
+    ...baseArgs,
     panels: [
       {
         id: '3',
@@ -110,6 +117,65 @@ export const MultiplePanels: Story = {
         imageUrl: placeholderImage,
       },
     ],
-    pageId: 'page-1',
+  },
+};
+
+// Resizable panels demonstration
+export const ResizablePanels: Story = {
+  args: {
+    ...baseArgs,
+    panels: [
+      // Left panel
+      {
+        id: '5',
+        shape: 'polygon',
+        points: [
+          [50, 50],
+          [375, 50],
+          [375, 350],
+          [50, 350],
+        ],
+        dropZone: {
+          top: 50,
+          left: 50,
+          width: 325,
+          height: 300,
+        },
+      },
+      // Right panel
+      {
+        id: '6',
+        shape: 'polygon',
+        points: [
+          [425, 50],
+          [750, 50],
+          [750, 350],
+          [425, 350],
+        ],
+        dropZone: {
+          top: 50,
+          left: 425,
+          width: 325,
+          height: 300,
+        },
+      },
+      // Bottom panel
+      {
+        id: '7',
+        shape: 'polygon',
+        points: [
+          [50, 400],
+          [750, 400],
+          [750, 950],
+          [50, 950],
+        ],
+        dropZone: {
+          top: 400,
+          left: 50,
+          width: 700,
+          height: 550,
+        },
+      },
+    ],
   },
 }; 

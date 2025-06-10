@@ -207,6 +207,12 @@ function App() {
     });
   };
 
+  const handlePanelsUpdate = (pageId: string, updatedPanels: Panel[]) => {
+    setPages(prevPages => prevPages.map(page => 
+      page.id === pageId ? { ...page, panels: updatedPanels } : page
+    ));
+  };
+
   return (
     <DragDropContext 
       onDragEnd={handleDragEnd}
@@ -222,10 +228,11 @@ function App() {
               displayNumber={index + 1}
               panels={page.panels}
               onDelete={() => handleDeletePage(page.id)}
-              onMoveUp={index > 0 ? () => handleMovePageUp(index) : undefined}
-              onMoveDown={index < pages.length - 1 ? () => handleMovePageDown(index) : undefined}
+              onMoveUp={() => handleMovePageUp(index)}
+              onMoveDown={() => handleMovePageDown(index)}
               onRotate={() => handleRotatePage(page.id)}
               onMirror={() => handleMirrorPage(page.id)}
+              onPanelsUpdate={(panels) => handlePanelsUpdate(page.id, panels)}
               isFirstPage={index === 0}
               isLastPage={index === pages.length - 1}
               draggedImageUrl={draggedImageUrl}

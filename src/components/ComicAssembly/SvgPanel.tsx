@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { Panel } from '../../types/comic';
 import { pointsToSvgPath } from '../../utils/polygonUtils';
@@ -9,6 +9,7 @@ import ResizeIndicator from './ResizeIndicator';
 interface SvgPanelProps {
   panels: Panel[];
   pageId: string;
+  onPanelsUpdate: (panels: Panel[]) => void;
 }
 
 const PanelContainer = styled.svg`
@@ -20,15 +21,15 @@ const PanelContainer = styled.svg`
   z-index: 1;
 `;
 
-const EmptyPanelPolygon = styled.path`
+const EmptyPanelPolygon = styled.path<{ $isResizing: boolean }>`
   stroke: #333;
   stroke-width: 2px;
   fill: #f5f5f5;
-  transition: d 0.5s ease-in-out;
+  transition: ${props => props.$isResizing ? 'none' : 'd 0.5s ease-in-out'};
 `;
 
-const AnimatedGroup = styled.g`
-  transition: transform 0.5s ease-in-out;
+const AnimatedGroup = styled.g<{ $isResizing: boolean }>`
+  transition: ${props => props.$isResizing ? 'none' : 'transform 0.5s ease-in-out'};
 `;
 
 interface ResizeGap {
@@ -37,6 +38,10 @@ interface ResizeGap {
   x2: number;
   y2: number;
   isVertical: boolean;
+  panels: {
+    panel: Panel;
+    edge: 'top' | 'bottom' | 'left' | 'right';
+  }[];
 }
 
 interface PanelBounds {
@@ -46,7 +51,9 @@ interface PanelBounds {
   bottom: number;
 }
 
-const SvgPanel: React.FC<SvgPanelProps> = ({ panels, pageId }) => {
+const SvgPanel: React.FC<SvgPanelProps> = ({ panels, pageId, onPanelsUpdate }) => {
+  const [isResizing, setIsResizing] = useState(false);
+
   const resizeGaps = useMemo(() => {
     const gaps: ResizeGap[] = [];
     const GAP_THRESHOLD = 20; // Maximum gap width to consider for resizing
@@ -79,19 +86,21 @@ const SvgPanel: React.FC<SvgPanelProps> = ({ panels, pageId }) => {
 
       // Process right neighbors
       if (rightNeighbors.length > 0) {
-        // Find the full extent of the shared border
         const y1 = Math.min(...rightNeighbors.map(p => getPanelBounds(p).top));
         const y2 = Math.max(...rightNeighbors.map(p => getPanelBounds(p).bottom));
         const x = (bounds1.right + Math.min(...rightNeighbors.map(p => getPanelBounds(p).left))) / 2;
 
-        // Only add if there's a meaningful vertical overlap
         if (y2 > y1 && y1 < bounds1.bottom && y2 > bounds1.top) {
           gaps.push({
             x1: x,
             y1: Math.max(y1, bounds1.top),
             x2: x,
             y2: Math.min(y2, bounds1.bottom),
-            isVertical: true
+            isVertical: true,
+            panels: [
+              { panel: panel1, edge: 'right' },
+              ...rightNeighbors.map(p => ({ panel: p, edge: 'left' as const }))
+            ]
           });
         }
       }
@@ -108,7 +117,11 @@ const SvgPanel: React.FC<SvgPanelProps> = ({ panels, pageId }) => {
             y1: Math.max(y1, bounds1.top),
             x2: x,
             y2: Math.min(y2, bounds1.bottom),
-            isVertical: true
+            isVertical: true,
+            panels: [
+              { panel: panel1, edge: 'left' },
+              ...leftNeighbors.map(p => ({ panel: p, edge: 'right' as const }))
+            ]
           });
         }
       }
@@ -136,7 +149,11 @@ const SvgPanel: React.FC<SvgPanelProps> = ({ panels, pageId }) => {
             y1: y,
             x2: Math.min(x2, bounds1.right),
             y2: y,
-            isVertical: false
+            isVertical: false,
+            panels: [
+              { panel: panel1, edge: 'bottom' },
+              ...bottomNeighbors.map(p => ({ panel: p, edge: 'top' as const }))
+            ]
           });
         }
       }
@@ -153,7 +170,11 @@ const SvgPanel: React.FC<SvgPanelProps> = ({ panels, pageId }) => {
             y1: y,
             x2: Math.min(x2, bounds1.right),
             y2: y,
-            isVertical: false
+            isVertical: false,
+            panels: [
+              { panel: panel1, edge: 'top' },
+              ...topNeighbors.map(p => ({ panel: p, edge: 'bottom' as const }))
+            ]
           });
         }
       }
@@ -162,14 +183,25 @@ const SvgPanel: React.FC<SvgPanelProps> = ({ panels, pageId }) => {
     return gaps;
   }, [panels]);
 
+  const handleResize = (updatedPanels: Panel[]) => {
+    // Create a map of panel IDs to their updated versions
+    const updatedPanelMap = new Map(updatedPanels.map(p => [p.id, p]));
+    
+    // Update all panels, using the updated version if available
+    const newPanels = panels.map(panel => 
+      updatedPanelMap.get(panel.id) || panel
+    );
+    onPanelsUpdate(newPanels);
+  };
+
   return (
-    <PanelContainer>
+    <PanelContainer className="comic-page-svg">
       {panels.map(panel => {
         const svgPath = pointsToSvgPath(panel.points);
         const dropZone = panel.dropZone || { top: 0, left: 0, width: 0, height: 0 };
 
         return (
-          <AnimatedGroup key={panel.id}>
+          <AnimatedGroup key={panel.id} $isResizing={isResizing}>
             {panel.imageUrl ? (
               <PanelImage
                 src={panel.imageUrl}
@@ -179,9 +211,10 @@ const SvgPanel: React.FC<SvgPanelProps> = ({ panels, pageId }) => {
                 height={dropZone.height}
                 points={panel.points}
                 dropZone={dropZone}
+                isResizing={isResizing}
               />
             ) : (
-              <EmptyPanelPolygon d={svgPath} />
+              <EmptyPanelPolygon d={svgPath} $isResizing={isResizing} />
             )}
           </AnimatedGroup>
         );
@@ -194,6 +227,10 @@ const SvgPanel: React.FC<SvgPanelProps> = ({ panels, pageId }) => {
           x2={gap.x2}
           y2={gap.y2}
           isVertical={gap.isVertical}
+          panels={gap.panels}
+          onResize={handleResize}
+          onResizeStart={() => setIsResizing(true)}
+          onResizeEnd={() => setIsResizing(false)}
         />
       ))}
     </PanelContainer>

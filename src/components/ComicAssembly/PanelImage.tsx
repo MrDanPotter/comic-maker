@@ -11,23 +11,24 @@ interface PanelImageProps {
   height: number;
   points: Point[];
   dropZone: BoundingBox;
+  isResizing?: boolean;
 }
 
-const PanelPolygon = styled.path<{ $isDragging: boolean }>`
+const PanelPolygon = styled.path<{ $isDragging: boolean; $isResizing: boolean }>`
   stroke: #333;
   stroke-width: 2px;
   cursor: move;
-  transition: ${props => props.$isDragging ? 'none' : 'd 0.5s ease-in-out'};
+  transition: ${props => (props.$isDragging || props.$isResizing) ? 'none' : 'd 0.5s ease-in-out'};
 `;
 
-const PreviewImage = styled.image<{ $isDragging: boolean }>`
+const PreviewImage = styled.image<{ $isDragging: boolean; $isResizing: boolean }>`
   opacity: ${props => props.$isDragging ? 0.33 : 0};
   pointer-events: none;
-  transition: ${props => props.$isDragging ? 'opacity 0.1s ease' : 'all 0.5s ease-in-out'};
+  transition: ${props => (props.$isDragging || props.$isResizing) ? 'none' : 'all 0.5s ease-in-out'};
 `;
 
-const PatternImage = styled.image<{ $isDragging: boolean }>`
-  transition: ${props => props.$isDragging ? 'none' : 'all 0.5s ease-in-out'};
+const PatternImage = styled.image<{ $isDragging: boolean; $isResizing: boolean }>`
+  transition: ${props => (props.$isDragging || props.$isResizing) ? 'none' : 'all 0.5s ease-in-out'};
 `;
 
 const PanelImage: React.FC<PanelImageProps> = ({
@@ -36,6 +37,7 @@ const PanelImage: React.FC<PanelImageProps> = ({
   width,
   height,
   points,
+  isResizing = false,
 }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -131,6 +133,7 @@ const PanelImage: React.FC<PanelImageProps> = ({
             preserveAspectRatio="xMidYMid slice"
             style={{ pointerEvents: 'none' }}
             $isDragging={isDragging}
+            $isResizing={isResizing}
           />
         </pattern>
       </defs>
@@ -144,6 +147,7 @@ const PanelImage: React.FC<PanelImageProps> = ({
         height={scaledHeight}
         preserveAspectRatio="xMidYMid slice"
         $isDragging={isDragging}
+        $isResizing={isResizing}
       />
 
       {/* Panel with clipped image */}
@@ -152,6 +156,7 @@ const PanelImage: React.FC<PanelImageProps> = ({
         fill={`url(#pattern-${panelId})`}
         onMouseDown={handleMouseDown}
         $isDragging={isDragging}
+        $isResizing={isResizing}
       />
     </>
   );
