@@ -1,7 +1,10 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { Panel } from '../../types/comic';
 import { getBoundingBox } from '../../utils/polygonUtils';
+
+// Throttle utility function
+const THROTTLE_DELAY = 30; // 30ms throttle delay for smooth but less frequent updates
 
 interface ResizeIndicatorProps {
   x1: number;
@@ -56,6 +59,8 @@ const ResizeIndicator: React.FC<ResizeIndicatorProps> = ({
   const [isDragging, setIsDragging] = useState(false);
   const [startPos, setStartPos] = useState<{ x: number; y: number } | null>(null);
   const [lastPos, setLastPos] = useState<{ x: number; y: number } | null>(null);
+  const lastUpdateTime = useRef<number>(0);
+  const lastUpdatePos = useRef<{ x: number, y: number } | null>(null);
 
   // Calculate the hit area rectangle dimensions
   const hitAreaX = isVertical ? x1 - RESIZE_AREA_WIDTH / 2 : x1;
@@ -89,75 +94,79 @@ const ResizeIndicator: React.FC<ResizeIndicatorProps> = ({
   }, []);
 
   const handleMouseMove = useCallback((e: MouseEvent) => {
-    console.log('Move handler called, isDragging:', isDragging);
     if (!isDragging || !startPos || !lastPos) {
-      console.log('Move ignored - not dragging or missing positions');
       return;
     }
 
+    const currentTime = Date.now();
+    const timeSinceLastUpdate = currentTime - lastUpdateTime.current;
+
     const svg = document.querySelector('.comic-page-svg');
     if (!(svg instanceof SVGGraphicsElement)) {
-      console.log('No SVG element found during move');
       return;
     }
 
     const currentPos = getMousePosition(e, svg);
     if (!currentPos) {
-      console.log('Failed to get current position');
       return;
     }
 
-    // Calculate the delta from the last position
-    const deltaX = currentPos.x - lastPos.x;
-    const deltaY = currentPos.y - lastPos.y;
-    console.log('Delta:', { deltaX, deltaY });
+    // Only update if enough time has passed
+    if (timeSinceLastUpdate >= THROTTLE_DELAY) {
+      // Calculate delta from the last update position (or last position if no updates yet)
+      const basePos = lastUpdatePos.current || lastPos;
+      const deltaX = isVertical ? currentPos.x - basePos.x : 0;
+      const deltaY = isVertical ? 0 : currentPos.y - basePos.y;
 
-    // Update panel points based on the movement
-    const updatedPanels = panels.map(({ panel, edge }) => {
-      // Find the points that are on the edge being resized
-      let edgePoints: number[] = [];
-      if (isVertical) {
-        const edgeX = edge === 'left' ? Math.min(...panel.points.map(p => p[0])) : Math.max(...panel.points.map(p => p[0]));
-        edgePoints = panel.points.map((_, idx) => idx).filter(i => Math.abs(panel.points[i][0] - edgeX) < 1);
-      } else {
-        const edgeY = edge === 'top' ? Math.min(...panel.points.map(p => p[1])) : Math.max(...panel.points.map(p => p[1]));
-        edgePoints = panel.points.map((_, idx) => idx).filter(i => Math.abs(panel.points[i][1] - edgeY) < 1);
-      }
-
-      const newPoints = panel.points.map((point, idx) => {
-        // Only move points that are on the edge being resized
-        if (edgePoints.includes(idx)) {
-          const [x, y] = point;
-          if (isVertical && (edge === 'left' || edge === 'right')) {
-            console.log('Moving vertical point:', { from: [x, y], to: [x + deltaX, y] });
-            return [x + deltaX, y] as [number, number];
-          } else if (!isVertical && (edge === 'top' || edge === 'bottom')) {
-            console.log('Moving horizontal point:', { from: [x, y], to: [x, y + deltaY] });
-            return [x, y + deltaY] as [number, number];
-          }
+      // Update panel points based on the movement
+      const updatedPanels = panels.map(({ panel, edge }) => {
+        let edgePoints: number[] = [];
+        if (isVertical) {
+          const edgeX = edge === 'left' ? Math.min(...panel.points.map(p => p[0])) : Math.max(...panel.points.map(p => p[0]));
+          edgePoints = panel.points.map((_, idx) => idx).filter(i => Math.abs(panel.points[i][0] - edgeX) < 1);
+        } else {
+          const edgeY = edge === 'top' ? Math.min(...panel.points.map(p => p[1])) : Math.max(...panel.points.map(p => p[1]));
+          edgePoints = panel.points.map((_, idx) => idx).filter(i => Math.abs(panel.points[i][1] - edgeY) < 1);
         }
-        return point;  // Return original point if no movement is needed
+
+        const newPoints = panel.points.map((point, idx) => {
+          if (edgePoints.includes(idx)) {
+            const [x, y] = point;
+            if (isVertical && (edge === 'left' || edge === 'right')) {
+              return [x + deltaX, y] as [number, number];
+            } else if (!isVertical && (edge === 'top' || edge === 'bottom')) {
+              return [x, y + deltaY] as [number, number];
+            }
+          }
+          return point;
+        });
+
+        return {
+          ...panel,
+          points: newPoints,
+          dropZone: getBoundingBox(newPoints)
+        };
       });
 
-      const updatedPanel = {
-        ...panel,
-        points: newPoints,
-        dropZone: getBoundingBox(newPoints)
-      };
-      console.log('Updated panel:', { id: panel.id, edge, newPoints });
-      return updatedPanel;
-    });
+      // Update last update position and time
+      lastUpdatePos.current = currentPos;
+      lastUpdateTime.current = currentTime;
 
-    setLastPos(currentPos);
-    console.log('Calling onResize with updated panels');
-    onResize(updatedPanels);
+      // Update last position with only the relevant axis
+      setLastPos({
+        x: isVertical ? currentPos.x : lastPos.x,
+        y: isVertical ? lastPos.y : currentPos.y
+      });
+
+      onResize(updatedPanels);
+    }
   }, [isDragging, startPos, lastPos, panels, isVertical, onResize, getMousePosition]);
 
   const handleMouseUp = useCallback(() => {
-    console.log('Mouse up - ending drag');
     setIsDragging(false);
     setStartPos(null);
     setLastPos(null);
+    lastUpdatePos.current = null;
     onResizeEnd?.();
   }, [onResizeEnd]);
 
