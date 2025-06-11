@@ -1,11 +1,7 @@
 import { Panel } from '../types/comic';
 import { getBoundingBox } from './polygonUtils';
 import { v4 as uuidv4 } from 'uuid';
-
-// Constants for page dimensions
-const PAGE_WIDTH = 800;
-const PAGE_HEIGHT = 1000;
-const PAGE_MARGIN = 20;
+import { PAGE_WIDTH, PAGE_HEIGHT, PAGE_MARGIN } from './consts';
 
 // Helper function to create a panel with automatic bounding box
 function createPanel(points: [number, number][]): Panel {
@@ -30,7 +26,12 @@ function getPanelBounds(points: [number, number][]) {
 }
 
 // Rotate a panel's points 90 degrees clockwise while maintaining aspect ratio
-export function rotatePanels(panels: Panel[]): Panel[] {
+export function rotatePanels(
+  panels: Panel[], 
+  max_width: number = PAGE_WIDTH,
+  max_height: number = PAGE_HEIGHT,
+  margin: number = PAGE_MARGIN
+): Panel[] {
   // First, get the overall bounds of all panels
   const bounds = panels.reduce((acc, panel) => {
     const panelBounds = getPanelBounds(panel.points);
@@ -46,8 +47,8 @@ export function rotatePanels(panels: Panel[]): Panel[] {
   const originalHeight = bounds.bottom - bounds.top;
 
   // Calculate the scale factors to maintain aspect ratio after rotation
-  const availableWidth = PAGE_WIDTH - (2 * PAGE_MARGIN);
-  const availableHeight = PAGE_HEIGHT - (2 * PAGE_MARGIN);
+  const availableWidth = max_width - (2 * margin);
+  const availableHeight = max_height - (2 * margin);
   
   const scaleX = availableWidth / originalHeight;
   const scaleY = availableHeight / originalWidth;
@@ -65,8 +66,8 @@ export function rotatePanels(panels: Panel[]): Panel[] {
 
       // Scale and translate back
       return [
-        PAGE_MARGIN + (rotX * scaleX),
-        PAGE_MARGIN + ((rotY + originalWidth) * scaleY)
+        margin + (rotX * scaleX),
+        margin + ((rotY + originalWidth) * scaleY)
       ] as [number, number];
     });
 
