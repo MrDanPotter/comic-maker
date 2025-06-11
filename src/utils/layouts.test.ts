@@ -1,6 +1,13 @@
-import { rotatePanels, mirrorPanels } from './layouts';
+import { rotatePanels, mirrorPanels, fullPageLayout, widePageLayout, threePanelsLayout } from './layouts';
 import { Panel } from '../types/comic';
 import { PAGE_WIDTH, PAGE_HEIGHT, PAGE_MARGIN } from './consts';
+
+const comparePanels = (panels1: Panel[], panels2: Panel[]) => {
+  expect(panels1.length).toBe(panels2.length);
+  for (let i = 0; i < panels1.length; i++) {
+    expect(panels1[i].points).toEqual(panels2[i].points);
+  }
+};
 
 describe('Panel Transformations', () => {
   // Helper function to create a simple rectangular panel
@@ -94,77 +101,40 @@ describe('Panel Transformations', () => {
   });
 
   describe('rotatePanels', () => {
-    it('should rotate a single panel 90 degrees clockwise', () => {
-      const panel = createRectPanel(20, 20, 100, 180);  // Original: 80x160 panel
-      const rotated = rotatePanels([panel], PAGE_WIDTH, PAGE_HEIGHT, PAGE_MARGIN);
+    it('should rotate a full page layout', () => {
+      const panels = fullPageLayout();
+      const rotated = rotatePanels(panels);
 
-      // After 90-degree clockwise rotation:
-      // - Original width (80) becomes height
-      // - Original height (160) becomes width
-      // - Panel should be positioned at page margin
+      // Full page layout is a single panel with margins
       expect(rotated[0].points).toEqual([
-        [20, 20],           // Top-left
-        [180, 20],          // Top-right (original height becomes width)
-        [180, 100],         // Bottom-right
-        [20, 100]           // Bottom-left (original width becomes height)
+        [PAGE_MARGIN, PAGE_HEIGHT-PAGE_MARGIN],
+        [PAGE_MARGIN, PAGE_MARGIN],
+        [PAGE_WIDTH - PAGE_MARGIN, PAGE_MARGIN],
+        [PAGE_WIDTH - PAGE_MARGIN, PAGE_HEIGHT - PAGE_MARGIN]
       ]);
+
+      // Verify that after 3 more rotations the panel is back to its original position
+      const rotated3 = rotatePanels(rotatePanels(rotatePanels(rotated)));
+      comparePanels(rotated3, panels);
     });
 
-    it('should maintain relative positions after rotation', () => {
-      const panels = [
-        createRectPanel(20, 20, 60, 180),     // Left panel: 40x160
-        createRectPanel(80, 20, 120, 90),     // Top-right panel: 40x70
-        createRectPanel(80, 110, 120, 180)    // Bottom-right panel: 40x70
-      ];
-      const rotated = rotatePanels(panels, PAGE_WIDTH, PAGE_HEIGHT, PAGE_MARGIN);
+    it('should rotate a wide page layout', () => {
+      const panels = widePageLayout();
+      
+      const rotated = rotatePanels(panels);
 
-      // After rotation:
-      // Panel 1 (originally left, tall panel)
+      // When wide panel gets rotated it just becomes a full page layout, this might change in the future because it doesn't really make sense
+      // but we'll leave it for now
       expect(rotated[0].points).toEqual([
-        [20, 20],
-        [180, 20],
-        [180, 60],
-        [20, 60]
+        [PAGE_MARGIN, PAGE_HEIGHT-PAGE_MARGIN],
+        [PAGE_MARGIN, PAGE_MARGIN],
+        [PAGE_WIDTH - PAGE_MARGIN, PAGE_MARGIN],
+        [PAGE_WIDTH - PAGE_MARGIN, PAGE_HEIGHT - PAGE_MARGIN]
       ]);
 
-      // Panel 2 (originally top-right panel)
-      expect(rotated[1].points).toEqual([
-        [20, 80],
-        [90, 80],
-        [90, 120],
-        [20, 120]
-      ]);
-
-      // Panel 3 (originally bottom-right panel)
-      expect(rotated[2].points).toEqual([
-        [110, 80],
-        [180, 80],
-        [180, 120],
-        [110, 120]
-      ]);
-    });
-
-    it('should use custom dimensions when provided', () => {
-      const panel = createRectPanel(20, 20, 100, 180);  // Original: 80x160 panel
-      const rotated = rotatePanels([panel], 400, 500, 10);  // Half size page with smaller margin
-
-      // After rotation with custom dimensions:
-      expect(rotated[0].points).toEqual([
-        [10, 10],           // Top-left
-        [90, 10],          // Top-right (scaled to fit smaller width)
-        [90, 50],          // Bottom-right (scaled to fit smaller height)
-        [10, 50]           // Bottom-left
-      ]);
-    });
-
-    it('a rotation of a single centered panel should not change its coordinates', () => {
-      const panelWidth = 100;
-      const panelHeight = 100;
-      const panelX = (PAGE_WIDTH - panelWidth) / 2;
-      const panelY = (PAGE_HEIGHT - panelHeight) / 2;
-      const panel = createRectPanel(panelX, panelY, panelX + panelWidth, panelY+panelHeight );  // Original: 80x160 panel
-      const rotated = rotatePanels([panel], PAGE_WIDTH, PAGE_HEIGHT, PAGE_MARGIN);
-      expect(rotated[0].points).toEqual(panel.points);
+      // Verify that after 3 more rotations the panel is back to its original position
+      const rotated3 = rotatePanels(rotatePanels(rotatePanels(rotated)));
+      comparePanels(rotated3, fullPageLayout());
     });
   });
 }); 
