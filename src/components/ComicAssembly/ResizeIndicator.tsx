@@ -128,19 +128,15 @@ const ResizeIndicator: React.FC<ResizeIndicatorProps> = ({
         // Only move points that are on the edge being resized
         if (edgePoints.includes(idx)) {
           const [x, y] = point;
-          if (isVertical) {
-            if (edge === 'left' || edge === 'right') {
-              console.log('Moving vertical point:', { from: [x, y], to: [x + deltaX, y] });
-              return [x + deltaX, y] as [number, number];
-            }
-          } else {
-            if (edge === 'top' || edge === 'bottom') {
-              console.log('Moving horizontal point:', { from: [x, y], to: [x, y + deltaY] });
-              return [x, y + deltaY] as [number, number];
-            }
+          if (isVertical && (edge === 'left' || edge === 'right')) {
+            console.log('Moving vertical point:', { from: [x, y], to: [x + deltaX, y] });
+            return [x + deltaX, y] as [number, number];
+          } else if (!isVertical && (edge === 'top' || edge === 'bottom')) {
+            console.log('Moving horizontal point:', { from: [x, y], to: [x, y + deltaY] });
+            return [x, y + deltaY] as [number, number];
           }
         }
-        return point;
+        return point;  // Return original point if no movement is needed
       });
 
       const updatedPanel = {
