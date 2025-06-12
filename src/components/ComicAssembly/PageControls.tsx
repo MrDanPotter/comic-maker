@@ -47,8 +47,8 @@ const IconButton = styled.button`
   justify-content: center;
   opacity: 0.7;
   transition: opacity 0.2s;
-  width: 16px;
-  height: 16px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
 
   &:hover {
@@ -66,6 +66,11 @@ const IconButton = styled.button`
     &:hover {
       background: none;
     }
+  }
+
+  svg {
+    width: 15px;
+    height: 15px;
   }
 `;
 
@@ -129,15 +134,19 @@ const ArrowDownIcon = () => (
 );
 
 const RotateIcon = () => (
-  <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor">
-    <path fillRule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
-    <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
+  <svg viewBox="0 0 16 16" fill="currentColor">
+    <path fillRule="evenodd" d="M8 3a5 5 0 1 1-4.546 2.914.5.5 0 0 0-.908-.417A6 6 0 1 0 8 2v1z"/>
+    <path d="M8 4.466V.534a.25.25 0 0 0-.41-.192L5.23 2.308a.25.25 0 0 0 0 .384l2.36 1.966A.25.25 0 0 0 8 4.466z"/>
   </svg>
 );
 
 const MirrorIcon = () => (
-  <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor">
-    <path fillRule="evenodd" d="M8.5 2.687a.5.5 0 1 1-.998-.062v.062a.5.5 0 0 1 .998 0zm-1.5 1.096V4h-.5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1h-.5v-.217l6.25-3.625a.5.5 0 0 0 0-.866l-6.25-3.625a.5.5 0 0 0-.5 0l-6.25 3.625a.5.5 0 0 0 0 .866L7 3.783z"/>
+  <svg viewBox="0 0 16 16" fill="currentColor">
+    <path d="M8 2 L8 14" strokeWidth="1.5" stroke="currentColor"/>
+    {/* Top arrow */}
+    <path d="M2 5 L7 5 M2 5 L4 3 M2 5 L4 7" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+    {/* Bottom arrow */}
+    <path d="M14 11 L9 11 M14 11 L12 9 M14 11 L12 13" stroke="currentColor" strokeWidth="1.5" fill="none"/>
   </svg>
 );
 
