@@ -61,7 +61,7 @@ const PreviewPanel = styled.path`
 
 const TemplateName = styled.div`
   position: absolute;
-  bottom: -25px;
+  bottom: -5px;
   left: 0;
   right: 0;
   text-align: center;
