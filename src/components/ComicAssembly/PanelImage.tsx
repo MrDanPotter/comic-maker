@@ -24,11 +24,12 @@ const PanelPolygon = styled.path<{ $isDragging: boolean; $isResizing: boolean }>
 const PreviewImage = styled.image<{ $isDragging: boolean; $isResizing: boolean }>`
   opacity: ${props => props.$isDragging ? 0.33 : 0};
   pointer-events: none;
-  transition: ${props => (props.$isDragging || props.$isResizing) ? 'none' : 'all 0.5s ease-in-out'};
+  transition: opacity 0.2s ease;
 `;
 
 const PatternImage = styled.image<{ $isDragging: boolean; $isResizing: boolean }>`
-  transition: ${props => (props.$isDragging || props.$isResizing) ? 'none' : 'all 0.5s ease-in-out'};
+  pointer-events: none;
+  transition: ${props => (props.$isDragging || props.$isResizing) ? 'none' : 'd 0.5s ease-in-out'};
 `;
 
 const PanelImage: React.FC<PanelImageProps> = ({

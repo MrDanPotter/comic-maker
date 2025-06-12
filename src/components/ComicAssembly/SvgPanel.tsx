@@ -29,7 +29,7 @@ const EmptyPanelPolygon = styled.path<{ $isResizing: boolean }>`
 `;
 
 const AnimatedGroup = styled.g<{ $isResizing: boolean }>`
-  transition: ${props => props.$isResizing ? 'none' : 'transform 0.1s ease-out, d 0.5s ease-in-out'};
+  transition: ${props => props.$isResizing ? 'none' : 'd 0.5s ease-in-out'};
 `;
 
 interface ResizeGap {
