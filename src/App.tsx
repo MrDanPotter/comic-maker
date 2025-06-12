@@ -17,7 +17,6 @@ import {
   rotatePanels,
   mirrorPanels
 } from './utils/layouts';
-import { v4 as uuidv4 } from 'uuid';
 
 const AppContainer = styled.div`
   display: flex;
@@ -33,7 +32,7 @@ const ComicContainer = styled.div`
   overflow-y: auto;
 `;
 
-interface ComicPage {
+interface ComicPageObj {
   id: string;
   panels: Panel[];
 }
@@ -68,7 +67,7 @@ const layouts: Record<LayoutType, () => Panel[]> = {
 const defaultPageLayout = layouts.fullPage;
 
 function App() {
-  const [pages, setPages] = useState<ComicPage[]>([
+  const [pages, setPages] = useState<ComicPageObj[]>([
     { id: "1", panels: defaultPageLayout() },
   ]);
   const [images, setImages] = useState<LibraryImage[]>([]);
@@ -171,7 +170,7 @@ function App() {
 
   const handleTemplateSelect = (templateName: LayoutType) => {
     const pageNumber = pages.length + 1;
-    const newPage: ComicPage = {
+    const newPage: ComicPageObj = {
       id: pageNumber.toString(),
       panels: layouts[templateName](),
     };

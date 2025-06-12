@@ -95,7 +95,6 @@ export function mirrorPanels(panels: Panel[]): Panel[] {
   return panels.map(panel => {
     // Mirror each point across the vertical centerline
     const newPoints = panel.points.map(([x, y]) => {
-      const distanceFromLeft = x - bounds.left;
       const distanceFromRight = bounds.right - x;
       return [bounds.left + distanceFromRight, y] as [number, number];
     });
@@ -205,7 +204,6 @@ export const oneBigTwoSmallLayout = (): Panel[] => {
   const availableHeight = 1000 - (2 * margin);
   
   const leftWidth = (availableWidth - gap) * 0.5; // 50% of available width
-  const rightWidth = availableWidth - leftWidth - gap;
   const rightPanelHeight = (availableHeight - gap) / 2;
   
   return [
