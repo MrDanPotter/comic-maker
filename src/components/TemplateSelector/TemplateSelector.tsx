@@ -68,7 +68,7 @@ const PreviewPanel = styled.path`
 
 const TemplateName = styled.div<{ $isHorizontal?: boolean }>`
   position: absolute;
-  bottom: ${props => props.$isHorizontal ? '5px' : '-25px'};
+  bottom: ${props => props.$isHorizontal ? '5px' : '-5px'};
   left: 0;
   right: 0;
   text-align: center;
