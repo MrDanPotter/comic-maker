@@ -5,6 +5,7 @@ import ComicPage from './components/ComicAssembly/ComicPage';
 import ImageLibrary from './components/ImageLibrary/ImageLibrary';
 import TemplateSelector from './components/TemplateSelector/TemplateSelector';
 import { Panel } from './types/comic';
+import { ComicPage as ComicPageType } from './types/comic';
 import { 
   fullPageLayout,
   widePageLayout,
@@ -121,11 +122,6 @@ const ResponsiveImageLibrary = styled.div`
   height: 100%;
 `;
 
-interface ComicPageObj {
-  id: string;
-  panels: Panel[];
-}
-
 interface LibraryImage {
   id: string;
   url: string;
@@ -175,7 +171,7 @@ const useResponsive = (breakpoint: number = 768) => {
 };
 
 function App() {
-  const [pages, setPages] = useState<ComicPageObj[]>([
+  const [pages, setPages] = useState<ComicPageType[]>([
     { id: "1", panels: defaultPageLayout() },
   ]);
   const [images, setImages] = useState<LibraryImage[]>([]);
@@ -281,7 +277,7 @@ function App() {
 
   const handleTemplateSelect = (templateName: LayoutType) => {
     const pageNumber = pages.length + 1;
-    const newPage: ComicPageObj = {
+    const newPage: ComicPageType = {
       id: pageNumber.toString(),
       panels: layouts[templateName](),
     };
