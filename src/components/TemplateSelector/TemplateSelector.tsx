@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { Panel } from '../../types/comic';
 import { pointsToSvgPath } from '../../utils/polygonUtils';
+import { LayoutType } from '../../utils/layouts';
 
 const SelectorContainer = styled.div<{ $isHorizontal?: boolean }>`
   width: ${props => props.$isHorizontal ? 'auto' : '300px'};
@@ -77,16 +78,6 @@ const TemplateName = styled.div<{ $isHorizontal?: boolean }>`
   margin-bottom: ${props => props.$isHorizontal ? '0' : '10px'};
   font-size: ${props => props.$isHorizontal ? '12px' : '14px'};
 `;
-
-type LayoutType = 
-  | "fullPage"
-  | "widePage" 
-  | "sixPanels"
-  | "fourPanels"
-  | "oneBigTwoSmall"
-  | "threePanels"
-  | "twoPanels"
-  | "threePanelAction";
 
 interface TemplateSelectorProps {
   onTemplateSelect: (templateName: LayoutType) => void;

@@ -25,16 +25,10 @@ import TemplateSelector from './components/TemplateSelector/TemplateSelector';
 import { Panel } from './types/comic';
 import { ComicPage as ComicPageType } from './types/comic';
 import { 
-  fullPageLayout,
-  widePageLayout,
-  sixPanelsLayout,
-  fourPanelsLayout,
-  oneBigTwoSmallLayout,
-  threePanelsLayout,
-  twoPanelsLayout,
-  threePanelActionLayout,
   rotatePanels,
-  mirrorPanels
+  mirrorPanels,
+  layouts,
+  LayoutType
 } from './utils/layouts';
 
 const AppContainer = styled.div<{ $isResponsive: boolean }>`
@@ -140,36 +134,7 @@ const ResponsiveImageLibrary = styled.div`
   height: 100%;
 `;
 
-interface LibraryImage {
-  id: string;
-  url: string;
-  isPlaced?: boolean;
-}
-
-type LayoutType = 
-  | "fullPage"
-  | "widePage" 
-  | "sixPanels"
-  | "fourPanels"
-  | "oneBigTwoSmall"
-  | "threePanels"
-  | "twoPanels"
-  | "threePanelAction";
-
 type ResponsivePanel = 'none' | 'templates' | 'images';
-
-const layouts: Record<LayoutType, () => Panel[]> = {
-  fullPage: fullPageLayout,
-  widePage: widePageLayout,
-  sixPanels: sixPanelsLayout,
-  fourPanels: fourPanelsLayout,
-  oneBigTwoSmall: oneBigTwoSmallLayout,
-  threePanels: threePanelsLayout,
-  twoPanels: twoPanelsLayout,
-  threePanelAction: threePanelActionLayout
-};
-
-const defaultPageLayout = layouts.fullPage;
 
 // Custom hook for responsive design
 const useResponsive = (breakpoint: number = 768) => {
@@ -189,139 +154,44 @@ const useResponsive = (breakpoint: number = 768) => {
 };
 
 function App() {
-  // REDUX HOOKS - NEW CODE
   const dispatch = useAppDispatch();
   const reduxPages = useAppSelector(selectAllPages);
   const reduxImages = useAppSelector(selectAllImages);
-  const currentPageId = useAppSelector(selectCurrentPageId);
-  // END REDUX HOOKS
-
-  // EXISTING STATE - TO BE DELETED
-  const [pages, setPages] = useState<ComicPageType[]>([
-    { id: "1", panels: defaultPageLayout() },
-  ]);
-  const [images, setImages] = useState<LibraryImage[]>([]);
+  
   const [draggedImageUrl, setDraggedImageUrl] = useState<string | null>(null);
   const [activePanel, setActivePanel] = useState<ResponsivePanel>('none');
-  // END EXISTING STATE
   
   const isResponsive = useResponsive(768);
 
-  // REDUX INITIALIZATION - NEW CODE
-  // useEffect(() => {
-  //   // Initialize with a default page if no pages exist
-  //   if (reduxPages.length === 0) {
-  //     const defaultPage: ComicPageType = {
-  //       id: "1",
-  //       panels: defaultPageLayout(),
-  //     };
-  //     dispatch(addPage(defaultPage));
-  //   }
-  // }, [dispatch, reduxPages.length]);
-  // END REDUX INITIALIZATION
-
   const handleMovePageUp = (pageIndex: number) => {
-    // REDUX VERSION - NEW CODE
-    // if (pageIndex > 0) {
-    //   const newPages = [...reduxPages];
-    //   [newPages[pageIndex - 1], newPages[pageIndex]] = [newPages[pageIndex], newPages[pageIndex - 1]];
-    //   dispatch(reorderPages(newPages));
-    // }
-    // END REDUX VERSION
-
-    // EXISTING CODE - TO BE DELETED
     if (pageIndex > 0) {
-      setPages(prevPages => {
-        const newPages = [...prevPages];
-        [newPages[pageIndex - 1], newPages[pageIndex]] = [newPages[pageIndex], newPages[pageIndex - 1]];
-        return newPages;
-      });
+      const newPages = [...reduxPages];
+      [newPages[pageIndex - 1], newPages[pageIndex]] = [newPages[pageIndex], newPages[pageIndex - 1]];
+      dispatch(reorderPages(newPages));
     }
-    // END EXISTING CODE
   };
 
   const handleMovePageDown = (pageIndex: number) => {
-    // REDUX VERSION - NEW CODE
-    // if (pageIndex < reduxPages.length - 1) {
-    //   const newPages = [...reduxPages];
-    //   [newPages[pageIndex], newPages[pageIndex + 1]] = [newPages[pageIndex + 1], newPages[pageIndex]];
-    //   dispatch(reorderPages(newPages));
-    // }
-    // END REDUX VERSION
-
-    // EXISTING CODE - TO BE DELETED
-    if (pageIndex < pages.length - 1) {
-      setPages(prevPages => {
-        const newPages = [...prevPages];
-        [newPages[pageIndex], newPages[pageIndex + 1]] = [newPages[pageIndex + 1], newPages[pageIndex]];
-        return newPages;
-      });
+    if (pageIndex < reduxPages.length - 1) {
+      const newPages = [...reduxPages];
+      [newPages[pageIndex], newPages[pageIndex + 1]] = [newPages[pageIndex + 1], newPages[pageIndex]];
+      dispatch(reorderPages(newPages));
     }
-    // END EXISTING CODE
   };
 
   const handleDeletePage = (pageId: string) => {
-    // REDUX VERSION - NEW CODE
-    // dispatch(removePage(pageId));
-    // END REDUX VERSION
-
-    // EXISTING CODE - TO BE DELETED
-    setPages(prevPages => prevPages.filter(page => page.id !== pageId));
-    // END EXISTING CODE
+    dispatch(removePage(pageId));
   };
 
   const handleDragStart = (result: any) => {
-    // REDUX VERSION - NEW CODE
-    // const imageId = result.draggableId;
-    // const draggedImage = reduxImages.find(img => img.id === imageId);
-    // if (draggedImage) {
-    //   setDraggedImageUrl(draggedImage.url);
-    // }
-    // END REDUX VERSION
-
-    // EXISTING CODE - TO BE DELETED
     const imageId = result.draggableId;
-    const draggedImage = images.find(img => img.id === imageId);
+    const draggedImage = reduxImages.find(img => img.id === imageId);
     if (draggedImage) {
       setDraggedImageUrl(draggedImage.url);
     }
-    // END EXISTING CODE
   };
 
   const handleDragEnd = (result: DropResult) => {
-    // REDUX VERSION - NEW CODE
-    // setDraggedImageUrl(null);
-    // if (!result.destination) return;
-
-    // const destId = result.destination.droppableId;
-    // const imageId = result.draggableId;
-
-    // // Only handle drops into comic panels
-    // if (destId.includes('-')) {
-    //   // Get the full panel ID by taking everything after the first dash
-    //   const destPageId = destId.split('-')[0];
-    //   const destPanelId = destId.substring(destId.indexOf('-') + 1);
-     
-    //   // Find the image that was dragged
-    //   const draggedImage = reduxImages.find(img => img.id === imageId);
-    //   if (!draggedImage) {
-    //     console.warn('Image not found:', imageId);
-    //     return;
-    //   }
-
-    //   // Mark image as used in this panel
-    //   dispatch(markImageAsUsed({ imageId, panelId: destPanelId }));
-
-    //   // Update the panel with the image URL
-    //   dispatch(setPanelImage({ 
-    //     pageId: destPageId, 
-    //     panelId: destPanelId, 
-    //     imageUrl: draggedImage.url 
-    //   }));
-    // }
-    // END REDUX VERSION
-
-    // EXISTING CODE - TO BE DELETED
     setDraggedImageUrl(null);
     if (!result.destination) return;
 
@@ -335,42 +205,25 @@ function App() {
       const destPanelId = destId.substring(destId.indexOf('-') + 1);
      
       // Find the image that was dragged
-      const draggedImage = images.find(img => img.id === imageId);
+      const draggedImage = reduxImages.find(img => img.id === imageId);
       if (!draggedImage) {
         console.warn('Image not found:', imageId);
         return;
       }
 
-      // Update the image's placed status
-      setImages(prevImages => prevImages.map(img => 
-        img.id === imageId ? { ...img, isPlaced: true } : img
-      ));
+      // Mark image as used in this panel
+      dispatch(markImageAsUsed({ imageId, panelId: destPanelId }));
 
       // Update the panel with the image URL
-      setPages(prevPages => {
-        const updatedPages = prevPages.map(page => {
-          if (page.id === destPageId) {
-            return {
-              ...page,
-              panels: page.panels.map(panel => {
-                if (panel.id === destPanelId) {
-                  return { ...panel, imageUrl: draggedImage.url };
-                }
-                return panel;
-              }),
-            };
-          }
-          return page;
-        });
-
-        return updatedPages;
-      });
+      dispatch(setPanelImage({ 
+        pageId: destPageId, 
+        panelId: destPanelId, 
+        imageUrl: draggedImage.url 
+      }));
     }
-    // END EXISTING CODE
   };
 
   const handleImageUpload = (files: FileList) => {
-    // REDUX VERSION - NEW CODE
     Array.from(files).forEach(file => {
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -386,133 +239,59 @@ function App() {
       };
       reader.readAsDataURL(file);
     });
-    // END REDUX VERSION
-
-    // EXISTING CODE - TO BE DELETED
-    // Array.from(files).forEach(file => {
-    //   const reader = new FileReader();
-    //   reader.onload = (e) => {
-    //     if (e.target?.result) {
-    //       const newImage: LibraryImage = {
-    //         id: `image-${Date.now()}-${file.name}`,
-    //         url: e.target.result as string,
-    //       };
-    //       setImages(prev => [...prev, newImage]);
-    //     }
-    //   };
-    //   reader.readAsDataURL(file);
-    // });
-    // END EXISTING CODE
   };
 
   const handleTemplateSelect = (templateName: LayoutType) => {
-    // REDUX VERSION - NEW CODE
-    // const pageNumber = reduxPages.length + 1;
-    // const newPage: ComicPageType = {
-    //   id: pageNumber.toString(),
-    //   panels: layouts[templateName](),
-    // };
-    // dispatch(addPage(newPage));
-    // console.log('Added new page:', newPage.id);
-    
-    // // Close panel after selection on mobile
-    // if (isResponsive) {
-    //   setActivePanel('none');
-    // }
-    // END REDUX VERSION
-
-    // EXISTING CODE - TO BE DELETED
-    const pageNumber = pages.length + 1;
+    const pageNumber = reduxPages.length + 1;
     const newPage: ComicPageType = {
       id: pageNumber.toString(),
       panels: layouts[templateName](),
     };
-    setPages(prev => [...prev, newPage]);
+    dispatch(addPage(newPage));
     console.log('Added new page:', newPage.id);
     
     // Close panel after selection on mobile
     if (isResponsive) {
       setActivePanel('none');
     }
-    // END EXISTING CODE
   };
 
   const handleRotatePage = (pageId: string) => {
-    // REDUX VERSION - NEW CODE
-    // const page = reduxPages.find(p => p.id === pageId);
-    // if (page) {
-    //   const rotatedPanels = rotatePanels(page.panels);
-    //   rotatedPanels.forEach((panel, index) => {
-    //     dispatch(updatePanel({ 
-    //       pageId, 
-    //       panelId: panel.id, 
-    //       updates: panel 
-    //     }));
-    //   });
-    // }
-    // END REDUX VERSION
-
-    // EXISTING CODE - TO BE DELETED
-    setPages(prevPages => {
-      return prevPages.map(page => {
-        if (page.id === pageId) {
-          return {
-            ...page,
-            panels: rotatePanels(page.panels)
-          };
-        }
-        return page;
+    const page = reduxPages.find(p => p.id === pageId);
+    if (page) {
+      const rotatedPanels = rotatePanels(page.panels);
+      rotatedPanels.forEach((panel, index) => {
+        dispatch(updatePanel({ 
+          pageId, 
+          panelId: panel.id, 
+          updates: panel 
+        }));
       });
-    });
-    // END EXISTING CODE
+    }
   };
 
   const handleMirrorPage = (pageId: string) => {
-    // REDUX VERSION - NEW CODE
-    // const page = reduxPages.find(p => p.id === pageId);
-    // if (page) {
-    //   const mirroredPanels = mirrorPanels(page.panels);
-    //   mirroredPanels.forEach((panel, index) => {
-    //     dispatch(updatePanel({ 
-    //       pageId, 
-    //       panelId: panel.id, 
-    //       updates: panel 
-    //     }));
-    //   });
-    // }
-    // END REDUX VERSION
-
-    // EXISTING CODE - TO BE DELETED
-    setPages(prevPages => {
-      return prevPages.map(page => {
-        if (page.id === pageId) {
-          return {
-            ...page,
-            panels: mirrorPanels(page.panels)
-          };
-        }
-        return page;
+    const page = reduxPages.find(p => p.id === pageId);
+    if (page) {
+      const mirroredPanels = mirrorPanels(page.panels);
+      mirroredPanels.forEach((panel, index) => {
+        dispatch(updatePanel({ 
+          pageId, 
+          panelId: panel.id, 
+          updates: panel 
+        }));
       });
-    });
-    // END EXISTING CODE
+    }
   };
 
   const handlePanelsUpdate = (pageId: string, updatedPanels: Panel[]) => {
-    // REDUX VERSION - NEW CODE
-    // updatedPanels.forEach(panel => {
-    //   dispatch(updatePanel({ 
-    //     pageId, 
-    //     panelId: panel.id, 
-    //     updates: panel 
-    //   }));
-    // });
-    // END REDUX VERSION
-
-    // EXISTING CODE - TO BE DELETED
-    setPages(prevPages => prevPages.map(page => 
-      page.id === pageId ? { ...page, panels: updatedPanels } : page
-    ));
-    // END EXISTING CODE
+    updatedPanels.forEach(panel => {
+      dispatch(updatePanel({ 
+        pageId, 
+        panelId: panel.id, 
+        updates: panel 
+      }));
+    });
   };
 
   const togglePanel = (panel: ResponsivePanel) => {
@@ -530,8 +309,7 @@ function App() {
         </DesktopSidePanels>
         
         <ComicContainer $isResponsive={isResponsive}>
-          {/* REDUX VERSION - NEW CODE */}
-          {/* {reduxPages.map((page, index) => (
+          {reduxPages.map((page, index) => (
             <ComicPage
               key={page.id}
               pageId={page.id}
@@ -547,28 +325,7 @@ function App() {
               isLastPage={index === reduxPages.length - 1}
               draggedImageUrl={draggedImageUrl}
             />
-          ))} */}
-          {/* END REDUX VERSION */}
-
-          {/* EXISTING CODE - TO BE DELETED */}
-          {pages.map((page, index) => (
-            <ComicPage
-              key={page.id}
-              pageId={page.id}
-              displayNumber={index + 1}
-              panels={page.panels}
-              onDelete={() => handleDeletePage(page.id)}
-              onMoveUp={() => handleMovePageUp(index)}
-              onMoveDown={() => handleMovePageDown(index)}
-              onRotate={() => handleRotatePage(page.id)}
-              onMirror={() => handleMirrorPage(page.id)}
-              onPanelsUpdate={(panels) => handlePanelsUpdate(page.id, panels)}
-              isFirstPage={index === 0}
-              isLastPage={index === pages.length - 1}
-              draggedImageUrl={draggedImageUrl}
-            />
           ))}
-          {/* END EXISTING CODE */}
         </ComicContainer>
         
         {/* TODO: Don't like that we have a DesktopSidePanels and a BottomPanel here.  It made it so that we had to 

@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { ComicPage, Panel } from '../../types/comic';
+import { layouts } from '../../utils/layouts';
 
 interface ComicPagesState {
   pages: ComicPage[];
@@ -7,7 +8,10 @@ interface ComicPagesState {
 }
 
 const initialState: ComicPagesState = {
-  pages: [],
+  pages: [{
+    id: "1",
+    panels: layouts.fullPage(),
+  }],
   currentPageId: null,
 };
 

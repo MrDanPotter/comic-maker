@@ -320,3 +320,24 @@ export const threePanelActionLayout = (): Panel[] => {
     ])
   ];
 }; 
+
+export type LayoutType = 
+  | "fullPage"
+  | "widePage" 
+  | "sixPanels"
+  | "fourPanels"
+  | "oneBigTwoSmall"
+  | "threePanels"
+  | "twoPanels"
+  | "threePanelAction";
+
+export const layouts: Record<LayoutType, () => Panel[]> = {
+  fullPage: fullPageLayout,
+  widePage: widePageLayout,
+  sixPanels: sixPanelsLayout,
+  fourPanels: fourPanelsLayout,
+  oneBigTwoSmall: oneBigTwoSmallLayout,
+  threePanels: threePanelsLayout,
+  twoPanels: twoPanelsLayout,
+  threePanelAction: threePanelActionLayout
+};
