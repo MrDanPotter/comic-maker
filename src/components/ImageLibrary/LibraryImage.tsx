@@ -5,14 +5,14 @@ import { Check } from 'react-feather';
 interface LibraryImageProps {
   src: string;
   alt: string;
-  isPlaced?: boolean;
+  isUsed?: boolean;
 }
 
-const ImageContainer = styled.div<{ $isPlaced?: boolean }>`
+const ImageContainer = styled.div<{ $isUsed?: boolean }>`
   position: relative;
   width: 100%;
   height: 100%;
-  border: ${props => props.$isPlaced ? '3px solid #4CAF50' : 'none'};
+  border: ${props => props.$isUsed ? '3px solid #4CAF50' : 'none'};
   border-radius: 4px;
   overflow: hidden;
 `;
@@ -36,11 +36,11 @@ const CheckmarkOverlay = styled.div`
   color: white;
 `;
 
-const LibraryImage: React.FC<LibraryImageProps> = ({ src, alt, isPlaced = false }) => {
+const LibraryImage: React.FC<LibraryImageProps> = ({ src, alt, isUsed = false }) => {
   return (
-    <ImageContainer $isPlaced={isPlaced}>
+    <ImageContainer $isUsed={isUsed}>
       <StyledImage src={src} alt={alt} />
-      {isPlaced && (
+      {isUsed && (
         <CheckmarkOverlay>
           <Check size={16} />
         </CheckmarkOverlay>

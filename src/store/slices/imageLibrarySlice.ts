@@ -1,11 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-
-export interface Image {
-  id: string;
-  url: string;
-  isUsed: boolean;
-  usedInPanels: string[]; // Array of panel IDs where this image is used
-}
+import { Image } from '../../types/comic';
 
 interface ImageLibraryState {
   images: Image[];

@@ -2,14 +2,11 @@ import React from 'react';
 import styled from 'styled-components';
 import { Draggable, Droppable } from '@hello-pangea/dnd';
 import LibraryImage from './LibraryImage';
+import { Image } from '../../types/comic';
 
 interface ImageLibraryProps {
   onImageUpload: (files: FileList) => void;
-  images: Array<{
-    id: string;
-    url: string;
-    isPlaced?: boolean;
-  }>;
+  images: Image[];
   isHorizontal?: boolean;
 }
 
@@ -145,7 +142,7 @@ const ImageLibrary: React.FC<ImageLibraryProps> = ({ onImageUpload, images, isHo
                     <LibraryImage 
                       src={image.url} 
                       alt={`Library item ${index + 1}`}
-                      isPlaced={image.isPlaced}
+                      isUsed={image.isUsed}
                     />
                   </DraggableImage>
                 )}
