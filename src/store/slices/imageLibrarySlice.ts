@@ -45,4 +45,14 @@ const imageLibrarySlice = createSlice({
 });
 
 export const { addImage, removeImage, markImageAsUsed, markImageAsUnused } = imageLibrarySlice.actions;
+
+// Selectors
+export const selectAllImages = (state: { imageLibrary: ImageLibraryState }) => state.imageLibrary.images;
+export const selectImageById = (state: { imageLibrary: ImageLibraryState }, imageId: string) => 
+  state.imageLibrary.images.find(image => image.id === imageId);
+export const selectUsedImages = (state: { imageLibrary: ImageLibraryState }) => 
+  state.imageLibrary.images.filter(image => image.isUsed);
+export const selectUnusedImages = (state: { imageLibrary: ImageLibraryState }) => 
+  state.imageLibrary.images.filter(image => !image.isUsed);
+
 export default imageLibrarySlice.reducer; 

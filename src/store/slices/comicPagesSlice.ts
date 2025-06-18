@@ -56,4 +56,15 @@ export const {
   updatePanel,
   setPanelImage
 } = comicPagesSlice.actions;
+
+// Selectors
+export const selectAllPages = (state: { comicPages: ComicPagesState }) => state.comicPages.pages;
+export const selectCurrentPageId = (state: { comicPages: ComicPagesState }) => state.comicPages.currentPageId;
+export const selectPageById = (state: { comicPages: ComicPagesState }, pageId: string) => 
+  state.comicPages.pages.find(page => page.id === pageId);
+export const selectPanelById = (state: { comicPages: ComicPagesState }, pageId: string, panelId: string) => {
+  const page = state.comicPages.pages.find(p => p.id === pageId);
+  return page?.panels.find(p => p.id === panelId);
+};
+
 export default comicPagesSlice.reducer; 
