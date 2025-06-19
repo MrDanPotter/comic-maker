@@ -15,6 +15,7 @@ interface ComicPageProps {
   onRotate?: () => void;
   onMirror?: () => void;
   onPanelsUpdate: (panels: Panel[]) => void;
+  onPanelImageUpdate: (panelId: string, imageUrl: string) => void;
   isFirstPage?: boolean;
   isLastPage?: boolean;
   draggedImageUrl: string | null;
@@ -53,6 +54,7 @@ const ComicPage: React.FC<ComicPageProps> = ({
   onRotate,
   onMirror,
   onPanelsUpdate,
+  onPanelImageUpdate,
   isFirstPage,
   isLastPage,
   draggedImageUrl
@@ -76,7 +78,12 @@ const ComicPage: React.FC<ComicPageProps> = ({
         pageId={pageId} 
         onPanelsUpdate={onPanelsUpdate}
       />
-      <DragDropLayer panels={panels} pageId={pageId} draggedImageUrl={draggedImageUrl} />
+      <DragDropLayer 
+        panels={panels} 
+        pageId={pageId} 
+        draggedImageUrl={draggedImageUrl}
+        onPanelImageUpdate={onPanelImageUpdate}
+      />
     </PageContainer>
   );
 };

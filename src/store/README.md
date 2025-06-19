@@ -100,12 +100,47 @@ The application includes a modal component (`src/components/Header/AiKeyModal.ts
 - **Form Validation**: Prevents submission of empty keys
 - **Responsive Design**: Works on both desktop and mobile
 
+### AI Image Generation Components
+
+#### AI Sparkle Button (`src/components/ComicAssembly/AiSparkleButton.tsx`)
+- **Appearance**: Sparkle icon button that appears on panel hover when AI is enabled
+- **Animation**: Smooth fade-in/out with sparkle animation effect
+- **Positioning**: Top-right corner of each panel
+- **Interaction**: Click to open AI image generation modal
+
+#### AI Image Modal (`src/components/ComicAssembly/AiImageModal.tsx`)
+- **Prompt Input**: Large text area for describing the desired image
+- **Aspect Ratio Checkbox**: Option to enforce panel aspect ratio
+- **Generate Button**: Submits the request to OpenAI API
+- **Loading State**: Shows spinner during generation
+- **Preview Section**: Displays generated image with "Use This Image" button
+- **Error Handling**: Shows error messages if generation fails
+
+#### AI Enhanced SVG Panel (`src/components/ComicAssembly/AiEnhancedSvgPanel.tsx`)
+- **Wrapper Component**: Enhances the base SvgPanel with AI functionality
+- **Hover Detection**: Shows sparkle buttons when hovering over panels
+- **Modal Management**: Handles AI image generation modal state
+- **Aspect Ratio Calculation**: Automatically calculates panel aspect ratios
+
+## Services
+
+### OpenAI Service (`src/services/openaiService.ts`)
+- **Image Generation**: Stubbed implementation for DALL-E API calls
+- **API Key Validation**: Validates OpenAI API key format
+- **Error Handling**: Comprehensive error handling for API calls
+- **Type Safety**: TypeScript interfaces for requests and responses
+
 ## AI Integration Flow
 
 1. **User clicks "Enable AI" toggle** - If no API key exists, modal appears
 2. **User enters API key** - Key is validated and stored in Redux
 3. **AI is enabled** - Toggle switches to enabled state
-4. **Future AI features** - Can access the API key via `selectApiKey` selector
+4. **User hovers over panel** - Sparkle button appears
+5. **User clicks sparkle button** - AI image generation modal opens
+6. **User enters prompt** - Describes the desired image
+7. **User clicks Generate** - Request is sent to OpenAI API
+8. **Image is generated** - Preview is shown with option to use
+9. **User clicks "Use This Image"** - Image is applied to the panel
 
 ## Migration Process
 
@@ -125,6 +160,7 @@ To test each section individually:
 3. **Image Management** - Uncomment the Redux version of image management handlers
 4. **Drag and Drop** - Uncomment the Redux version of drag and drop handlers
 5. **UI Rendering** - Uncomment the Redux version of JSX rendering
+6. **AI Features** - Test AI toggle, API key modal, and image generation
 
 ## Usage
 
@@ -152,6 +188,18 @@ const MyComponent = () => {
 };
 ```
 
+### AI Image Generation
+```typescript
+import { generateImage } from '../services/openaiService';
+
+const handleGenerateImage = async (prompt: string, aspectRatio: string, apiKey: string) => {
+  const response = await generateImage({ prompt, aspectRatio, apiKey });
+  if (response.success) {
+    // Use response.imageUrl
+  }
+};
+```
+
 ### Type Safety
 The store includes typed hooks:
 - `useAppDispatch()` - Typed dispatch function
@@ -163,6 +211,7 @@ The store includes typed hooks:
 2. Remove the old state management code once Redux is working
 3. Add additional Redux features as needed
 4. Consider adding Redux DevTools for debugging
-5. Implement AI features that respond to the `aiEnabled` state and use the stored API key
+5. Implement actual OpenAI API calls in the service
 6. Add API key validation and error handling
-7. Consider adding API key encryption for enhanced security 
+7. Consider adding API key encryption for enhanced security
+8. Add more AI features like text generation, story suggestions, etc. 

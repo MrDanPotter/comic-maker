@@ -310,6 +310,14 @@ function App() {
     });
   };
 
+  const handlePanelImageUpdate = (pageId: string, panelId: string, imageUrl: string) => {
+    dispatch(setPanelImage({ 
+      pageId, 
+      panelId, 
+      imageUrl 
+    }));
+  };
+
   const togglePanel = (panel: ResponsivePanel) => {
     setActivePanel(prev => prev === panel ? 'none' : panel);
   };
@@ -338,6 +346,7 @@ function App() {
               onRotate={() => handleRotatePage(page.id)}
               onMirror={() => handleMirrorPage(page.id)}
               onPanelsUpdate={(panels) => handlePanelsUpdate(page.id, panels)}
+              onPanelImageUpdate={(panelId, imageUrl) => handlePanelImageUpdate(page.id, panelId, imageUrl)}
               isFirstPage={index === 0}
               isLastPage={index === reduxPages.length - 1}
               draggedImageUrl={draggedImageUrl}
