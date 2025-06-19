@@ -10,6 +10,15 @@ A React-based web application for creating and assembling comic strips. This too
   - `TemplateSelector/` - Components for selecting comic templates and layouts
 - `src/utils/` - Utility functions and helper code
 
+## Technologies Used
+
+- **React** - Frontend framework
+- **TypeScript** - Type safety and development experience
+- **Styled Components** - CSS-in-JS styling
+- **React Feather** - Icon library (all icons throughout the application come from react-feather)
+- **Redux Toolkit** - State management
+- **Storybook** - Component development and testing environment
+
 ## Getting Started
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
