@@ -22,6 +22,7 @@ import {
 import ComicPage from './components/ComicAssembly/ComicPage';
 import ImageLibrary from './components/ImageLibrary/ImageLibrary';
 import TemplateSelector from './components/TemplateSelector/TemplateSelector';
+import Header from './components/Header/Header';
 import { Panel } from './types/comic';
 import { ComicPage as ComicPageType } from './types/comic';
 import { 
@@ -36,6 +37,7 @@ const AppContainer = styled.div<{ $isResponsive: boolean }>`
   min-height: 100vh;
   background: #e9ecef;
   flex-direction: ${props => props.$isResponsive ? 'column' : 'row'};
+  padding-top: 60px; /* Account for fixed header */
 `;
 
 const ComicContainer = styled.div<{ $isResponsive: boolean }>`
@@ -49,6 +51,20 @@ const ComicContainer = styled.div<{ $isResponsive: boolean }>`
 
 const DesktopSidePanels = styled.div<{ $isResponsive: boolean }>`
   display: ${props => props.$isResponsive ? 'none' : 'flex'};
+  position: fixed;
+  top: 60px; /* Account for fixed header */
+  bottom: 0;
+  z-index: 100;
+  
+  &:first-of-type {
+    left: 0;
+    width: 300px;
+  }
+  
+  &:last-of-type {
+    right: 0;
+    width: 300px;
+  }
 `;
 
 const BottomPanel = styled.div<{ $isResponsive: boolean; $isVisible: boolean }>`
@@ -304,6 +320,7 @@ function App() {
       onDragStart={handleDragStart}
     >
       <AppContainer $isResponsive={isResponsive}>
+        <Header />
         <DesktopSidePanels $isResponsive={isResponsive}>
           <TemplateSelector onTemplateSelect={handleTemplateSelect} templates={layouts} />
         </DesktopSidePanels>

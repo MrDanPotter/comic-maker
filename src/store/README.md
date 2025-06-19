@@ -4,10 +4,11 @@ This document describes the Redux integration for the Comic Maker application.
 
 ## Overview
 
-The application has been integrated with Redux for state management. The Redux store is set up with two main slices:
+The application has been integrated with Redux for state management. The Redux store is set up with three main slices:
 
 1. **comicPagesSlice** - Manages comic pages and panels
 2. **imageLibrarySlice** - Manages uploaded images
+3. **appStateSlice** - Manages application-wide state (AI toggle, etc.)
 
 ## Store Structure
 
@@ -23,6 +24,13 @@ interface ComicPagesState {
 ```typescript
 interface ImageLibraryState {
   images: Image[];
+}
+```
+
+### App State
+```typescript
+interface AppState {
+  aiEnabled: boolean;
 }
 ```
 
@@ -42,6 +50,10 @@ interface ImageLibraryState {
 - `markImageAsUsed({ imageId, panelId })` - Mark an image as used in a panel
 - `markImageAsUnused({ imageId, panelId })` - Mark an image as unused in a panel
 
+### App State Actions
+- `toggleAi()` - Toggle the AI enabled state
+- `setAiEnabled(enabled: boolean)` - Set the AI enabled state
+
 ## Selectors
 
 ### Comic Pages Selectors
@@ -55,6 +67,19 @@ interface ImageLibraryState {
 - `selectImageById` - Get a specific image by ID
 - `selectUsedImages` - Get all used images
 - `selectUnusedImages` - Get all unused images
+
+### App State Selectors
+- `selectAiEnabled` - Get the AI enabled state
+
+## Components
+
+### Header Component
+The application includes a fixed header component (`src/components/Header/Header.tsx`) that features:
+
+- **App Title**: "Comic Maker" with Orbitron font styling
+- **AI Toggle**: A toggle switch to enable/disable AI features
+- **Responsive Design**: Adapts to mobile and desktop layouts
+- **Redux Integration**: Connected to the app state slice
 
 ## Migration Process
 
@@ -81,13 +106,19 @@ To test each section individually:
 ```typescript
 import { useAppDispatch, useAppSelector } from '../store/store';
 import { selectAllPages, addPage } from '../store/slices/comicPagesSlice';
+import { selectAiEnabled, toggleAi } from '../store/slices/appStateSlice';
 
 const MyComponent = () => {
   const dispatch = useAppDispatch();
   const pages = useAppSelector(selectAllPages);
+  const aiEnabled = useAppSelector(selectAiEnabled);
   
   const handleAddPage = () => {
     dispatch(addPage(newPage));
+  };
+  
+  const handleToggleAi = () => {
+    dispatch(toggleAi());
   };
   
   return <div>{/* component JSX */}</div>;
@@ -104,4 +135,5 @@ The store includes typed hooks:
 1. Test the Redux integration by uncommenting sections one at a time
 2. Remove the old state management code once Redux is working
 3. Add additional Redux features as needed
-4. Consider adding Redux DevTools for debugging 
+4. Consider adding Redux DevTools for debugging
+5. Implement AI features that respond to the `aiEnabled` state 

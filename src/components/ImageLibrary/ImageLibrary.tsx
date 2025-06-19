@@ -107,8 +107,8 @@ const ImageLibrary: React.FC<ImageLibraryProps> = ({ onImageUpload, images, isHo
   };
 
   return (
-    <LibraryContainer $isHorizontal={isHorizontal}>
-      <ButtonContainer $isHorizontal={isHorizontal}>
+    <LibraryContainer id="libcontainer" $isHorizontal={isHorizontal}>
+      <ButtonContainer id="buttonContainer" $isHorizontal={isHorizontal}>
         <PrintButton onClick={handlePrint}>Print</PrintButton>
         <UploadButton>
           Upload Images
