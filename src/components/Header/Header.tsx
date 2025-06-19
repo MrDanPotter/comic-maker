@@ -1,7 +1,14 @@
 import React from 'react';
 import styled from 'styled-components';
 import { useAppDispatch, useAppSelector } from '../../store/store';
-import { toggleAi, selectAiEnabled } from '../../store/slices/appStateSlice';
+import { 
+  toggleAi, 
+  selectAiEnabled, 
+  selectShowApiKeyModal,
+  hideApiKeyModal,
+  setApiKey 
+} from '../../store/slices/appStateSlice';
+import AiKeyModal from './AiKeyModal';
 
 const HeaderContainer = styled.header`
   position: fixed;
@@ -83,24 +90,41 @@ const ToggleSwitch = styled.div<{ $isEnabled: boolean }>`
 const Header: React.FC = () => {
   const dispatch = useAppDispatch();
   const aiEnabled = useAppSelector(selectAiEnabled);
+  const showApiKeyModal = useAppSelector(selectShowApiKeyModal);
 
   const handleToggleAi = () => {
     dispatch(toggleAi());
   };
 
+  const handleCloseModal = () => {
+    dispatch(hideApiKeyModal());
+  };
+
+  const handleSubmitApiKey = (apiKey: string) => {
+    dispatch(setApiKey(apiKey));
+  };
+
   return (
-    <HeaderContainer>
-      <AppTitle>Comic Maker</AppTitle>
-      <AiToggleContainer>
-        <AiToggleLabel onClick={handleToggleAi}>
-          Enable AI
-        </AiToggleLabel>
-        <ToggleSwitch 
-          $isEnabled={aiEnabled} 
-          onClick={handleToggleAi}
-        />
-      </AiToggleContainer>
-    </HeaderContainer>
+    <>
+      <HeaderContainer>
+        <AppTitle>Comic Maker</AppTitle>
+        <AiToggleContainer>
+          <AiToggleLabel onClick={handleToggleAi}>
+            Enable AI
+          </AiToggleLabel>
+          <ToggleSwitch 
+            $isEnabled={aiEnabled} 
+            onClick={handleToggleAi}
+          />
+        </AiToggleContainer>
+      </HeaderContainer>
+      
+      <AiKeyModal
+        isOpen={showApiKeyModal}
+        onClose={handleCloseModal}
+        onSubmit={handleSubmitApiKey}
+      />
+    </>
   );
 };
 

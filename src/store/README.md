@@ -8,7 +8,7 @@ The application has been integrated with Redux for state management. The Redux s
 
 1. **comicPagesSlice** - Manages comic pages and panels
 2. **imageLibrarySlice** - Manages uploaded images
-3. **appStateSlice** - Manages application-wide state (AI toggle, etc.)
+3. **appStateSlice** - Manages application-wide state (AI toggle, API key, etc.)
 
 ## Store Structure
 
@@ -31,6 +31,8 @@ interface ImageLibraryState {
 ```typescript
 interface AppState {
   aiEnabled: boolean;
+  apiKey: string | null;
+  showApiKeyModal: boolean;
 }
 ```
 
@@ -51,8 +53,12 @@ interface AppState {
 - `markImageAsUnused({ imageId, panelId })` - Mark an image as unused in a panel
 
 ### App State Actions
-- `toggleAi()` - Toggle the AI enabled state
+- `toggleAi()` - Toggle the AI enabled state (shows modal if no API key)
 - `setAiEnabled(enabled: boolean)` - Set the AI enabled state
+- `setApiKey(apiKey: string)` - Set the OpenAI API key and enable AI
+- `showApiKeyModal()` - Show the API key input modal
+- `hideApiKeyModal()` - Hide the API key input modal
+- `clearApiKey()` - Clear the API key and disable AI
 
 ## Selectors
 
@@ -70,6 +76,8 @@ interface AppState {
 
 ### App State Selectors
 - `selectAiEnabled` - Get the AI enabled state
+- `selectApiKey` - Get the stored API key
+- `selectShowApiKeyModal` - Get the modal visibility state
 
 ## Components
 
@@ -80,6 +88,24 @@ The application includes a fixed header component (`src/components/Header/Header
 - **AI Toggle**: A toggle switch to enable/disable AI features
 - **Responsive Design**: Adapts to mobile and desktop layouts
 - **Redux Integration**: Connected to the app state slice
+
+### AI Key Modal Component
+The application includes a modal component (`src/components/Header/AiKeyModal.tsx`) that features:
+
+- **Modal Header**: "Bring Your Own Key" with Orbitron font
+- **API Key Input**: Password field for entering OpenAI API key
+- **Instructional Text**: Clear instructions for obtaining and using API keys
+- **Submit Button**: Disabled until text is entered in the input field
+- **Cancel Button**: Closes the modal without saving
+- **Form Validation**: Prevents submission of empty keys
+- **Responsive Design**: Works on both desktop and mobile
+
+## AI Integration Flow
+
+1. **User clicks "Enable AI" toggle** - If no API key exists, modal appears
+2. **User enters API key** - Key is validated and stored in Redux
+3. **AI is enabled** - Toggle switches to enabled state
+4. **Future AI features** - Can access the API key via `selectApiKey` selector
 
 ## Migration Process
 
@@ -106,12 +132,13 @@ To test each section individually:
 ```typescript
 import { useAppDispatch, useAppSelector } from '../store/store';
 import { selectAllPages, addPage } from '../store/slices/comicPagesSlice';
-import { selectAiEnabled, toggleAi } from '../store/slices/appStateSlice';
+import { selectAiEnabled, toggleAi, selectApiKey } from '../store/slices/appStateSlice';
 
 const MyComponent = () => {
   const dispatch = useAppDispatch();
   const pages = useAppSelector(selectAllPages);
   const aiEnabled = useAppSelector(selectAiEnabled);
+  const apiKey = useAppSelector(selectApiKey);
   
   const handleAddPage = () => {
     dispatch(addPage(newPage));
@@ -136,4 +163,6 @@ The store includes typed hooks:
 2. Remove the old state management code once Redux is working
 3. Add additional Redux features as needed
 4. Consider adding Redux DevTools for debugging
-5. Implement AI features that respond to the `aiEnabled` state 
+5. Implement AI features that respond to the `aiEnabled` state and use the stored API key
+6. Add API key validation and error handling
+7. Consider adding API key encryption for enhanced security 
