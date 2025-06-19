@@ -15,6 +15,7 @@ const LibraryContainer = styled.div<{ $isHorizontal?: boolean }>`
   height: ${props => props.$isHorizontal ? '100%' : '100vh'};
   background: #f0f0f0;
   padding: 20px;
+  padding-top: 80px; //TODO: This is a hack to make the image library not overlap with the header, but it's not a good solution.
   overflow-y: ${props => props.$isHorizontal ? 'hidden' : 'auto'};
   overflow-x: ${props => props.$isHorizontal ? 'auto' : 'hidden'};
   position: ${props => props.$isHorizontal ? 'relative' : 'fixed'};
@@ -107,8 +108,8 @@ const ImageLibrary: React.FC<ImageLibraryProps> = ({ onImageUpload, images, isHo
   };
 
   return (
-    <LibraryContainer id="libcontainer" $isHorizontal={isHorizontal}>
-      <ButtonContainer id="buttonContainer" $isHorizontal={isHorizontal}>
+    <LibraryContainer $isHorizontal={isHorizontal}>
+      <ButtonContainer $isHorizontal={isHorizontal}>
         <PrintButton onClick={handlePrint}>Print</PrintButton>
         <UploadButton>
           Upload Images
