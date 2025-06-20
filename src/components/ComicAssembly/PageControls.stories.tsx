@@ -15,7 +15,6 @@ const meta = {
         position: 'relative',
         background: '#f0f0f0',
         borderRadius: '8px',
-        overflow: 'hidden'
       }}>
         <Story />
       </div>
@@ -54,7 +53,6 @@ export const OnDarkBackground: Story = {
         position: 'relative',
         background: '#333',
         borderRadius: '8px',
-        overflow: 'hidden'
       }}>
         <Story />
       </div>

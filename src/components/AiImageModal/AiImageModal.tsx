@@ -431,7 +431,7 @@ const AiImageModal: React.FC<AiImageModalProps> = ({
             <PreviewSection>
               <PreviewTitle>
                 {isGenerating ? 'Generating Image...' : 
-                 generatedImageUrl ? (imageUrl && generatedImageUrl === imageUrl ? 'Existing Image' : 'Generated Image') : 'Image Preview'}
+                 generatedImageUrl ? 'Image' : 'Image Preview'}
               </PreviewTitle>
               
               {isGenerating ? (
@@ -459,7 +459,7 @@ const AiImageModal: React.FC<AiImageModalProps> = ({
                       $isPrimary 
                       onClick={handleUseImage}
                     >
-                      {imageUrl && generatedImageUrl === imageUrl ? 'Use Existing Image' : 'Use Generated Image'}
+                      Use Image
                     </Button>
                   </ButtonContainer>
                 </>
