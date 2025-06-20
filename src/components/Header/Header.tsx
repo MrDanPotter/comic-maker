@@ -1,14 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useAppDispatch, useAppSelector } from '../../store/store';
 import { 
   toggleAi, 
   selectAiEnabled, 
   selectShowApiKeyModal,
+  selectSystemContext,
   hideApiKeyModal,
-  setApiKey 
+  setApiKey,
+  setSystemContext
 } from '../../store/slices/appStateSlice';
 import AiKeyModal from './AiKeyModal';
+import SystemContextModal from './SystemContextModal';
 
 const HeaderContainer = styled.header`
   position: fixed;
@@ -44,6 +47,35 @@ const AiToggleContainer = styled.div`
   display: flex;
   align-items: center;
   gap: 12px;
+`;
+
+const EditSystemContextButton = styled.button`
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-family: 'Roboto', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: translateY(-1px);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+  
+  @media (max-width: 768px) {
+    font-size: 0.7rem;
+    padding: 6px 12px;
+  }
 `;
 
 const AiToggleLabel = styled.label`
@@ -91,6 +123,8 @@ const Header: React.FC = () => {
   const dispatch = useAppDispatch();
   const aiEnabled = useAppSelector(selectAiEnabled);
   const showApiKeyModal = useAppSelector(selectShowApiKeyModal);
+  const systemContext = useAppSelector(selectSystemContext);
+  const [showSystemContextModal, setShowSystemContextModal] = useState(false);
 
   const handleToggleAi = () => {
     dispatch(toggleAi());
@@ -104,11 +138,20 @@ const Header: React.FC = () => {
     dispatch(setApiKey(apiKey));
   };
 
+  const handleSetSystemContext = (context: string) => {
+    dispatch(setSystemContext(context));
+  };
+
   return (
     <>
       <HeaderContainer>
         <AppTitle>Comic Maker</AppTitle>
         <AiToggleContainer>
+          {aiEnabled && (
+            <EditSystemContextButton onClick={() => setShowSystemContextModal(true)}>
+              Edit System Context
+            </EditSystemContextButton>
+          )}
           <AiToggleLabel onClick={handleToggleAi}>
             Enable AI
           </AiToggleLabel>
@@ -123,6 +166,13 @@ const Header: React.FC = () => {
         isOpen={showApiKeyModal}
         onClose={handleCloseModal}
         onSubmit={handleSubmitApiKey}
+      />
+      
+      <SystemContextModal
+        isOpen={showSystemContextModal}
+        onClose={() => setShowSystemContextModal(false)}
+        onSubmit={handleSetSystemContext}
+        currentContext={systemContext}
       />
     </>
   );

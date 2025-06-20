@@ -4,12 +4,14 @@ interface AppState {
   aiEnabled: boolean;
   apiKey: string | null;
   showApiKeyModal: boolean;
+  systemContext: string;
 }
 
 const initialState: AppState = {
   aiEnabled: false,
   apiKey: null,
   showApiKeyModal: false,
+  systemContext: '',
 };
 
 const appStateSlice = createSlice({
@@ -42,6 +44,9 @@ const appStateSlice = createSlice({
       state.apiKey = null;
       state.aiEnabled = false;
     },
+    setSystemContext: (state, action: PayloadAction<string>) => {
+      state.systemContext = action.payload;
+    },
   },
 });
 
@@ -51,12 +56,14 @@ export const {
   setApiKey, 
   showApiKeyModal, 
   hideApiKeyModal,
-  clearApiKey 
+  clearApiKey,
+  setSystemContext
 } = appStateSlice.actions;
 
 // Selectors
 export const selectAiEnabled = (state: { appState: AppState }) => state.appState.aiEnabled;
 export const selectApiKey = (state: { appState: AppState }) => state.appState.apiKey;
 export const selectShowApiKeyModal = (state: { appState: AppState }) => state.appState.showApiKeyModal;
+export const selectSystemContext = (state: { appState: AppState }) => state.appState.systemContext;
 
 export default appStateSlice.reducer; 

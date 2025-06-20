@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { useAppSelector } from '../../store/store';
+import { selectSystemContext } from '../../store/slices/appStateSlice';
 import { generateImage, ImageGenerationRequest } from '../../services/openaiService';
 
 interface AiImageModalProps {
@@ -306,8 +308,10 @@ const AiImageModal: React.FC<AiImageModalProps> = ({
   apiKey, 
   imageUrl 
 }) => {
+  const systemContext = useAppSelector(selectSystemContext);
   const [prompt, setPrompt] = useState('');
   const [enforceAspectRatio, setEnforceAspectRatio] = useState(true);
+  const [includeSystemContext, setIncludeSystemContext] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedImageUrl, setGeneratedImageUrl] = useState(imageUrl || '');
   const [error, setError] = useState('');
@@ -327,8 +331,14 @@ const AiImageModal: React.FC<AiImageModalProps> = ({
     setGeneratedImageUrl('');
 
     try {
+      // Combine system context with user prompt if checkbox is checked
+      let finalPrompt = prompt.trim();
+      if (includeSystemContext && systemContext.trim()) {
+        finalPrompt = `${systemContext.trim()}\n\n${prompt.trim()}`;
+      }
+
       const request: ImageGenerationRequest = {
-        prompt: prompt.trim(),
+        prompt: finalPrompt,
         aspectRatio: enforceAspectRatio ? aspectRatio : '1:1',
         apiKey
       };
@@ -358,6 +368,7 @@ const AiImageModal: React.FC<AiImageModalProps> = ({
   const handleClose = () => {
     setPrompt('');
     setEnforceAspectRatio(true);
+    setIncludeSystemContext(true);
     setIsGenerating(false);
     setGeneratedImageUrl('');
     setError('');
@@ -406,6 +417,21 @@ const AiImageModal: React.FC<AiImageModalProps> = ({
                   Enforce aspect ratio of panel ({aspectRatio})
                 </CheckboxLabel>
               </CheckboxContainer>
+              
+              {systemContext.trim() && (
+                <CheckboxContainer>
+                  <Checkbox
+                    id="include-system-context"
+                    type="checkbox"
+                    checked={includeSystemContext}
+                    onChange={(e) => setIncludeSystemContext(e.target.checked)}
+                    disabled={isGenerating}
+                  />
+                  <CheckboxLabel htmlFor="include-system-context">
+                    Include system context
+                  </CheckboxLabel>
+                </CheckboxContainer>
+              )}
               
               <ButtonContainer>
                 <Button type="button" onClick={handleClose} disabled={isGenerating}>

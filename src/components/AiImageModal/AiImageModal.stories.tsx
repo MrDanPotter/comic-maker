@@ -1,4 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
+import { Provider } from 'react-redux';
+import { store } from '../../store/store';
 import { placeholderImage, placeholderImageLarge } from '../../assets/placeholder';
 import AiImageModal from './AiImageModal';
 
@@ -35,16 +37,18 @@ const meta: Meta<typeof AiImageModal> = {
   },
   decorators: [
     (Story) => (
-      <div style={{ 
-        width: '100vw', 
-        height: '100vh', 
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center'
-      }}>
-        <Story />
-      </div>
+      <Provider store={store}>
+        <div style={{ 
+          width: '100vw', 
+          height: '100vh', 
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          <Story />
+        </div>
+      </Provider>
     ),
   ],
 };
