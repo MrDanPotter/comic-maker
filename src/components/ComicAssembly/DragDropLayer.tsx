@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Droppable } from '@hello-pangea/dnd';
-import { useAppSelector } from '../../store/store';
+import { useAppSelector, useAppDispatch } from '../../store/store';
 import { selectAiEnabled, selectApiKey } from '../../store/slices/appStateSlice';
+import { addImage } from '../../store/slices/imageLibrarySlice';
 import { Panel, BoundingBox } from '../../types/comic';
 import AiSparkleButton from './AiSparkleButton';
 import AiImageModal from './AiImageModal';
@@ -65,6 +66,7 @@ const DragDropLayer: React.FC<DragDropLayerProps> = ({
 }) => {
   const aiEnabled = useAppSelector(selectAiEnabled);
   const apiKey = useAppSelector(selectApiKey);
+  const dispatch = useAppDispatch();
   const [hoveredPanelId, setHoveredPanelId] = useState<string | null>(null);
   const [showAiModal, setShowAiModal] = useState(false);
   const [selectedPanelId, setSelectedPanelId] = useState<string | null>(null);
@@ -92,6 +94,17 @@ const DragDropLayer: React.FC<DragDropLayerProps> = ({
   const handleImageGenerated = (imageUrl: string) => {
     if (selectedPanelId) {
       onPanelImageUpdate(selectedPanelId, imageUrl);
+      
+      // Add AI-generated image to the library
+      const newImage = {
+        id: `ai-image-${Date.now()}`,
+        url: imageUrl,
+        isUsed: true,
+        usedInPanels: [selectedPanelId],
+        source: 'ai' as const,
+        isDownloaded: false
+      };
+      dispatch(addImage(newImage));
     }
   };
 

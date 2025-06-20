@@ -248,7 +248,8 @@ function App() {
             id: `image-${Date.now()}-${file.name}`,
             url: e.target.result as string,
             isUsed: false,
-            usedInPanels: []
+            usedInPanels: [],
+            source: 'user' as const
           };
           dispatch(addImage(newImage));
         }

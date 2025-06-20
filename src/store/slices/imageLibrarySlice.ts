@@ -35,10 +35,16 @@ const imageLibrarySlice = createSlice({
         image.isUsed = image.usedInPanels.length > 0;
       }
     },
+    markImageAsDownloaded: (state, action: PayloadAction<string>) => {
+      const image = state.images.find(img => img.id === action.payload);
+      if (image && image.source === 'ai') {
+        image.isDownloaded = true;
+      }
+    },
   },
 });
 
-export const { addImage, removeImage, markImageAsUsed, markImageAsUnused } = imageLibrarySlice.actions;
+export const { addImage, removeImage, markImageAsUsed, markImageAsUnused, markImageAsDownloaded } = imageLibrarySlice.actions;
 
 // Selectors
 export const selectAllImages = (state: { imageLibrary: ImageLibraryState }) => state.imageLibrary.images;

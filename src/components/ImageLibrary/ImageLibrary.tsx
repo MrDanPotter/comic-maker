@@ -1,7 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Draggable, Droppable } from '@hello-pangea/dnd';
+import { useAppDispatch } from '../../store/store';
+import { removeImage, markImageAsDownloaded } from '../../store/slices/imageLibrarySlice';
 import LibraryImage from './LibraryImage';
+import DeleteConfirmationModal from './DeleteConfirmationModal';
 import { Image } from '../../types/comic';
 
 interface ImageLibraryProps {
@@ -96,6 +99,10 @@ const DraggableImage = styled.div<{ $isDragging?: boolean; $isHorizontal?: boole
 `;
 
 const ImageLibrary: React.FC<ImageLibraryProps> = ({ onImageUpload, images, isHorizontal = false }) => {
+  const dispatch = useAppDispatch();
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+  const [selectedImageId, setSelectedImageId] = useState<string | null>(null);
+
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (files && files.length > 0) {
@@ -105,6 +112,46 @@ const ImageLibrary: React.FC<ImageLibraryProps> = ({ onImageUpload, images, isHo
 
   const handlePrint = () => {
     window.print();
+  };
+
+  const handleConfirmDelete = () => {
+    if (selectedImageId) {
+      dispatch(removeImage(selectedImageId));
+      setSelectedImageId(null);
+      setShowDeleteConfirmation(false);
+    }
+  };
+
+  const handleDownloadThenDelete = () => {
+    if (selectedImageId) {
+      dispatch(markImageAsDownloaded(selectedImageId));
+      dispatch(removeImage(selectedImageId));
+      setSelectedImageId(null);
+      setShowDeleteConfirmation(false);
+    }
+  };
+
+  const handleDownload = (image: Image) => {
+    if (image.source === 'ai') {
+      dispatch(markImageAsDownloaded(image.id));
+      
+      // Create a download link
+      const link = document.createElement('a');
+      link.href = image.url;
+      link.download = `ai-image-${image.id}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
+
+  const handleDeleteClick = (image: Image) => {
+    if (image.source === 'ai' && !image.isDownloaded) {
+      setSelectedImageId(image.id);
+      setShowDeleteConfirmation(true);
+    } else {
+      dispatch(removeImage(image.id));
+    }
   };
 
   return (
@@ -144,6 +191,8 @@ const ImageLibrary: React.FC<ImageLibraryProps> = ({ onImageUpload, images, isHo
                       src={image.url} 
                       alt={`Library item ${index + 1}`}
                       isUsed={image.isUsed}
+                      onDownload={image.source === 'ai' ? () => handleDownload(image) : undefined}
+                      onDelete={() => handleDeleteClick(image)}
                     />
                   </DraggableImage>
                 )}
@@ -153,6 +202,14 @@ const ImageLibrary: React.FC<ImageLibraryProps> = ({ onImageUpload, images, isHo
           </ImagePreviewContainer>
         )}
       </Droppable>
+      {showDeleteConfirmation && selectedImageId && (
+        <DeleteConfirmationModal
+          isOpen={showDeleteConfirmation}
+          onClose={() => setShowDeleteConfirmation(false)}
+          onConfirmDelete={handleConfirmDelete}
+          onDownloadThenDelete={handleDownloadThenDelete}
+        />
+      )}
     </LibraryContainer>
   );
 };
