@@ -8,6 +8,7 @@ interface AiImageModalProps {
   onImageGenerated: (imageUrl: string) => void;
   aspectRatio: string;
   apiKey: string;
+  imageUrl?: string; // Optional existing image to display
 }
 
 const ModalOverlay = styled.div<{ $isOpen: boolean }>`
@@ -203,12 +204,20 @@ const PreviewTitle = styled.h3`
 `;
 
 const PreviewImage = styled.img`
-  max-width: 100%;
-  max-height: 400px;
+  width: 300px;
+  height: 300px;
+  object-fit: cover;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   display: block;
   margin: 0 auto;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  
+  &:hover {
+    transform: scale(1.02);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  }
 `;
 
 const PreviewPlaceholder = styled.div`
@@ -237,15 +246,56 @@ const ErrorMessage = styled.div`
   border-left: 4px solid #d32f2f;
 `;
 
-const AspectRatioInfo = styled.div`
-  background: #e3f2fd;
-  border: 1px solid #2196f3;
-  border-radius: 6px;
-  padding: 12px;
-  margin-bottom: 20px;
-  font-family: 'Roboto', sans-serif;
-  font-size: 0.9rem;
-  color: #1976d2;
+// Full resolution image overlay
+const FullResOverlay = styled.div<{ $isOpen: boolean }>`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(8px);
+  display: ${props => props.$isOpen ? 'flex' : 'none'};
+  align-items: center;
+  justify-content: center;
+  z-index: 3000;
+  animation: ${props => props.$isOpen ? 'fadeIn' : 'fadeOut'} 0.3s ease;
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  
+  @keyframes fadeOut {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+`;
+
+const FullResImage = styled.img`
+  max-width: 90vw;
+  max-height: 90vh;
+  object-fit: contain;
+  border-radius: 8px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+  animation: scaleIn 0.3s ease;
+  
+  @keyframes scaleIn {
+    from {
+      transform: scale(0.9);
+    }
+    to {
+      transform: scale(1);
+    }
+  }
 `;
 
 const AiImageModal: React.FC<AiImageModalProps> = ({ 
@@ -253,13 +303,20 @@ const AiImageModal: React.FC<AiImageModalProps> = ({
   onClose, 
   onImageGenerated, 
   aspectRatio, 
-  apiKey 
+  apiKey, 
+  imageUrl 
 }) => {
   const [prompt, setPrompt] = useState('');
   const [enforceAspectRatio, setEnforceAspectRatio] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [generatedImageUrl, setGeneratedImageUrl] = useState('');
+  const [generatedImageUrl, setGeneratedImageUrl] = useState(imageUrl || '');
   const [error, setError] = useState('');
+  const [showFullRes, setShowFullRes] = useState(false);
+
+  // Update generatedImageUrl when imageUrl prop changes
+  React.useEffect(() => {
+    setGeneratedImageUrl(imageUrl || '');
+  }, [imageUrl]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -304,105 +361,127 @@ const AiImageModal: React.FC<AiImageModalProps> = ({
     setIsGenerating(false);
     setGeneratedImageUrl('');
     setError('');
+    setShowFullRes(false);
     onClose();
   };
 
+  const handleImageClick = () => {
+    if (generatedImageUrl) {
+      setShowFullRes(true);
+    }
+  };
+
+  const handleFullResClose = () => {
+    setShowFullRes(false);
+  };
+
   return (
-    <ModalOverlay $isOpen={isOpen} onClick={handleClose}>
-      <ModalContainer onClick={(e) => e.stopPropagation()}>
-        <LeftPanel>
-          <ModalHeader>AI Image Generation</ModalHeader>
-          
-          <AspectRatioInfo>
-            <strong>Aspect Ratio:</strong> {aspectRatio}
-            {enforceAspectRatio && ' (enforced)'}
-          </AspectRatioInfo>
-          
-          <form onSubmit={handleSubmit}>
-            <FormGroup>
-              <Label htmlFor="image-prompt">Describe the image you want to generate</Label>
-              <TextArea
-                id="image-prompt"
-                value={prompt}
-                onChange={(e) => setPrompt(e.target.value)}
-                placeholder="A detailed description of the image you want to generate..."
-                disabled={isGenerating}
-              />
-            </FormGroup>
+    <>
+      <ModalOverlay $isOpen={isOpen} onClick={handleClose}>
+        <ModalContainer onClick={(e) => e.stopPropagation()}>
+          <LeftPanel>
+            <ModalHeader>AI Image Generation</ModalHeader>
             
-            <CheckboxContainer>
-              <Checkbox
-                id="enforce-aspect-ratio"
-                type="checkbox"
-                checked={enforceAspectRatio}
-                onChange={(e) => setEnforceAspectRatio(e.target.checked)}
-                disabled={isGenerating}
-              />
-              <CheckboxLabel htmlFor="enforce-aspect-ratio">
-                Enforce aspect ratio of panel ({aspectRatio})
-              </CheckboxLabel>
-            </CheckboxContainer>
+            <form onSubmit={handleSubmit}>
+              <FormGroup>
+                <Label htmlFor="image-prompt">Describe the image you want to generate</Label>
+                <TextArea
+                  id="image-prompt"
+                  value={prompt}
+                  onChange={(e) => setPrompt(e.target.value)}
+                  placeholder="A detailed description of the image you want to generate..."
+                  disabled={isGenerating}
+                />
+              </FormGroup>
+              
+              <CheckboxContainer>
+                <Checkbox
+                  id="enforce-aspect-ratio"
+                  type="checkbox"
+                  checked={enforceAspectRatio}
+                  onChange={(e) => setEnforceAspectRatio(e.target.checked)}
+                  disabled={isGenerating}
+                />
+                <CheckboxLabel htmlFor="enforce-aspect-ratio">
+                  Enforce aspect ratio of panel ({aspectRatio})
+                </CheckboxLabel>
+              </CheckboxContainer>
+              
+              <ButtonContainer>
+                <Button type="button" onClick={handleClose} disabled={isGenerating}>
+                  Cancel
+                </Button>
+                <Button 
+                  type="submit" 
+                  $isPrimary 
+                  $isDisabled={!prompt.trim() || isGenerating}
+                  $isLoading={isGenerating}
+                  disabled={!prompt.trim() || isGenerating}
+                >
+                  {isGenerating && <LoadingSpinner />}
+                  {isGenerating ? 'Generating...' : 'Generate'}
+                </Button>
+              </ButtonContainer>
+            </form>
             
-            <ButtonContainer>
-              <Button type="button" onClick={handleClose} disabled={isGenerating}>
-                Cancel
-              </Button>
-              <Button 
-                type="submit" 
-                $isPrimary 
-                $isDisabled={!prompt.trim() || isGenerating}
-                $isLoading={isGenerating}
-                disabled={!prompt.trim() || isGenerating}
-              >
-                {isGenerating && <LoadingSpinner />}
-                {isGenerating ? 'Generating...' : 'Generate'}
-              </Button>
-            </ButtonContainer>
-          </form>
+            {error && <ErrorMessage>{error}</ErrorMessage>}
+          </LeftPanel>
           
-          {error && <ErrorMessage>{error}</ErrorMessage>}
-        </LeftPanel>
-        
-        <RightPanel>
-          <PreviewSection>
-            <PreviewTitle>
-              {isGenerating ? 'Generating Image...' : 
-               generatedImageUrl ? 'Generated Image' : 'Image Preview'}
-            </PreviewTitle>
-            
-            {isGenerating ? (
-              <div style={{ textAlign: 'center' }}>
-                <LoadingSpinner style={{ 
-                  width: '40px', 
-                  height: '40px', 
-                  border: '3px solid #e0e0e0',
-                  borderTop: '3px solid #667eea',
-                  margin: '0 auto 20px'
-                }} />
-                <p style={{ color: '#666', margin: 0 }}>Creating your image...</p>
-              </div>
-            ) : generatedImageUrl ? (
-              <>
-                <PreviewImage src={generatedImageUrl} alt="Generated preview" />
-                <ButtonContainer style={{ marginTop: '20px' }}>
-                  <Button 
-                    type="button" 
-                    $isPrimary 
-                    onClick={handleUseImage}
-                  >
-                    Use This Image
-                  </Button>
-                </ButtonContainer>
-              </>
-            ) : (
-              <PreviewPlaceholder>
-                Your generated image will appear here
-              </PreviewPlaceholder>
-            )}
-          </PreviewSection>
-        </RightPanel>
-      </ModalContainer>
-    </ModalOverlay>
+          <RightPanel>
+            <PreviewSection>
+              <PreviewTitle>
+                {isGenerating ? 'Generating Image...' : 
+                 generatedImageUrl ? (imageUrl && generatedImageUrl === imageUrl ? 'Existing Image' : 'Generated Image') : 'Image Preview'}
+              </PreviewTitle>
+              
+              {isGenerating ? (
+                <div style={{ textAlign: 'center' }}>
+                  <LoadingSpinner style={{ 
+                    width: '40px', 
+                    height: '40px', 
+                    border: '3px solid #e0e0e0',
+                    borderTop: '3px solid #667eea',
+                    margin: '0 auto 20px'
+                  }} />
+                  <p style={{ color: '#666', margin: 0 }}>Creating your image...</p>
+                </div>
+              ) : generatedImageUrl ? (
+                <>
+                  <PreviewImage 
+                    src={generatedImageUrl} 
+                    alt="Generated preview" 
+                    onClick={handleImageClick}
+                    title="Click to view full resolution"
+                  />
+                  <ButtonContainer style={{ marginTop: '20px' }}>
+                    <Button 
+                      type="button" 
+                      $isPrimary 
+                      onClick={handleUseImage}
+                    >
+                      {imageUrl && generatedImageUrl === imageUrl ? 'Use Existing Image' : 'Use Generated Image'}
+                    </Button>
+                  </ButtonContainer>
+                </>
+              ) : (
+                <PreviewPlaceholder>
+                  Your generated image will appear here
+                </PreviewPlaceholder>
+              )}
+            </PreviewSection>
+          </RightPanel>
+        </ModalContainer>
+      </ModalOverlay>
+      
+      {/* Full resolution image overlay */}
+      <FullResOverlay $isOpen={showFullRes} onClick={handleFullResClose}>
+        <FullResImage 
+          src={generatedImageUrl} 
+          alt="Full resolution preview" 
+          onClick={(e) => e.stopPropagation()}
+        />
+      </FullResOverlay>
+    </>
   );
 };
 
