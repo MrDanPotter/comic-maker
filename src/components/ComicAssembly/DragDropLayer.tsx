@@ -6,7 +6,7 @@ import { selectAiEnabled, selectApiKey } from '../../store/slices/appStateSlice'
 import { addImage } from '../../store/slices/imageLibrarySlice';
 import { Panel, BoundingBox } from '../../types/comic';
 import AiSparkleButton from './AiSparkleButton';
-import AiImageModal from './AiImageModal';
+import AiImageModal from '../AiImageModal';
 
 interface DragDropLayerProps {
   panels: Panel[];

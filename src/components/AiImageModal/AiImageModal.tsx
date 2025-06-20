@@ -27,13 +27,13 @@ const ModalOverlay = styled.div<{ $isOpen: boolean }>`
 const ModalContainer = styled.div`
   background: white;
   border-radius: 12px;
-  padding: 32px;
-  max-width: 600px;
+  max-width: 1000px;
   width: 90%;
   max-height: 80vh;
-  overflow-y: auto;
+  overflow: hidden;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
   animation: modalSlideIn 0.3s ease-out;
+  display: flex;
   
   @keyframes modalSlideIn {
     from {
@@ -45,6 +45,25 @@ const ModalContainer = styled.div`
       transform: translateY(0) scale(1);
     }
   }
+`;
+
+const LeftPanel = styled.div`
+  flex: 1;
+  padding: 32px;
+  border-right: 1px solid #e0e0e0;
+  overflow-y: auto;
+  min-width: 400px;
+`;
+
+const RightPanel = styled.div`
+  flex: 1;
+  padding: 32px;
+  background: #f8f9fa;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 400px;
 `;
 
 const ModalHeader = styled.h2`
@@ -72,7 +91,7 @@ const Label = styled.label`
 
 const TextArea = styled.textarea`
   width: 100%;
-  min-height: 100px;
+  min-height: 120px;
   padding: 12px 16px;
   border: 2px solid #e0e0e0;
   border-radius: 8px;
@@ -171,24 +190,39 @@ const LoadingSpinner = styled.div`
 `;
 
 const PreviewSection = styled.div`
-  margin-top: 24px;
+  width: 100%;
+  text-align: center;
 `;
 
 const PreviewTitle = styled.h3`
   font-family: 'Roboto', sans-serif;
-  font-size: 1rem;
+  font-size: 1.2rem;
   font-weight: 500;
   color: #333;
-  margin: 0 0 16px 0;
+  margin: 0 0 20px 0;
 `;
 
 const PreviewImage = styled.img`
-  width: 100%;
-  max-width: 400px;
-  height: auto;
+  max-width: 100%;
+  max-height: 400px;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   display: block;
+  margin: 0 auto;
+`;
+
+const PreviewPlaceholder = styled.div`
+  width: 300px;
+  height: 300px;
+  border: 2px dashed #ccc;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #999;
+  font-family: 'Roboto', sans-serif;
+  font-size: 1rem;
+  background: #f8f9fa;
   margin: 0 auto;
 `;
 
@@ -201,6 +235,17 @@ const ErrorMessage = styled.div`
   background: #ffebee;
   border-radius: 4px;
   border-left: 4px solid #d32f2f;
+`;
+
+const AspectRatioInfo = styled.div`
+  background: #e3f2fd;
+  border: 1px solid #2196f3;
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 20px;
+  font-family: 'Roboto', sans-serif;
+  font-size: 0.9rem;
+  color: #1976d2;
 `;
 
 const AiImageModal: React.FC<AiImageModalProps> = ({ 
@@ -265,67 +310,97 @@ const AiImageModal: React.FC<AiImageModalProps> = ({
   return (
     <ModalOverlay $isOpen={isOpen} onClick={handleClose}>
       <ModalContainer onClick={(e) => e.stopPropagation()}>
-        <ModalHeader>AI Image Generation</ModalHeader>
-        
-        <form onSubmit={handleSubmit}>
-          <FormGroup>
-            <Label htmlFor="image-prompt">Describe the image you want to generate</Label>
-            <TextArea
-              id="image-prompt"
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              placeholder="A detailed description of the image you want to generate..."
-              disabled={isGenerating}
-            />
-          </FormGroup>
+        <LeftPanel>
+          <ModalHeader>AI Image Generation</ModalHeader>
           
-          <CheckboxContainer>
-            <Checkbox
-              id="enforce-aspect-ratio"
-              type="checkbox"
-              checked={enforceAspectRatio}
-              onChange={(e) => setEnforceAspectRatio(e.target.checked)}
-              disabled={isGenerating}
-            />
-            <CheckboxLabel htmlFor="enforce-aspect-ratio">
-              Enforce aspect ratio of panel ({aspectRatio})
-            </CheckboxLabel>
-          </CheckboxContainer>
+          <AspectRatioInfo>
+            <strong>Aspect Ratio:</strong> {aspectRatio}
+            {enforceAspectRatio && ' (enforced)'}
+          </AspectRatioInfo>
           
-          <ButtonContainer>
-            <Button type="button" onClick={handleClose} disabled={isGenerating}>
-              Cancel
-            </Button>
-            <Button 
-              type="submit" 
-              $isPrimary 
-              $isDisabled={!prompt.trim() || isGenerating}
-              $isLoading={isGenerating}
-              disabled={!prompt.trim() || isGenerating}
-            >
-              {isGenerating && <LoadingSpinner />}
-              {isGenerating ? 'Generating...' : 'Generate'}
-            </Button>
-          </ButtonContainer>
-        </form>
-        
-        {error && <ErrorMessage>{error}</ErrorMessage>}
-        
-        {generatedImageUrl && (
-          <PreviewSection>
-            <PreviewTitle>Preview</PreviewTitle>
-            <PreviewImage src={generatedImageUrl} alt="Generated preview" />
+          <form onSubmit={handleSubmit}>
+            <FormGroup>
+              <Label htmlFor="image-prompt">Describe the image you want to generate</Label>
+              <TextArea
+                id="image-prompt"
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                placeholder="A detailed description of the image you want to generate..."
+                disabled={isGenerating}
+              />
+            </FormGroup>
+            
+            <CheckboxContainer>
+              <Checkbox
+                id="enforce-aspect-ratio"
+                type="checkbox"
+                checked={enforceAspectRatio}
+                onChange={(e) => setEnforceAspectRatio(e.target.checked)}
+                disabled={isGenerating}
+              />
+              <CheckboxLabel htmlFor="enforce-aspect-ratio">
+                Enforce aspect ratio of panel ({aspectRatio})
+              </CheckboxLabel>
+            </CheckboxContainer>
+            
             <ButtonContainer>
+              <Button type="button" onClick={handleClose} disabled={isGenerating}>
+                Cancel
+              </Button>
               <Button 
-                type="button" 
+                type="submit" 
                 $isPrimary 
-                onClick={handleUseImage}
+                $isDisabled={!prompt.trim() || isGenerating}
+                $isLoading={isGenerating}
+                disabled={!prompt.trim() || isGenerating}
               >
-                Use This Image
+                {isGenerating && <LoadingSpinner />}
+                {isGenerating ? 'Generating...' : 'Generate'}
               </Button>
             </ButtonContainer>
+          </form>
+          
+          {error && <ErrorMessage>{error}</ErrorMessage>}
+        </LeftPanel>
+        
+        <RightPanel>
+          <PreviewSection>
+            <PreviewTitle>
+              {isGenerating ? 'Generating Image...' : 
+               generatedImageUrl ? 'Generated Image' : 'Image Preview'}
+            </PreviewTitle>
+            
+            {isGenerating ? (
+              <div style={{ textAlign: 'center' }}>
+                <LoadingSpinner style={{ 
+                  width: '40px', 
+                  height: '40px', 
+                  border: '3px solid #e0e0e0',
+                  borderTop: '3px solid #667eea',
+                  margin: '0 auto 20px'
+                }} />
+                <p style={{ color: '#666', margin: 0 }}>Creating your image...</p>
+              </div>
+            ) : generatedImageUrl ? (
+              <>
+                <PreviewImage src={generatedImageUrl} alt="Generated preview" />
+                <ButtonContainer style={{ marginTop: '20px' }}>
+                  <Button 
+                    type="button" 
+                    $isPrimary 
+                    onClick={handleUseImage}
+                  >
+                    Use This Image
+                  </Button>
+                </ButtonContainer>
+              </>
+            ) : (
+              <PreviewPlaceholder>
+                Your generated image will appear here
+              </PreviewPlaceholder>
+            )}
           </PreviewSection>
-        )}
+        </RightPanel>
       </ModalContainer>
     </ModalOverlay>
   );
