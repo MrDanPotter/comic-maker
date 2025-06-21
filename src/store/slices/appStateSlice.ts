@@ -5,6 +5,7 @@ interface AppState {
   apiKey: string | null;
   showApiKeyModal: boolean;
   systemContext: string;
+  useOpenAIImageGeneration: boolean;
 }
 
 const initialState: AppState = {
@@ -12,6 +13,7 @@ const initialState: AppState = {
   apiKey: null,
   showApiKeyModal: false,
   systemContext: '',
+  useOpenAIImageGeneration: false,
 };
 
 const appStateSlice = createSlice({
@@ -47,6 +49,9 @@ const appStateSlice = createSlice({
     setSystemContext: (state, action: PayloadAction<string>) => {
       state.systemContext = action.payload;
     },
+    setUseOpenAIImageGeneration: (state, action: PayloadAction<boolean>) => {
+      state.useOpenAIImageGeneration = action.payload;
+    },
   },
 });
 
@@ -57,7 +62,8 @@ export const {
   showApiKeyModal, 
   hideApiKeyModal,
   clearApiKey,
-  setSystemContext
+  setSystemContext,
+  setUseOpenAIImageGeneration
 } = appStateSlice.actions;
 
 // Selectors
@@ -65,5 +71,6 @@ export const selectAiEnabled = (state: { appState: AppState }) => state.appState
 export const selectApiKey = (state: { appState: AppState }) => state.appState.apiKey;
 export const selectShowApiKeyModal = (state: { appState: AppState }) => state.appState.showApiKeyModal;
 export const selectSystemContext = (state: { appState: AppState }) => state.appState.systemContext;
+export const selectUseOpenAIImageGeneration = (state: { appState: AppState }) => state.appState.useOpenAIImageGeneration;
 
 export default appStateSlice.reducer; 

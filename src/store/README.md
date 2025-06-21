@@ -33,6 +33,8 @@ interface AppState {
   aiEnabled: boolean;
   apiKey: string | null;
   showApiKeyModal: boolean;
+  systemContext: string;
+  useOpenAIImageGeneration: boolean;
 }
 ```
 
@@ -59,6 +61,8 @@ interface AppState {
 - `showApiKeyModal()` - Show the API key input modal
 - `hideApiKeyModal()` - Hide the API key input modal
 - `clearApiKey()` - Clear the API key and disable AI
+- `setSystemContext(context: string)` - Set the system context for AI image generation
+- `setUseOpenAIImageGeneration(useOpenAI: boolean)` - Set whether to use OpenAI or Picsum for image generation
 
 ## Selectors
 
@@ -78,6 +82,8 @@ interface AppState {
 - `selectAiEnabled` - Get the AI enabled state
 - `selectApiKey` - Get the stored API key
 - `selectShowApiKeyModal` - Get the modal visibility state
+- `selectSystemContext` - Get the system context for AI image generation
+- `selectUseOpenAIImageGeneration` - Get whether OpenAI image generation is enabled
 
 ## Components
 
@@ -124,11 +130,13 @@ The application includes a modal component (`src/components/Header/AiKeyModal.ts
 
 ## Services
 
-### OpenAI Service (`src/services/openaiService.ts`)
-- **Image Generation**: Stubbed implementation for DALL-E API calls
-- **API Key Validation**: Validates OpenAI API key format
-- **Error Handling**: Comprehensive error handling for API calls
+### Image Generator Service (`src/services/imageGeneratorService.ts`)
+- **Interface**: `ImageGeneratorService` provides a common interface for image generation
+- **PicsumImageGenerationService**: Uses Picsum Photos for placeholder images (no API key required)
+- **OpenAIImageGenerationService**: Uses OpenAI's DALL-E API for AI-generated images (requires API key)
+- **Factory Function**: `createImageGeneratorService(useOpenAI: boolean)` creates the appropriate service
 - **Type Safety**: TypeScript interfaces for requests and responses
+- **Error Handling**: Comprehensive error handling for API calls
 
 ## AI Integration Flow
 
@@ -190,10 +198,11 @@ const MyComponent = () => {
 
 ### AI Image Generation
 ```typescript
-import { generateImage } from '../services/openaiService';
+import { createImageGeneratorService } from '../services/imageGeneratorService';
 
-const handleGenerateImage = async (prompt: string, aspectRatio: string, apiKey: string) => {
-  const response = await generateImage({ prompt, aspectRatio, apiKey });
+const handleGenerateImage = async (prompt: string, aspectRatio: string, apiKey: string, useOpenAI: boolean) => {
+  const imageService = createImageGeneratorService(useOpenAI);
+  const response = await imageService.generateImage({ prompt, aspectRatio, apiKey });
   if (response.success) {
     // Use response.imageUrl
   }

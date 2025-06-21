@@ -6,9 +6,11 @@ import {
   selectAiEnabled, 
   selectShowApiKeyModal,
   selectSystemContext,
+  selectUseOpenAIImageGeneration,
   hideApiKeyModal,
   setApiKey,
-  setSystemContext
+  setSystemContext,
+  setUseOpenAIImageGeneration
 } from '../../store/slices/appStateSlice';
 import AiKeyModal from './AiKeyModal';
 import SystemContextModal from './SystemContextModal';
@@ -124,6 +126,7 @@ const Header: React.FC = () => {
   const aiEnabled = useAppSelector(selectAiEnabled);
   const showApiKeyModal = useAppSelector(selectShowApiKeyModal);
   const systemContext = useAppSelector(selectSystemContext);
+  const useOpenAIImageGeneration = useAppSelector(selectUseOpenAIImageGeneration);
   const [showSystemContextModal, setShowSystemContextModal] = useState(false);
 
   const handleToggleAi = () => {
@@ -138,8 +141,9 @@ const Header: React.FC = () => {
     dispatch(setApiKey(apiKey));
   };
 
-  const handleSetSystemContext = (context: string) => {
+  const handleSetSystemContext = (context: string, useOpenAI: boolean) => {
     dispatch(setSystemContext(context));
+    dispatch(setUseOpenAIImageGeneration(useOpenAI));
   };
 
   return (
@@ -173,6 +177,7 @@ const Header: React.FC = () => {
         onClose={() => setShowSystemContextModal(false)}
         onSubmit={handleSetSystemContext}
         currentContext={systemContext}
+        currentUseOpenAI={useOpenAIImageGeneration}
       />
     </>
   );

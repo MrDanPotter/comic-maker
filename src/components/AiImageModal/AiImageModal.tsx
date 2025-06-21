@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useAppSelector, useAppDispatch } from '../../store/store';
-import { selectSystemContext, setSystemContext } from '../../store/slices/appStateSlice';
-import { generateImage, ImageGenerationRequest } from '../../services/openaiService';
+import { selectSystemContext, selectUseOpenAIImageGeneration, setSystemContext } from '../../store/slices/appStateSlice';
+import { createImageGeneratorService, ImageGenerationRequest } from '../../services/imageGeneratorService';
 import SystemContextModal from '../Header/SystemContextModal';
 
 interface AiImageModalProps {
@@ -354,6 +354,7 @@ const AiImageModal: React.FC<AiImageModalProps> = ({
 }) => {
   const dispatch = useAppDispatch();
   const systemContext = useAppSelector(selectSystemContext);
+  const useOpenAIImageGeneration = useAppSelector(selectUseOpenAIImageGeneration);
   const [prompt, setPrompt] = useState('');
   const [enforceAspectRatio, setEnforceAspectRatio] = useState(true);
   const [includeSystemContext, setIncludeSystemContext] = useState(true);
@@ -389,7 +390,9 @@ const AiImageModal: React.FC<AiImageModalProps> = ({
         apiKey
       };
 
-      const response = await generateImage(request);
+      // Create the appropriate service based on the setting
+      const imageService = createImageGeneratorService(useOpenAIImageGeneration);
+      const response = await imageService.generateImage(request);
       
       if (response.success) {
         setGeneratedImageUrl(response.imageUrl);
@@ -432,7 +435,7 @@ const AiImageModal: React.FC<AiImageModalProps> = ({
     setShowFullRes(false);
   };
 
-  const handleSetSystemContext = (context: string) => {
+  const handleSetSystemContext = (context: string, useOpenAI: boolean) => {
     dispatch(setSystemContext(context));
   };
 
@@ -576,6 +579,7 @@ const AiImageModal: React.FC<AiImageModalProps> = ({
         onClose={() => setShowSystemContextModal(false)}
         onSubmit={handleSetSystemContext}
         currentContext={systemContext}
+        currentUseOpenAI={useOpenAIImageGeneration}
       />
     </>
   );

@@ -4,8 +4,9 @@ import styled from 'styled-components';
 interface SystemContextModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (context: string) => void;
+  onSubmit: (context: string, useOpenAI: boolean) => void;
   currentContext: string;
+  currentUseOpenAI: boolean;
 }
 
 const ModalOverlay = styled.div<{ $isOpen: boolean }>`
@@ -139,26 +140,50 @@ const InfoText = styled.p`
   text-align: center;
 `;
 
+const CheckboxContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 24px;
+`;
+
+const Checkbox = styled.input`
+  width: 18px;
+  height: 18px;
+  accent-color: #667eea;
+`;
+
+const CheckboxLabel = styled.label`
+  font-family: 'Roboto', sans-serif;
+  font-size: 0.9rem;
+  color: #555;
+  cursor: pointer;
+`;
+
 const SystemContextModal: React.FC<SystemContextModalProps> = ({
   isOpen,
   onClose,
   onSubmit,
-  currentContext
+  currentContext,
+  currentUseOpenAI
 }) => {
   const [context, setContext] = useState(currentContext);
+  const [useOpenAI, setUseOpenAI] = useState(currentUseOpenAI);
 
   useEffect(() => {
     setContext(currentContext);
-  }, [currentContext]);
+    setUseOpenAI(currentUseOpenAI);
+  }, [currentContext, currentUseOpenAI]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(context);
+    onSubmit(context, useOpenAI);
     onClose();
   };
 
   const handleClose = () => {
     setContext(currentContext); // Reset to original value
+    setUseOpenAI(currentUseOpenAI); // Reset to original value
     onClose();
   };
 
@@ -182,6 +207,18 @@ const SystemContextModal: React.FC<SystemContextModalProps> = ({
               placeholder="e.g., Create images in a comic book style with bold colors, dynamic poses, and dramatic lighting. Use a modern superhero aesthetic with clean lines and vibrant backgrounds."
             />
           </FormGroup>
+          
+          <CheckboxContainer>
+            <Checkbox
+              id="use-openai"
+              type="checkbox"
+              checked={useOpenAI}
+              onChange={(e) => setUseOpenAI(e.target.checked)}
+            />
+            <CheckboxLabel htmlFor="use-openai">
+              Use OpenAI Image Generation
+            </CheckboxLabel>
+          </CheckboxContainer>
           
           <ButtonContainer>
             <Button type="button" onClick={handleClose}>

@@ -67,9 +67,7 @@ const SparkleButton = styled.button`
 const SparkleIcon = styled.div`
   position: relative;
   z-index: 1;
-  font-size: 18px;
-  font-weight: bold;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  font-size: 24px;
   
   &::before {
     content: '✨';
