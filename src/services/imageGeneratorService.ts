@@ -2,12 +2,6 @@
 import { PicsumImageGenerationService } from './picsumImageGenerationService';
 import { OpenAIImageGenerationService } from './openAIImageGenerationService';
 
-export interface ImageGenerationRequest {
-  prompt: string;
-  aspectRatio: string;
-  apiKey: string;
-}
-
 export interface ImageGenerationResponse {
   imageUrl: string;
   success: boolean;
@@ -15,7 +9,7 @@ export interface ImageGenerationResponse {
 }
 
 export interface ImageGeneratorService {
-  generateImage(request: ImageGenerationRequest): Promise<ImageGenerationResponse>;
+  generateImage(prompt: string, apiKey: string): Promise<ImageGenerationResponse>;
   validateApiKey(apiKey: string): boolean;
   testApiKey(apiKey: string): Promise<boolean>;
 }

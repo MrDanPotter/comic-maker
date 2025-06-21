@@ -138,6 +138,12 @@ The application includes a modal component (`src/components/Header/AiKeyModal.ts
 - **Type Safety**: TypeScript interfaces for requests and responses
 - **Error Handling**: Comprehensive error handling for API calls
 
+### Prompt Template Utility (`src/utils/promptTemplate.ts`)
+- **PromptTemplate Class**: Generates full prompts based on ImageGenerationRequest objects
+- **Configuration**: Supports system context, aspect ratio enforcement, and custom instructions
+- **Modular Design**: Separates user prompts from system instructions
+- **Factory Function**: `createPromptTemplate(config)` creates configured template instances
+
 ## AI Integration Flow
 
 1. **User clicks "Enable AI" toggle** - If no API key exists, modal appears
@@ -146,9 +152,10 @@ The application includes a modal component (`src/components/Header/AiKeyModal.ts
 4. **User hovers over panel** - Sparkle button appears
 5. **User clicks sparkle button** - AI image generation modal opens
 6. **User enters prompt** - Describes the desired image
-7. **User clicks Generate** - Request is sent to OpenAI API
-8. **Image is generated** - Preview is shown with option to use
-9. **User clicks "Use This Image"** - Image is applied to the panel
+7. **Prompt template generates full prompt** - Combines system context, instructions, and user input
+8. **User clicks Generate** - Request is sent to selected image generation service
+9. **Image is generated** - Preview is shown with option to use
+10. **User clicks "Use This Image"** - Image is applied to the panel
 
 ## Migration Process
 
@@ -199,10 +206,30 @@ const MyComponent = () => {
 ### AI Image Generation
 ```typescript
 import { createImageGeneratorService } from '../services/imageGeneratorService';
+import { createPromptTemplate } from '../utils/promptTemplate';
 
-const handleGenerateImage = async (prompt: string, aspectRatio: string, apiKey: string, useOpenAI: boolean) => {
+const handleGenerateImage = async (userPrompt: string, aspectRatio: string, apiKey: string, useOpenAI: boolean) => {
+  // Create prompt template
+  const promptTemplate = createPromptTemplate({
+    systemContext: 'Create images in comic book style',
+    includeSystemContext: true,
+    enforceAspectRatio: true
+  });
+
+  // Create request
+  const request = {
+    userPrompt,
+    aspectRatio,
+    apiKey
+  };
+
+  // Generate full prompt
+  const fullPrompt = promptTemplate.generatePrompt(request);
+  request.systemPrompt = fullPrompt.replace(userPrompt, '').trim();
+
+  // Generate image
   const imageService = createImageGeneratorService(useOpenAI);
-  const response = await imageService.generateImage({ prompt, aspectRatio, apiKey });
+  const response = await imageService.generateImage(request);
   if (response.success) {
     // Use response.imageUrl
   }

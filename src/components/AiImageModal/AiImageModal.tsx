@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useAppSelector, useAppDispatch } from '../../store/store';
 import { selectSystemContext, selectUseOpenAIImageGeneration, setSystemContext } from '../../store/slices/appStateSlice';
-import { createImageGeneratorService, ImageGenerationRequest } from '../../services/imageGeneratorService';
+import { createImageGeneratorService } from '../../services/imageGeneratorService';
+import { buildImagePrompt } from '../../utils/promptBuilder';
 import SystemContextModal from '../Header/SystemContextModal';
 
 interface AiImageModalProps {
@@ -378,21 +379,18 @@ const AiImageModal: React.FC<AiImageModalProps> = ({
     setGeneratedImageUrl('');
 
     try {
-      // Combine system context with user prompt if checkbox is checked
-      let finalPrompt = prompt.trim();
-      if (includeSystemContext && systemContext.trim()) {
-        finalPrompt = `${systemContext.trim()}\n\n${prompt.trim()}`;
-      }
+      // Build the full prompt
+      const fullPrompt = buildImagePrompt({
+        userPrompt: prompt.trim(),
+        systemContext,
+        includeSystemContext,
+        enforceAspectRatio,
+        aspectRatio: enforceAspectRatio ? aspectRatio : '1:1'
+      });
 
-      const request: ImageGenerationRequest = {
-        prompt: finalPrompt,
-        aspectRatio: enforceAspectRatio ? aspectRatio : '1:1',
-        apiKey
-      };
-
-      // Create the appropriate service based on the setting
+      // Create the appropriate service and generate image
       const imageService = createImageGeneratorService(useOpenAIImageGeneration);
-      const response = await imageService.generateImage(request);
+      const response = await imageService.generateImage(fullPrompt, apiKey);
       
       if (response.success) {
         setGeneratedImageUrl(response.imageUrl);

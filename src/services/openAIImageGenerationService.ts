@@ -1,4 +1,4 @@
-import { ImageGeneratorService, ImageGenerationRequest, ImageGenerationResponse } from './imageGeneratorService';
+import { ImageGeneratorService, ImageGenerationResponse } from './imageGeneratorService';
 
 /**
  * Helper function to determine image size based on aspect ratio
@@ -21,18 +21,18 @@ const getImageSize = (aspectRatio: string): string => {
  * Uses OpenAI's DALL-E API for image generation
  */
 export class OpenAIImageGenerationService implements ImageGeneratorService {
-  async generateImage(request: ImageGenerationRequest): Promise<ImageGenerationResponse> {
+  async generateImage(prompt: string, apiKey: string): Promise<ImageGenerationResponse> {
     try {
       const response = await fetch('https://api.openai.com/v1/images/generations', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${request.apiKey}`,
+          'Authorization': `Bearer ${apiKey}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          prompt: request.prompt,
+          prompt: prompt,
           n: 1,
-          size: getImageSize(request.aspectRatio),
+          size: '1024x1024', // Default size, could be made configurable
           response_format: 'url'
         })
       });
