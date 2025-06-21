@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { useAppSelector } from '../../store/store';
-import { selectSystemContext } from '../../store/slices/appStateSlice';
+import { useAppSelector, useAppDispatch } from '../../store/store';
+import { selectSystemContext, setSystemContext } from '../../store/slices/appStateSlice';
 import { generateImage, ImageGenerationRequest } from '../../services/openaiService';
+import SystemContextModal from '../Header/SystemContextModal';
 
 interface AiImageModalProps {
   isOpen: boolean;
@@ -300,6 +301,49 @@ const FullResImage = styled.img`
   }
 `;
 
+const AlertContainer = styled.div`
+  background: #fff3cd;
+  border: 1px solid #ffeaa7;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+`;
+
+const AlertText = styled.p`
+  font-family: 'Roboto', sans-serif;
+  font-size: 0.9rem;
+  color: #856404;
+  margin: 0;
+  line-height: 1.4;
+`;
+
+const SetContextButton = styled.button`
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-family: 'Roboto', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  
+  &:hover {
+    background: #5a6fd8;
+    transform: translateY(-1px);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+`;
+
 const AiImageModal: React.FC<AiImageModalProps> = ({ 
   isOpen, 
   onClose, 
@@ -308,6 +352,7 @@ const AiImageModal: React.FC<AiImageModalProps> = ({
   apiKey, 
   imageUrl 
 }) => {
+  const dispatch = useAppDispatch();
   const systemContext = useAppSelector(selectSystemContext);
   const [prompt, setPrompt] = useState('');
   const [enforceAspectRatio, setEnforceAspectRatio] = useState(true);
@@ -316,6 +361,7 @@ const AiImageModal: React.FC<AiImageModalProps> = ({
   const [generatedImageUrl, setGeneratedImageUrl] = useState(imageUrl || '');
   const [error, setError] = useState('');
   const [showFullRes, setShowFullRes] = useState(false);
+  const [showSystemContextModal, setShowSystemContextModal] = useState(false);
 
   // Update generatedImageUrl when imageUrl prop changes
   React.useEffect(() => {
@@ -386,12 +432,28 @@ const AiImageModal: React.FC<AiImageModalProps> = ({
     setShowFullRes(false);
   };
 
+  const handleSetSystemContext = (context: string) => {
+    dispatch(setSystemContext(context));
+  };
+
   return (
     <>
       <ModalOverlay $isOpen={isOpen} onClick={handleClose}>
         <ModalContainer onClick={(e) => e.stopPropagation()}>
           <LeftPanel>
             <ModalHeader>AI Image Generation</ModalHeader>
+            
+            {/* System Context Alert */}
+            {!systemContext.trim() && (
+              <AlertContainer>
+                <AlertText>
+                  Note: system context has not yet been set. System context is not required but allows you to create a more consistent art style in your images.
+                </AlertText>
+                <SetContextButton onClick={() => setShowSystemContextModal(true)}>
+                  Set it now
+                </SetContextButton>
+              </AlertContainer>
+            )}
             
             <form onSubmit={handleSubmit}>
               <FormGroup>
@@ -507,6 +569,14 @@ const AiImageModal: React.FC<AiImageModalProps> = ({
           onClick={(e) => e.stopPropagation()}
         />
       </FullResOverlay>
+      
+      {/* System Context Modal */}
+      <SystemContextModal
+        isOpen={showSystemContextModal}
+        onClose={() => setShowSystemContextModal(false)}
+        onSubmit={handleSetSystemContext}
+        currentContext={systemContext}
+      />
     </>
   );
 };
