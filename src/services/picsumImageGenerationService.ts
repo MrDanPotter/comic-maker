@@ -1,14 +1,20 @@
-import { ImageGeneratorService, ImageGenerationResponse } from './imageGeneratorService';
+import { ImageGeneratorService, ImageGenerationResponse, ImageQuality } from './imageGeneratorService';
 
 /**
  * Picsum Image Generation Service
  * Uses Picsum Photos for placeholder images
  */
 export class PicsumImageGenerationService implements ImageGeneratorService {
-  async generateImage(prompt: string, apiKey: string): Promise<ImageGenerationResponse> {
+  async generateImage(
+    prompt: string, 
+    apiKey: string, 
+    aspectRatio: string = '1:1',
+    quality: ImageQuality = 'medium'
+  ): Promise<ImageGenerationResponse> {
     try {
       console.log('Generating image with Picsum');
       console.log("prompt: " + prompt);
+      console.log("quality: " + quality);
       
       // Simulate API call delay
       await new Promise(resolve => setTimeout(resolve, 2000));

@@ -2,6 +2,7 @@ import OpenAI from 'openai';
 import {
   ImageGeneratorService,
   ImageGenerationResponse,
+  ImageQuality,
 } from './imageGeneratorService';
 
 /**
@@ -32,7 +33,8 @@ export class OpenAIImageGenerationService implements ImageGeneratorService {
   async generateImage(
     prompt: string,
     apiKey: string,
-    aspectRatio: string = '1:1'
+    aspectRatio: string = '1:1',
+    quality: ImageQuality = 'medium'
   ): Promise<ImageGenerationResponse> {
     try {
       const openai = this.createClient(apiKey);
@@ -44,6 +46,7 @@ export class OpenAIImageGenerationService implements ImageGeneratorService {
         n: 1,
         size,
         output_format: 'png',
+        quality,
       });
 
       // gpt-image-1 returns base64 data in b64_json field

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useAppSelector, useAppDispatch } from '../../store/store';
 import { selectSystemContext, selectUseOpenAIImageGeneration, setSystemContext } from '../../store/slices/appStateSlice';
-import { createImageGeneratorService } from '../../services/imageGeneratorService';
+import { createImageGeneratorService, ImageQuality } from '../../services/imageGeneratorService';
 import { buildImagePrompt } from '../../utils/promptBuilder';
 import SystemContextModal from '../Header/SystemContextModal';
 
@@ -345,6 +345,70 @@ const SetContextButton = styled.button`
   }
 `;
 
+const QualityPickerContainer = styled.div`
+  margin-bottom: 24px;
+`;
+
+const QualityPickerLabel = styled.label`
+  display: block;
+  font-family: 'Roboto', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #555;
+  margin-bottom: 12px;
+`;
+
+const QualityPickerGroup = styled.div`
+  display: flex;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #f8f9fa;
+`;
+
+const QualityOption = styled.div<{ $isSelected: boolean }>`
+  flex: 1;
+  padding: 12px 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-right: 1px solid #e0e0e0;
+  background: ${props => props.$isSelected ? '#667eea' : 'transparent'};
+  color: ${props => props.$isSelected ? 'white' : '#555'};
+  font-family: 'Roboto', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 500;
+  
+  &:last-child {
+    border-right: none;
+  }
+  
+  &:hover {
+    background: ${props => props.$isSelected ? '#5a6fd8' : '#e9ecef'};
+  }
+`;
+
+const QualityOptionTitle = styled.div`
+  font-weight: 600;
+  margin-bottom: 4px;
+`;
+
+const QualityOptionCost = styled.div`
+  font-size: 0.8rem;
+  opacity: 0.8;
+`;
+
+const CostInfo = styled.div`
+  margin-top: 8px;
+  padding: 8px 12px;
+  background: #e8f4fd;
+  border-radius: 6px;
+  font-family: 'Roboto', sans-serif;
+  font-size: 0.8rem;
+  color: #0c5460;
+  text-align: center;
+`;
+
 const AiImageModal: React.FC<AiImageModalProps> = ({ 
   isOpen, 
   onClose, 
@@ -359,11 +423,24 @@ const AiImageModal: React.FC<AiImageModalProps> = ({
   const [prompt, setPrompt] = useState('');
   const [enforceAspectRatio, setEnforceAspectRatio] = useState(true);
   const [includeSystemContext, setIncludeSystemContext] = useState(true);
+  const [quality, setQuality] = useState<ImageQuality>('medium');
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedImageUrl, setGeneratedImageUrl] = useState(imageUrl || '');
   const [error, setError] = useState('');
   const [showFullRes, setShowFullRes] = useState(false);
   const [showSystemContextModal, setShowSystemContextModal] = useState(false);
+
+  // Cost calculation based on quality
+  const getCostForQuality = (quality: ImageQuality): number => {
+    switch (quality) {
+      case 'low': return 0.01;
+      case 'medium': return 0.05;
+      case 'high': return 0.20;
+      default: return 0.05;
+    }
+  };
+
+  const currentCost = getCostForQuality(quality);
 
   // Update generatedImageUrl when imageUrl prop changes
   React.useEffect(() => {
@@ -390,7 +467,12 @@ const AiImageModal: React.FC<AiImageModalProps> = ({
 
       // Create the appropriate service and generate image
       const imageService = createImageGeneratorService(useOpenAIImageGeneration);
-      const response = await imageService.generateImage(fullPrompt, apiKey);
+      const response = await imageService.generateImage(
+        fullPrompt, 
+        apiKey, 
+        enforceAspectRatio ? aspectRatio : '1:1',
+        quality
+      );
       
       if (response.success) {
         setGeneratedImageUrl(response.imageUrl);
@@ -416,6 +498,7 @@ const AiImageModal: React.FC<AiImageModalProps> = ({
     setPrompt('');
     setEnforceAspectRatio(true);
     setIncludeSystemContext(true);
+    setQuality('medium');
     setIsGenerating(false);
     setGeneratedImageUrl('');
     setError('');
@@ -467,6 +550,36 @@ const AiImageModal: React.FC<AiImageModalProps> = ({
                   disabled={isGenerating}
                 />
               </FormGroup>
+              
+              <QualityPickerContainer>
+                <QualityPickerLabel>Image Quality</QualityPickerLabel>
+                <QualityPickerGroup>
+                  <QualityOption 
+                    $isSelected={quality === 'low'}
+                    onClick={() => !isGenerating && setQuality('low')}
+                  >
+                    <QualityOptionTitle>Low</QualityOptionTitle>
+                    <QualityOptionCost>Fast</QualityOptionCost>
+                  </QualityOption>
+                  <QualityOption 
+                    $isSelected={quality === 'medium'}
+                    onClick={() => !isGenerating && setQuality('medium')}
+                  >
+                    <QualityOptionTitle>Medium</QualityOptionTitle>
+                    <QualityOptionCost>Balanced</QualityOptionCost>
+                  </QualityOption>
+                  <QualityOption 
+                    $isSelected={quality === 'high'}
+                    onClick={() => !isGenerating && setQuality('high')}
+                  >
+                    <QualityOptionTitle>High</QualityOptionTitle>
+                    <QualityOptionCost>Best</QualityOptionCost>
+                  </QualityOption>
+                </QualityPickerGroup>
+                <CostInfo>
+                  Generation will cost an estimated ${currentCost.toFixed(2)}
+                </CostInfo>
+              </QualityPickerContainer>
               
               <CheckboxContainer>
                 <Checkbox

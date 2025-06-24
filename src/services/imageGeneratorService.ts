@@ -8,8 +8,15 @@ export interface ImageGenerationResponse {
   error?: string;
 }
 
+export type ImageQuality = 'low' | 'medium' | 'high';
+
 export interface ImageGeneratorService {
-  generateImage(prompt: string, apiKey: string): Promise<ImageGenerationResponse>;
+  generateImage(
+    prompt: string, 
+    apiKey: string, 
+    aspectRatio?: string,
+    quality?: ImageQuality
+  ): Promise<ImageGenerationResponse>;
   validateApiKey(apiKey: string): boolean;
   testApiKey(apiKey: string): Promise<boolean>;
 }
