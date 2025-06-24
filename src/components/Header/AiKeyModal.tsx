@@ -25,8 +25,10 @@ const ModalContainer = styled.div`
   background: white;
   border-radius: 12px;
   padding: 32px;
-  max-width: 500px;
+  max-width: 700px;
   width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
   animation: modalSlideIn 0.3s ease-out;
   
@@ -86,16 +88,132 @@ const Input = styled.input`
   }
 `;
 
-const InstructionText = styled.p`
+const GuaranteeSection = styled.div`
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border-radius: 0;
+  border-left: none;
+`;
+
+const GuaranteeTitle = styled.h3`
+  font-family: 'Roboto', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #333;
+  margin: 0 0 16px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+const GuaranteeList = styled.ul`
+  margin: 0;
+  padding-left: 20px;
   font-family: 'Roboto', sans-serif;
   font-size: 0.9rem;
-  line-height: 1.5;
-  color: #666;
-  margin: 16px 0 0 0;
-  padding: 16px;
-  background: #f8f9fa;
+  line-height: 1.6;
+  color: #555;
+`;
+
+const GuaranteeItem = styled.li`
+  margin-bottom: 8px;
+`;
+
+const AccordionContainer = styled.div`
+  margin: 24px 0;
+`;
+
+const AccordionItem = styled.div<{ $isOpen: boolean }>`
+  border: 1px solid #e0e0e0;
   border-radius: 8px;
-  border-left: 4px solid #667eea;
+  margin-bottom: 8px;
+  overflow: hidden;
+`;
+
+const AccordionHeader = styled.button<{ $isOpen: boolean }>`
+  width: 100%;
+  padding: 16px 20px;
+  background: ${props => props.$isOpen ? '#667eea' : '#f8f9fa'};
+  color: ${props => props.$isOpen ? 'white' : '#333'};
+  border: none;
+  text-align: left;
+  font-family: 'Roboto', sans-serif;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  
+  &:hover {
+    background: ${props => props.$isOpen ? '#5a6fd8' : '#e9ecef'};
+  }
+`;
+
+const AccordionContent = styled.div<{ $isOpen: boolean }>`
+  max-height: ${props => props.$isOpen ? '1000px' : '0'};
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+  background: white;
+`;
+
+const AccordionInner = styled.div`
+  padding: 20px;
+  font-family: 'Roboto', sans-serif;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: #555;
+`;
+
+const RiskTable = styled.table`
+  width: 100%;
+  border-collapse: collapse;
+  margin: 12px 0;
+  font-size: 0.85rem;
+`;
+
+const RiskTableHeader = styled.th`
+  background: #f8f9fa;
+  padding: 8px 12px;
+  text-align: left;
+  border: 1px solid #e0e0e0;
+  font-weight: 600;
+`;
+
+const RiskTableCell = styled.td`
+  padding: 8px 12px;
+  border: 1px solid #e0e0e0;
+  vertical-align: top;
+`;
+
+const MitigationStep = styled.div`
+  margin-bottom: 12px;
+  padding: 8px 12px;
+  background: #e8f4fd;
+  border-radius: 6px;
+  border-left: 3px solid #667eea;
+`;
+
+const StepTitle = styled.div`
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: #333;
+`;
+
+const FAQItem = styled.div`
+  margin-bottom: 16px;
+`;
+
+const FAQQuestion = styled.div`
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 4px;
+`;
+
+const FAQAnswer = styled.div`
+  color: #666;
 `;
 
 const ButtonContainer = styled.div`
@@ -138,8 +256,15 @@ const Button = styled.button<{ $isPrimary?: boolean; $isDisabled?: boolean }>`
   }
 `;
 
+const ChevronIcon = styled.span<{ $isOpen: boolean }>`
+  transition: transform 0.2s ease;
+  transform: rotate(${props => props.$isOpen ? '180deg' : '0deg'});
+  font-size: 0.8rem;
+`;
+
 const AiKeyModal: React.FC<AiKeyModalProps> = ({ isOpen, onClose, onSubmit }) => {
   const [apiKey, setApiKey] = useState('');
+  const [openAccordion, setOpenAccordion] = useState<string>('guarantee');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -151,7 +276,12 @@ const AiKeyModal: React.FC<AiKeyModalProps> = ({ isOpen, onClose, onSubmit }) =>
 
   const handleClose = () => {
     setApiKey('');
+    setOpenAccordion('guarantee');
     onClose();
+  };
+
+  const toggleAccordion = (section: string) => {
+    setOpenAccordion(openAccordion === section ? 'guarantee' : section);
   };
 
   return (
@@ -161,7 +291,7 @@ const AiKeyModal: React.FC<AiKeyModalProps> = ({ isOpen, onClose, onSubmit }) =>
         
         <form onSubmit={handleSubmit}>
           <FormGroup>
-            <Label htmlFor="openai-key">OpenAI Key</Label>
+            <Label htmlFor="openai-key">OpenAI API Key</Label>
             <Input
               id="openai-key"
               type="password"
@@ -172,13 +302,124 @@ const AiKeyModal: React.FC<AiKeyModalProps> = ({ isOpen, onClose, onSubmit }) =>
             />
           </FormGroup>
           
-          <InstructionText>
-            To use AI features with this application, you'll need to provide your own OpenAI API key. 
-            You can get one by signing up at <strong>platform.openai.com</strong>. 
-            Once you have your key, paste it in the field above and click Submit. 
-            Your key will be stored locally and used only for AI operations within this app.
-          </InstructionText>
-          
+          <AccordionContainer>
+            <AccordionItem $isOpen={openAccordion === 'guarantee'}>
+              <AccordionHeader 
+                $isOpen={openAccordion === 'guarantee'}
+                onClick={() => toggleAccordion('guarantee')}
+                type="button"
+              >
+                ✅ Our Guarantee
+                <ChevronIcon $isOpen={openAccordion === 'guarantee'}>▼</ChevronIcon>
+              </AccordionHeader>
+              <AccordionContent $isOpen={openAccordion === 'guarantee'}>
+                <AccordionInner>
+                  <GuaranteeSection>
+                    <GuaranteeTitle>
+                      <span>✅</span>
+                      Our Guarantee
+                    </GuaranteeTitle>
+                    <GuaranteeList>
+                      <GuaranteeItem><strong>Your key never touches our server.</strong> All requests are made directly from your browser to https://api.openai.com.</GuaranteeItem>
+                      <GuaranteeItem><strong>We don't store or log the key—anywhere.</strong> The key lives only in browser memory (React state). We do not write it to localStorage, cookies, analytics, or error logs. Closing or refreshing the tab wipes it.</GuaranteeItem>
+                    </GuaranteeList>
+                  </GuaranteeSection>
+                </AccordionInner>
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem $isOpen={openAccordion === 'risks'}>
+              <AccordionHeader 
+                $isOpen={openAccordion === 'risks'}
+                onClick={() => toggleAccordion('risks')}
+                type="button"
+              >
+                ⚠️ Risks You Accept
+                <ChevronIcon $isOpen={openAccordion === 'risks'}>▼</ChevronIcon>
+              </AccordionHeader>
+              <AccordionContent $isOpen={openAccordion === 'risks'}>
+                <AccordionInner>
+                  <RiskTable>
+                    <thead>
+                      <tr>
+                        <RiskTableHeader>Risk</RiskTableHeader>
+                        <RiskTableHeader>Description</RiskTableHeader>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <RiskTableCell><strong>Pasting keys into random websites is discouraged</strong></RiskTableCell>
+                        <RiskTableCell>You have to take us at our word that we are not storing or misusing your key.</RiskTableCell>
+                      </tr>
+                      <tr>
+                        <RiskTableCell><strong>Billing exposure</strong></RiskTableCell>
+                        <RiskTableCell>Every prompt counts against your OpenAI quota.  We will provide estimates for the cost of the prompt.</RiskTableCell>
+                      </tr>
+                    </tbody>
+                  </RiskTable>
+                </AccordionInner>
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem $isOpen={openAccordion === 'mitigation'}>
+              <AccordionHeader 
+                $isOpen={openAccordion === 'mitigation'}
+                onClick={() => toggleAccordion('mitigation')}
+                type="button"
+              >
+                🛡️ How You Can Mitigate Those Risks
+                <ChevronIcon $isOpen={openAccordion === 'mitigation'}>▼</ChevronIcon>
+              </AccordionHeader>
+              <AccordionContent $isOpen={openAccordion === 'mitigation'}>
+                <AccordionInner>
+                  <MitigationStep>
+                    <StepTitle>Set a hard spending cap</StepTitle>
+                    Billing → Usage limits — choose a small monthly cap. OpenAI will auto-disable the key beyond that.
+                  </MitigationStep>
+                  <MitigationStep>
+                    <StepTitle>Rotate or revoke often</StepTitle>
+                    Delete and recreate the key as you like.
+                  </MitigationStep>
+                  <MitigationStep>
+                    <StepTitle>Never paste the key on shared machines</StepTitle>
+                    If you must, clear the clipboard afterward on shared machines.
+                  </MitigationStep>
+                </AccordionInner>
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem $isOpen={openAccordion === 'faq'}>
+              <AccordionHeader 
+                $isOpen={openAccordion === 'faq'}
+                onClick={() => toggleAccordion('faq')}
+                type="button"
+              >
+                ❓ FAQ (Quick Answers)
+                <ChevronIcon $isOpen={openAccordion === 'faq'}>▼</ChevronIcon>
+              </AccordionHeader>
+              <AccordionContent $isOpen={openAccordion === 'faq'}>
+                <AccordionInner>
+                  <FAQItem>
+                    <FAQQuestion>Where is my key stored?</FAQQuestion>
+                    <FAQAnswer>In volatile memory only. Refreshing the page removes it.</FAQAnswer>
+                  </FAQItem>
+                  <FAQItem>
+                    <FAQQuestion>Do you proxy or inspect prompts?</FAQQuestion>
+                    <FAQAnswer>No. Requests go straight to OpenAI; we never see the content.</FAQAnswer>
+                  </FAQItem>
+                  <FAQItem>
+                    <FAQQuestion>Can I keep the key between visits?</FAQQuestion>
+                    <FAQAnswer>Not at this time.</FAQAnswer>
+                  </FAQItem>
+                  <FAQItem>
+                    <FAQQuestion>How do I revoke access?</FAQQuestion>
+                    <FAQAnswer>Delete the key in your OpenAI dashboard.</FAQAnswer>
+                  </FAQItem>
+                </AccordionInner>
+              </AccordionContent>
+            </AccordionItem>
+          </AccordionContainer>
+
           <ButtonContainer>
             <Button type="button" onClick={handleClose}>
               Cancel
