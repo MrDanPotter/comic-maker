@@ -167,42 +167,42 @@ const AccordionInner = styled.div`
   color: #555;
 `;
 
-const RiskTable = styled.table`
-  width: 100%;
-  border-collapse: collapse;
-  margin: 12px 0;
-  font-size: 0.85rem;
+const RiskList = styled.ul`
+  margin: 0;
+  padding-left: 20px;
+  font-family: 'Roboto', sans-serif;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: #555;
 `;
 
-const RiskTableHeader = styled.th`
-  background: #f8f9fa;
-  padding: 8px 12px;
-  text-align: left;
-  border: 1px solid #e0e0e0;
-  font-weight: 600;
+const RiskItem = styled.li`
+  margin-bottom: 8px;
 `;
 
-const RiskTableCell = styled.td`
-  padding: 8px 12px;
-  border: 1px solid #e0e0e0;
-  vertical-align: top;
+const MitigationList = styled.ul`
+  margin: 0;
+  padding-left: 20px;
+  font-family: 'Roboto', sans-serif;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: #555;
 `;
 
-const MitigationStep = styled.div`
-  margin-bottom: 12px;
-  padding: 8px 12px;
-  background: #e8f4fd;
-  border-radius: 6px;
-  border-left: 3px solid #667eea;
+const MitigationItem = styled.li`
+  margin-bottom: 8px;
 `;
 
-const StepTitle = styled.div`
-  font-weight: 600;
-  margin-bottom: 4px;
-  color: #333;
+const FAQList = styled.ul`
+  margin: 0;
+  padding-left: 20px;
+  font-family: 'Roboto', sans-serif;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: #555;
 `;
 
-const FAQItem = styled.div`
+const FAQItem = styled.li`
   margin-bottom: 16px;
 `;
 
@@ -339,24 +339,10 @@ const AiKeyModal: React.FC<AiKeyModalProps> = ({ isOpen, onClose, onSubmit }) =>
               </AccordionHeader>
               <AccordionContent $isOpen={openAccordion === 'risks'}>
                 <AccordionInner>
-                  <RiskTable>
-                    <thead>
-                      <tr>
-                        <RiskTableHeader>Risk</RiskTableHeader>
-                        <RiskTableHeader>Description</RiskTableHeader>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <RiskTableCell><strong>Pasting keys into random websites is discouraged</strong></RiskTableCell>
-                        <RiskTableCell>You have to take us at our word that we are not storing or misusing your key.</RiskTableCell>
-                      </tr>
-                      <tr>
-                        <RiskTableCell><strong>Billing exposure</strong></RiskTableCell>
-                        <RiskTableCell>Every prompt counts against your OpenAI quota.  We will provide estimates for the cost of the prompt.</RiskTableCell>
-                      </tr>
-                    </tbody>
-                  </RiskTable>
+                  <RiskList>
+                    <RiskItem><strong>Pasting keys into random websites is discouraged.</strong> You have to take us at our word that we are not storing or misusing your key.</RiskItem>
+                    <RiskItem><strong>Billing exposure.</strong> Every prompt counts against your OpenAI quota. We will provide estimates for the cost of the prompt.</RiskItem>
+                  </RiskList>
                 </AccordionInner>
               </AccordionContent>
             </AccordionItem>
@@ -372,18 +358,11 @@ const AiKeyModal: React.FC<AiKeyModalProps> = ({ isOpen, onClose, onSubmit }) =>
               </AccordionHeader>
               <AccordionContent $isOpen={openAccordion === 'mitigation'}>
                 <AccordionInner>
-                  <MitigationStep>
-                    <StepTitle>Set a hard spending cap</StepTitle>
-                    Billing → Usage limits — choose a small monthly cap. OpenAI will auto-disable the key beyond that.
-                  </MitigationStep>
-                  <MitigationStep>
-                    <StepTitle>Rotate or revoke often</StepTitle>
-                    Delete and recreate the key as you like.
-                  </MitigationStep>
-                  <MitigationStep>
-                    <StepTitle>Never paste the key on shared machines</StepTitle>
-                    If you must, clear the clipboard afterward on shared machines.
-                  </MitigationStep>
+                  <MitigationList>
+                    <MitigationItem><strong>Set a hard spending cap.</strong> Billing → Usage limits — choose a small monthly cap. OpenAI will auto-disable the key beyond that.</MitigationItem>
+                    <MitigationItem><strong>Rotate or revoke often.</strong> Delete and recreate the key as you like.</MitigationItem>
+                    <MitigationItem><strong>Never paste the key on shared machines.</strong> If you must, clear the clipboard afterward on shared machines.</MitigationItem>
+                  </MitigationList>
                 </AccordionInner>
               </AccordionContent>
             </AccordionItem>
@@ -399,22 +378,24 @@ const AiKeyModal: React.FC<AiKeyModalProps> = ({ isOpen, onClose, onSubmit }) =>
               </AccordionHeader>
               <AccordionContent $isOpen={openAccordion === 'faq'}>
                 <AccordionInner>
-                  <FAQItem>
-                    <FAQQuestion>Where is my key stored?</FAQQuestion>
-                    <FAQAnswer>In volatile memory only. Refreshing the page removes it.</FAQAnswer>
-                  </FAQItem>
-                  <FAQItem>
-                    <FAQQuestion>Do you proxy or inspect prompts?</FAQQuestion>
-                    <FAQAnswer>No. Requests go straight to OpenAI; we never see the content.</FAQAnswer>
-                  </FAQItem>
-                  <FAQItem>
-                    <FAQQuestion>Can I keep the key between visits?</FAQQuestion>
-                    <FAQAnswer>Not at this time.</FAQAnswer>
-                  </FAQItem>
-                  <FAQItem>
-                    <FAQQuestion>How do I revoke access?</FAQQuestion>
-                    <FAQAnswer>Delete the key in your OpenAI dashboard.</FAQAnswer>
-                  </FAQItem>
+                  <FAQList>
+                    <FAQItem>
+                      <FAQQuestion>Where is my key stored?</FAQQuestion>
+                      <FAQAnswer>In volatile memory only. Refreshing the page removes it.</FAQAnswer>
+                    </FAQItem>
+                    <FAQItem>
+                      <FAQQuestion>Do you proxy or inspect prompts?</FAQQuestion>
+                      <FAQAnswer>No. Requests go straight to OpenAI; we never see the content.</FAQAnswer>
+                    </FAQItem>
+                    <FAQItem>
+                      <FAQQuestion>Can I keep the key between visits?</FAQQuestion>
+                      <FAQAnswer>Not at this time.</FAQAnswer>
+                    </FAQItem>
+                    <FAQItem>
+                      <FAQQuestion>How do I revoke access?</FAQQuestion>
+                      <FAQAnswer>Delete the key in your OpenAI dashboard.</FAQAnswer>
+                    </FAQItem>
+                  </FAQList>
                 </AccordionInner>
               </AccordionContent>
             </AccordionItem>
