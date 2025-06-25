@@ -9,10 +9,11 @@ import SystemContextModal from '../Header/SystemContextModal';
 interface AiImageModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onImageGenerated: (imageUrl: string) => void;
+  onImageGenerated: (imageUrl: string, prompt?: string) => void;
   aspectRatio: string;
   apiKey: string;
   imageUrl?: string; // Optional existing image to display
+  existingPrompt?: string; // Optional existing prompt to pre-populate
 }
 
 const ModalOverlay = styled.div<{ $isOpen: boolean }>`
@@ -415,12 +416,13 @@ const AiImageModal: React.FC<AiImageModalProps> = ({
   onImageGenerated, 
   aspectRatio, 
   apiKey, 
-  imageUrl 
+  imageUrl, 
+  existingPrompt 
 }) => {
   const dispatch = useAppDispatch();
   const systemContext = useAppSelector(selectSystemContext);
   const useOpenAIImageGeneration = useAppSelector(selectUseOpenAIImageGeneration);
-  const [prompt, setPrompt] = useState('');
+  const [promptText, setPromptText] = useState(existingPrompt || '');
   const [enforceAspectRatio, setEnforceAspectRatio] = useState(true);
   const [includeSystemContext, setIncludeSystemContext] = useState(true);
   const [quality, setQuality] = useState<ImageQuality>('medium');
@@ -447,9 +449,14 @@ const AiImageModal: React.FC<AiImageModalProps> = ({
     setGeneratedImageUrl(imageUrl || '');
   }, [imageUrl]);
 
+  // Update promptText when existingPrompt prop changes
+  React.useEffect(() => {
+    setPromptText(existingPrompt || '');
+  }, [existingPrompt]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!prompt.trim()) return;
+    if (!promptText.trim()) return;
 
     setIsGenerating(true);
     setError('');
@@ -458,7 +465,7 @@ const AiImageModal: React.FC<AiImageModalProps> = ({
     try {
       // Build the full prompt
       const fullPrompt = buildImagePrompt({
-        userPrompt: prompt.trim(),
+        userPrompt: promptText.trim(),
         systemContext,
         includeSystemContext,
         enforceAspectRatio,
@@ -489,13 +496,13 @@ const AiImageModal: React.FC<AiImageModalProps> = ({
 
   const handleUseImage = () => {
     if (generatedImageUrl) {
-      onImageGenerated(generatedImageUrl);
+      onImageGenerated(generatedImageUrl, promptText.trim());
       handleClose();
     }
   };
 
   const handleClose = () => {
-    setPrompt('');
+    setPromptText('');
     setEnforceAspectRatio(true);
     setIncludeSystemContext(true);
     setQuality('medium');
@@ -544,8 +551,8 @@ const AiImageModal: React.FC<AiImageModalProps> = ({
                 <Label htmlFor="image-prompt">Describe the image you want to generate</Label>
                 <TextArea
                   id="image-prompt"
-                  value={prompt}
-                  onChange={(e) => setPrompt(e.target.value)}
+                  value={promptText}
+                  onChange={(e) => setPromptText(e.target.value)}
                   placeholder="A detailed description of the image you want to generate..."
                   disabled={isGenerating}
                 />
@@ -616,9 +623,9 @@ const AiImageModal: React.FC<AiImageModalProps> = ({
                 <Button 
                   type="submit" 
                   $isPrimary 
-                  $isDisabled={!prompt.trim() || isGenerating}
+                  $isDisabled={!promptText.trim() || isGenerating}
                   $isLoading={isGenerating}
-                  disabled={!prompt.trim() || isGenerating}
+                  disabled={!promptText.trim() || isGenerating}
                 >
                   {isGenerating && <LoadingSpinner />}
                   {isGenerating ? 'Generating...' : 'Generate'}
@@ -655,15 +662,18 @@ const AiImageModal: React.FC<AiImageModalProps> = ({
                     onClick={handleImageClick}
                     title="Click to view full resolution"
                   />
-                  <ButtonContainer style={{ marginTop: '20px' }}>
-                    <Button 
-                      type="button" 
-                      $isPrimary 
-                      onClick={handleUseImage}
-                    >
-                      Use Image
-                    </Button>
-                  </ButtonContainer>
+                  {/* Only show "Use Image" button if this is a newly generated image, not an existing one */}
+                  {!imageUrl && (
+                    <ButtonContainer style={{ marginTop: '20px' }}>
+                      <Button 
+                        type="button" 
+                        $isPrimary 
+                        onClick={handleUseImage}
+                      >
+                        Use Image
+                      </Button>
+                    </ButtonContainer>
+                  )}
                 </>
               ) : (
                 <PreviewPlaceholder>

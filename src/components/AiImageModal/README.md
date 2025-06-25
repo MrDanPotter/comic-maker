@@ -12,6 +12,9 @@ The AiImageModal component provides a user interface for generating AI images us
 - **Full-Resolution View**: Click any image to view it in full resolution with frosted background overlay
 - **Responsive Design**: Works well on different screen sizes
 - **Loading States**: Visual feedback during image generation
+- **Prompt Storage**: Automatically saves the user's prompt with AI-generated images
+- **Existing Image Support**: Displays existing images and pre-populates prompts when editing
+- **Smart Button Display**: "Use Image" button is hidden for existing images since they're already in the library
 
 ## Layout
 
@@ -19,7 +22,7 @@ The modal uses a two-column layout:
 
 ### Left Panel (Form)
 - Modal header
-- Text prompt input area
+- Text prompt input area (pre-populated if editing existing image)
 - Aspect ratio enforcement checkbox
 - Action buttons (Cancel, Generate)
 - Error messages
@@ -28,8 +31,9 @@ The modal uses a two-column layout:
 - Preview title that changes based on state
 - Loading spinner during generation
 - Generated image display (300x300px, clickable for full resolution)
-- "Use This Image" button when image is ready
+- "Use This Image" button when image is ready (hidden for existing images)
 - Placeholder when no image is generated
+- Existing image display when editing
 
 ### Full-Resolution Overlay
 - Click any image to open full-resolution view
@@ -44,10 +48,11 @@ The modal uses a two-column layout:
 |------|------|----------|-------------|
 | `isOpen` | `boolean` | Yes | Whether the modal is open or closed |
 | `onClose` | `() => void` | Yes | Callback function when modal is closed |
-| `onImageGenerated` | `(imageUrl: string) => void` | Yes | Callback function when an image is successfully generated |
+| `onImageGenerated` | `(imageUrl: string, prompt?: string) => void` | Yes | Callback function when an image is successfully generated |
 | `aspectRatio` | `string` | Yes | The aspect ratio for the generated image (e.g., "1:1", "16:9") |
 | `apiKey` | `string` | Yes | OpenAI API key for image generation |
 | `imageUrl` | `string` | No | Optional existing image URL to display in the preview area |
+| `existingPrompt` | `string` | No | Optional existing prompt to pre-populate in the text area |
 
 ## Usage
 
@@ -58,25 +63,28 @@ import AiImageModal from '../AiImageModal';
 <AiImageModal
   isOpen={showModal}
   onClose={() => setShowModal(false)}
-  onImageGenerated={(imageUrl) => {
+  onImageGenerated={(imageUrl, prompt) => {
     console.log('Generated image:', imageUrl);
-    // Handle the generated image
+    console.log('User prompt:', prompt);
+    // Handle the generated image and prompt
   }}
   aspectRatio="1:1"
   apiKey="your-openai-api-key"
 />
 
-// With existing image
+// With existing image and prompt
 <AiImageModal
   isOpen={showModal}
   onClose={() => setShowModal(false)}
-  onImageGenerated={(imageUrl) => {
+  onImageGenerated={(imageUrl, prompt) => {
     console.log('Generated image:', imageUrl);
-    // Handle the generated image
+    console.log('User prompt:', prompt);
+    // Handle the generated image and prompt
   }}
   aspectRatio="1:1"
   apiKey="your-openai-api-key"
   imageUrl="https://example.com/existing-image.jpg"
+  existingPrompt="A majestic dragon soaring through a stormy sky"
 />
 ```
 ## Integration

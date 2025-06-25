@@ -65,7 +65,7 @@ export const Default: Story = {
     aspectRatio: '1:1',
     apiKey: mockApiKey,
     onClose: () => console.log('Modal closed'),
-    onImageGenerated: (imageUrl: string) => console.log('Image generated:', imageUrl),
+    onImageGenerated: (imageUrl: string, prompt?: string) => console.log('Image generated:', imageUrl, 'with prompt:', prompt),
   },
 };
 
@@ -76,7 +76,7 @@ export const WithExistingImage: Story = {
     apiKey: mockApiKey,
     imageUrl: placeholderImage,
     onClose: () => console.log('Modal closed'),
-    onImageGenerated: (imageUrl: string) => console.log('Image generated:', imageUrl),
+    onImageGenerated: (imageUrl: string, prompt?: string) => console.log('Image generated:', imageUrl, 'with prompt:', prompt),
   },
   parameters: {
     docs: {
@@ -94,12 +94,31 @@ export const WithFullResolutionImage: Story = {
     apiKey: mockApiKey,
     imageUrl: placeholderImageLarge,
     onClose: () => console.log('Modal closed'),
-    onImageGenerated: (imageUrl: string) => console.log('Image generated:', imageUrl),
+    onImageGenerated: (imageUrl: string, prompt?: string) => console.log('Image generated:', imageUrl, 'with prompt:', prompt),
   },
   parameters: {
     docs: {
       description: {
         story: 'This story shows the modal with an existing image. Click on the image to view it in full resolution with a frosted background overlay. Click anywhere else to close the full resolution view.',
+      },
+    },
+  },
+};
+
+export const WithExistingPrompt: Story = {
+  args: {
+    isOpen: true,
+    aspectRatio: '1:1',
+    apiKey: mockApiKey,
+    imageUrl: placeholderImage,
+    existingPrompt: 'A majestic dragon soaring through a stormy sky with lightning illuminating its scales',
+    onClose: () => console.log('Modal closed'),
+    onImageGenerated: (imageUrl: string, prompt?: string) => console.log('Image generated:', imageUrl, 'with prompt:', prompt),
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: 'This story shows the modal with an existing image and prompt. The prompt will be pre-populated in the text area, allowing users to modify it for regeneration. Note that the "Use Image" button is hidden since the existing image should already be in the user\'s library.',
       },
     },
   },
