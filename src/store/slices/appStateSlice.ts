@@ -1,11 +1,20 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
+export interface ReferenceImage {
+  id: string;
+  url: string;
+  type: 'style' | 'character' | 'scene';
+  name: string;
+  customName?: string; // Optional custom name for character and scene references
+}
+
 interface AppState {
   aiEnabled: boolean;
   apiKey: string | null;
   showApiKeyModal: boolean;
   systemContext: string;
   useOpenAIImageGeneration: boolean;
+  referenceImages: ReferenceImage[];
 }
 
 const initialState: AppState = {
@@ -13,7 +22,8 @@ const initialState: AppState = {
   apiKey: null,
   showApiKeyModal: false,
   systemContext: '',
-  useOpenAIImageGeneration: false,
+  useOpenAIImageGeneration: true,
+  referenceImages: [],
 };
 
 const appStateSlice = createSlice({
@@ -52,6 +62,18 @@ const appStateSlice = createSlice({
     setUseOpenAIImageGeneration: (state, action: PayloadAction<boolean>) => {
       state.useOpenAIImageGeneration = action.payload;
     },
+    addReferenceImage: (state, action: PayloadAction<ReferenceImage>) => {
+      state.referenceImages.push(action.payload);
+    },
+    removeReferenceImage: (state, action: PayloadAction<string>) => {
+      state.referenceImages = state.referenceImages.filter(img => img.id !== action.payload);
+    },
+    updateReferenceImageName: (state, action: PayloadAction<{ id: string; customName: string }>) => {
+      const image = state.referenceImages.find(img => img.id === action.payload.id);
+      if (image) {
+        image.customName = action.payload.customName;
+      }
+    },
   },
 });
 
@@ -63,7 +85,10 @@ export const {
   hideApiKeyModal,
   clearApiKey,
   setSystemContext,
-  setUseOpenAIImageGeneration
+  setUseOpenAIImageGeneration,
+  addReferenceImage,
+  removeReferenceImage,
+  updateReferenceImageName
 } = appStateSlice.actions;
 
 // Selectors
@@ -72,5 +97,6 @@ export const selectApiKey = (state: { appState: AppState }) => state.appState.ap
 export const selectShowApiKeyModal = (state: { appState: AppState }) => state.appState.showApiKeyModal;
 export const selectSystemContext = (state: { appState: AppState }) => state.appState.systemContext;
 export const selectUseOpenAIImageGeneration = (state: { appState: AppState }) => state.appState.useOpenAIImageGeneration;
+export const selectReferenceImages = (state: { appState: AppState }) => state.appState.referenceImages;
 
 export default appStateSlice.reducer; 
