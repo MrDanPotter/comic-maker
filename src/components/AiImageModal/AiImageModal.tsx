@@ -6,6 +6,7 @@ import { createImageGeneratorService, ImageQuality } from '../../services/imageG
 import { buildImagePrompt } from '../../utils/promptBuilder';
 import SystemContextModal from '../Header/SystemContextModal';
 import Modal from '../Modal';
+import Image from '../Image';
 
 interface AiImageModalProps {
   isOpen: boolean;
@@ -172,21 +173,10 @@ const PreviewTitle = styled.h3`
   margin: 0 0 20px 0;
 `;
 
-const PreviewImage = styled.img`
+const PreviewImage = styled.div`
   width: 300px;
   height: 300px;
-  object-fit: cover;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  display: block;
   margin: 0 auto;
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  
-  &:hover {
-    transform: scale(1.02);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
-  }
 `;
 
 const PreviewPlaceholder = styled.div`
@@ -213,58 +203,6 @@ const ErrorMessage = styled.div`
   background: #ffebee;
   border-radius: 4px;
   border-left: 4px solid #d32f2f;
-`;
-
-// Full resolution image overlay
-const FullResOverlay = styled.div<{ $isOpen: boolean }>`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(8px);
-  display: ${props => props.$isOpen ? 'flex' : 'none'};
-  align-items: center;
-  justify-content: center;
-  z-index: 3000;
-  animation: ${props => props.$isOpen ? 'fadeIn' : 'fadeOut'} 0.3s ease;
-  
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
-  }
-  
-  @keyframes fadeOut {
-    from {
-      opacity: 1;
-    }
-    to {
-      opacity: 0;
-    }
-  }
-`;
-
-const FullResImage = styled.img`
-  max-width: 90vw;
-  max-height: 90vh;
-  object-fit: contain;
-  border-radius: 8px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
-  animation: scaleIn 0.3s ease;
-  
-  @keyframes scaleIn {
-    from {
-      transform: scale(0.9);
-    }
-    to {
-      transform: scale(1);
-    }
-  }
 `;
 
 const AlertContainer = styled.div`
@@ -399,7 +337,6 @@ const AiImageModal: React.FC<AiImageModalProps> = ({
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedImageUrl, setGeneratedImageUrl] = useState(imageUrl || '');
   const [error, setError] = useState('');
-  const [showFullRes, setShowFullRes] = useState(false);
   const [showSystemContextModal, setShowSystemContextModal] = useState(false);
 
   // Cost calculation based on quality
@@ -479,18 +416,7 @@ const AiImageModal: React.FC<AiImageModalProps> = ({
     setIsGenerating(false);
     setGeneratedImageUrl('');
     setError('');
-    setShowFullRes(false);
     onClose();
-  };
-
-  const handleImageClick = () => {
-    if (generatedImageUrl) {
-      setShowFullRes(true);
-    }
-  };
-
-  const handleFullResClose = () => {
-    setShowFullRes(false);
   };
 
   const handleSetSystemContext = (context: string, useOpenAI: boolean) => {
@@ -626,12 +552,17 @@ const AiImageModal: React.FC<AiImageModalProps> = ({
                 </div>
               ) : generatedImageUrl ? (
                 <>
-                  <PreviewImage 
-                    src={generatedImageUrl} 
-                    alt="Generated preview" 
-                    onClick={handleImageClick}
-                    title="Click to view full resolution"
-                  />
+                  <PreviewImage>
+                    <Image 
+                      src={generatedImageUrl} 
+                      alt="Generated preview" 
+                      width="300px"
+                      height="300px"
+                      borderRadius="8px"
+                      expandable={true}
+                      title="Click to view full resolution"
+                    />
+                  </PreviewImage>
                   {/* Only show "Use Image" button if this is a newly generated image, not an existing one */}
                   {!imageUrl && (
                     <ButtonContainer style={{ marginTop: '20px' }}>
@@ -654,15 +585,6 @@ const AiImageModal: React.FC<AiImageModalProps> = ({
           </RightPanel>
         </ModalContent>
       </Modal>
-      
-      {/* Full resolution image overlay */}
-      <FullResOverlay $isOpen={showFullRes} onClick={handleFullResClose}>
-        <FullResImage 
-          src={generatedImageUrl} 
-          alt="Full resolution preview" 
-          onClick={(e) => e.stopPropagation()}
-        />
-      </FullResOverlay>
       
       {/* System Context Modal */}
       <SystemContextModal

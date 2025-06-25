@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Check, Download, Trash2 } from 'react-feather';
+import Image from '../Image';
 
 interface LibraryImageProps {
   src: string;
@@ -19,13 +20,6 @@ const ImageContainer = styled.div<{ $isUsed?: boolean }>`
   overflow: hidden;
 `;
 
-const StyledImage = styled.img`
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
-`;
-
 const CheckmarkOverlay = styled.div`
   position: absolute;
   bottom: 5px;
@@ -37,6 +31,7 @@ const CheckmarkOverlay = styled.div`
   align-items: center;
   justify-content: center;
   color: white;
+  z-index: 10;
 `;
 
 const ActionButtons = styled.div`
@@ -47,6 +42,7 @@ const ActionButtons = styled.div`
   gap: 4px;
   opacity: 0;
   transition: opacity 0.2s ease;
+  z-index: 10;
 `;
 
 const ActionButton = styled.button`
@@ -104,7 +100,15 @@ const LibraryImage: React.FC<LibraryImageProps> = ({
 }) => {
   return (
     <ImageContainerWithHover $isUsed={isUsed}>
-      <StyledImage src={src} alt={alt} />
+      <Image
+        src={src}
+        alt={alt}
+        width="100%"
+        height="100%"
+        objectFit="cover"
+        expandable={true}
+        title="Click to view full resolution"
+      />
       {(onDownload || onDelete) && (
         <ActionButtons>
           {onDownload && (

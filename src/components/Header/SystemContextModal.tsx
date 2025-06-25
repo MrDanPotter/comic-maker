@@ -10,6 +10,7 @@ import {
   ReferenceImage 
 } from '../../store/slices/appStateSlice';
 import Modal from '../Modal';
+import Image from '../Image';
 
 interface SystemContextModalProps {
   isOpen: boolean;
@@ -195,12 +196,10 @@ const ReferenceImageItem = styled.div`
   background: #f8f9fa;
 `;
 
-const ReferenceImageThumbnail = styled.img`
+const ReferenceImageThumbnail = styled.div`
   width: 60px;
   height: 60px;
-  object-fit: cover;
-  border-radius: 4px;
-  border: 1px solid #ddd;
+  flex-shrink: 0;
 `;
 
 const ReferenceImageInfo = styled.div`
@@ -402,7 +401,17 @@ const SystemContextModal: React.FC<SystemContextModalProps> = ({
           <ReferenceImagesContainer>
             {referenceImages.map((image) => (
               <ReferenceImageItem key={image.id}>
-                <ReferenceImageThumbnail src={image.url} alt={image.name} />
+                <ReferenceImageThumbnail>
+                  <Image
+                    src={image.url}
+                    alt={image.name}
+                    width="60px"
+                    height="60px"
+                    borderRadius="4px"
+                    expandable={true}
+                    title="Click to view full resolution"
+                  />
+                </ReferenceImageThumbnail>
                 <ReferenceImageInfo>
                   <ReferenceImageName>{image.name}</ReferenceImageName>
                   <ReferenceImageType>{image.type}</ReferenceImageType>
