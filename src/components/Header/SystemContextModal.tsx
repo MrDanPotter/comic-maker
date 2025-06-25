@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
+import Modal from '../Modal';
 
 interface SystemContextModalProps {
   isOpen: boolean;
@@ -8,53 +9,6 @@ interface SystemContextModalProps {
   currentContext: string;
   currentUseOpenAI: boolean;
 }
-
-const ModalOverlay = styled.div<{ $isOpen: boolean }>`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: ${props => props.$isOpen ? 'flex' : 'none'};
-  align-items: center;
-  justify-content: center;
-  z-index: 2000;
-  backdrop-filter: blur(4px);
-`;
-
-const ModalContainer = styled.div`
-  background: white;
-  border-radius: 12px;
-  padding: 32px;
-  max-width: 600px;
-  width: 90%;
-  max-height: 80vh;
-  overflow-y: auto;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-  animation: modalSlideIn 0.3s ease-out;
-  
-  @keyframes modalSlideIn {
-    from {
-      opacity: 0;
-      transform: translateY(-20px) scale(0.95);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-    }
-  }
-`;
-
-const ModalHeader = styled.h2`
-  font-family: 'Orbitron', 'Arial Black', sans-serif;
-  font-size: 1.6rem;
-  font-weight: 700;
-  color: #333;
-  margin: 0 0 24px 0;
-  text-align: center;
-  letter-spacing: 1px;
-`;
 
 const FormGroup = styled.div`
   margin-bottom: 24px;
@@ -188,49 +142,45 @@ const SystemContextModal: React.FC<SystemContextModalProps> = ({
   };
 
   return (
-    <ModalOverlay $isOpen={isOpen} onClick={handleClose}>
-      <ModalContainer onClick={(e) => e.stopPropagation()}>
-        <ModalHeader>Edit System Context</ModalHeader>
+    <Modal isOpen={isOpen} onClose={handleClose} title="Edit System Context" maxWidth="600px">
+      <InfoText>
+        Set the overall tone and art style that will be used to generate all AI images.
+        This context will be included in every image generation prompt.
+      </InfoText>
+      
+      <form onSubmit={handleSubmit}>
+        <FormGroup>
+          <Label htmlFor="system-context">System Context</Label>
+          <TextArea
+            id="system-context"
+            value={context}
+            onChange={(e) => setContext(e.target.value)}
+            placeholder="e.g., Create images in a comic book style with bold colors, dynamic poses, and dramatic lighting. Use a modern superhero aesthetic with clean lines and vibrant backgrounds."
+          />
+        </FormGroup>
         
-        <InfoText>
-          Set the overall tone and art style that will be used to generate all AI images.
-          This context will be included in every image generation prompt.
-        </InfoText>
+        <CheckboxContainer>
+          <Checkbox
+            id="use-openai"
+            type="checkbox"
+            checked={useOpenAI}
+            onChange={(e) => setUseOpenAI(e.target.checked)}
+          />
+          <CheckboxLabel htmlFor="use-openai">
+            Use OpenAI Image Generation
+          </CheckboxLabel>
+        </CheckboxContainer>
         
-        <form onSubmit={handleSubmit}>
-          <FormGroup>
-            <Label htmlFor="system-context">System Context</Label>
-            <TextArea
-              id="system-context"
-              value={context}
-              onChange={(e) => setContext(e.target.value)}
-              placeholder="e.g., Create images in a comic book style with bold colors, dynamic poses, and dramatic lighting. Use a modern superhero aesthetic with clean lines and vibrant backgrounds."
-            />
-          </FormGroup>
-          
-          <CheckboxContainer>
-            <Checkbox
-              id="use-openai"
-              type="checkbox"
-              checked={useOpenAI}
-              onChange={(e) => setUseOpenAI(e.target.checked)}
-            />
-            <CheckboxLabel htmlFor="use-openai">
-              Use OpenAI Image Generation
-            </CheckboxLabel>
-          </CheckboxContainer>
-          
-          <ButtonContainer>
-            <Button type="button" onClick={handleClose}>
-              Cancel
-            </Button>
-            <Button type="submit" $isPrimary>
-              Save Context
-            </Button>
-          </ButtonContainer>
-        </form>
-      </ModalContainer>
-    </ModalOverlay>
+        <ButtonContainer>
+          <Button type="button" onClick={handleClose}>
+            Cancel
+          </Button>
+          <Button type="submit" $isPrimary>
+            Save Context
+          </Button>
+        </ButtonContainer>
+      </form>
+    </Modal>
   );
 };
 

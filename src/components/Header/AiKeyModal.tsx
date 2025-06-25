@@ -1,58 +1,12 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import Modal from '../Modal';
 
 interface AiKeyModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (apiKey: string) => void;
 }
-
-const ModalOverlay = styled.div<{ $isOpen: boolean }>`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: ${props => props.$isOpen ? 'flex' : 'none'};
-  align-items: center;
-  justify-content: center;
-  z-index: 2000;
-  backdrop-filter: blur(4px);
-`;
-
-const ModalContainer = styled.div`
-  background: white;
-  border-radius: 12px;
-  padding: 32px;
-  max-width: 700px;
-  width: 90%;
-  max-height: 80vh;
-  overflow-y: auto;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-  animation: modalSlideIn 0.3s ease-out;
-  
-  @keyframes modalSlideIn {
-    from {
-      opacity: 0;
-      transform: translateY(-20px) scale(0.95);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-    }
-  }
-`;
-
-const ModalHeader = styled.h2`
-  font-family: 'Orbitron', 'Arial Black', sans-serif;
-  font-size: 1.8rem;
-  font-weight: 700;
-  color: #333;
-  margin: 0 0 24px 0;
-  text-align: center;
-  letter-spacing: 1px;
-`;
 
 const FormGroup = styled.div`
   margin-bottom: 24px;
@@ -216,6 +170,12 @@ const FAQAnswer = styled.div`
   color: #666;
 `;
 
+const ChevronIcon = styled.span<{ $isOpen: boolean }>`
+  transition: transform 0.2s ease;
+  transform: rotate(${props => props.$isOpen ? '180deg' : '0deg'});
+  font-size: 0.8rem;
+`;
+
 const ButtonContainer = styled.div`
   display: flex;
   gap: 12px;
@@ -256,12 +216,6 @@ const Button = styled.button<{ $isPrimary?: boolean; $isDisabled?: boolean }>`
   }
 `;
 
-const ChevronIcon = styled.span<{ $isOpen: boolean }>`
-  transition: transform 0.2s ease;
-  transform: rotate(${props => props.$isOpen ? '180deg' : '0deg'});
-  font-size: 0.8rem;
-`;
-
 const AiKeyModal: React.FC<AiKeyModalProps> = ({ isOpen, onClose, onSubmit }) => {
   const [apiKey, setApiKey] = useState('');
   const [openAccordion, setOpenAccordion] = useState<string>('guarantee');
@@ -270,7 +224,6 @@ const AiKeyModal: React.FC<AiKeyModalProps> = ({ isOpen, onClose, onSubmit }) =>
     e.preventDefault();
     if (apiKey.trim()) {
       onSubmit(apiKey.trim());
-      setApiKey('');
     }
   };
 
@@ -285,138 +238,134 @@ const AiKeyModal: React.FC<AiKeyModalProps> = ({ isOpen, onClose, onSubmit }) =>
   };
 
   return (
-    <ModalOverlay $isOpen={isOpen} onClick={handleClose}>
-      <ModalContainer onClick={(e) => e.stopPropagation()}>
-        <ModalHeader>Bring Your Own Key</ModalHeader>
+    <Modal isOpen={isOpen} onClose={handleClose} title="Bring Your Own Key" maxWidth="700px" minWidth="400px">
+      <form onSubmit={handleSubmit}>
+        <FormGroup>
+          <Label htmlFor="openai-key">OpenAI API Key</Label>
+          <Input
+            id="openai-key"
+            type="password"
+            value={apiKey}
+            onChange={(e) => setApiKey(e.target.value)}
+            placeholder="sk-..."
+            autoComplete="off"
+          />
+        </FormGroup>
         
-        <form onSubmit={handleSubmit}>
-          <FormGroup>
-            <Label htmlFor="openai-key">OpenAI API Key</Label>
-            <Input
-              id="openai-key"
-              type="password"
-              value={apiKey}
-              onChange={(e) => setApiKey(e.target.value)}
-              placeholder="sk-..."
-              autoComplete="off"
-            />
-          </FormGroup>
-          
-          <AccordionContainer>
-            <AccordionItem $isOpen={openAccordion === 'guarantee'}>
-              <AccordionHeader 
-                $isOpen={openAccordion === 'guarantee'}
-                onClick={() => toggleAccordion('guarantee')}
-                type="button"
-              >
-                ✅ Our Guarantee
-                <ChevronIcon $isOpen={openAccordion === 'guarantee'}>▼</ChevronIcon>
-              </AccordionHeader>
-              <AccordionContent $isOpen={openAccordion === 'guarantee'}>
-                <AccordionInner>
-                  <GuaranteeSection>
-                    <GuaranteeTitle>
-                      <span>✅</span>
-                      Our Guarantee
-                    </GuaranteeTitle>
-                    <GuaranteeList>
-                      <GuaranteeItem><strong>Your key never touches our server.</strong> All requests are made directly from your browser to https://api.openai.com.</GuaranteeItem>
-                      <GuaranteeItem><strong>We don't store or log the key—anywhere.</strong> The key lives only in browser memory (React state). We do not write it to localStorage, cookies, analytics, or error logs. Closing or refreshing the tab wipes it.</GuaranteeItem>
-                    </GuaranteeList>
-                  </GuaranteeSection>
-                </AccordionInner>
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem $isOpen={openAccordion === 'risks'}>
-              <AccordionHeader 
-                $isOpen={openAccordion === 'risks'}
-                onClick={() => toggleAccordion('risks')}
-                type="button"
-              >
-                ⚠️ Risks You Accept
-                <ChevronIcon $isOpen={openAccordion === 'risks'}>▼</ChevronIcon>
-              </AccordionHeader>
-              <AccordionContent $isOpen={openAccordion === 'risks'}>
-                <AccordionInner>
-                  <RiskList>
-                    <RiskItem><strong>Pasting keys into random websites is discouraged.</strong> You have to take us at our word that we are not storing or misusing your key.</RiskItem>
-                    <RiskItem><strong>Billing exposure.</strong> Every prompt counts against your OpenAI quota. We will provide estimates for the cost of the prompt.</RiskItem>
-                  </RiskList>
-                </AccordionInner>
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem $isOpen={openAccordion === 'mitigation'}>
-              <AccordionHeader 
-                $isOpen={openAccordion === 'mitigation'}
-                onClick={() => toggleAccordion('mitigation')}
-                type="button"
-              >
-                🛡️ How You Can Mitigate Those Risks
-                <ChevronIcon $isOpen={openAccordion === 'mitigation'}>▼</ChevronIcon>
-              </AccordionHeader>
-              <AccordionContent $isOpen={openAccordion === 'mitigation'}>
-                <AccordionInner>
-                  <MitigationList>
-                    <MitigationItem><strong>Set a hard spending cap.</strong> Billing → Usage limits — choose a small monthly cap. OpenAI will auto-disable the key beyond that.</MitigationItem>
-                    <MitigationItem><strong>Rotate or revoke often.</strong> Delete and recreate the key as you like.</MitigationItem>
-                    <MitigationItem><strong>Never paste the key on shared machines.</strong> If you must, clear the clipboard afterward on shared machines.</MitigationItem>
-                  </MitigationList>
-                </AccordionInner>
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem $isOpen={openAccordion === 'faq'}>
-              <AccordionHeader 
-                $isOpen={openAccordion === 'faq'}
-                onClick={() => toggleAccordion('faq')}
-                type="button"
-              >
-                ❓ FAQ (Quick Answers)
-                <ChevronIcon $isOpen={openAccordion === 'faq'}>▼</ChevronIcon>
-              </AccordionHeader>
-              <AccordionContent $isOpen={openAccordion === 'faq'}>
-                <AccordionInner>
-                  <FAQList>
-                    <FAQItem>
-                      <FAQQuestion>Where is my key stored?</FAQQuestion>
-                      <FAQAnswer>In volatile memory only. Refreshing the page removes it.</FAQAnswer>
-                    </FAQItem>
-                    <FAQItem>
-                      <FAQQuestion>Do you proxy or inspect prompts?</FAQQuestion>
-                      <FAQAnswer>No. Requests go straight to OpenAI; we never see the content.</FAQAnswer>
-                    </FAQItem>
-                    <FAQItem>
-                      <FAQQuestion>Can I keep the key between visits?</FAQQuestion>
-                      <FAQAnswer>Not at this time.</FAQAnswer>
-                    </FAQItem>
-                    <FAQItem>
-                      <FAQQuestion>How do I revoke access?</FAQQuestion>
-                      <FAQAnswer>Delete the key in your OpenAI dashboard.</FAQAnswer>
-                    </FAQItem>
-                  </FAQList>
-                </AccordionInner>
-              </AccordionContent>
-            </AccordionItem>
-          </AccordionContainer>
-
-          <ButtonContainer>
-            <Button type="button" onClick={handleClose}>
-              Cancel
-            </Button>
-            <Button 
-              type="submit" 
-              $isPrimary 
-              $isDisabled={!apiKey.trim()}
-              disabled={!apiKey.trim()}
+        <AccordionContainer>
+          <AccordionItem $isOpen={openAccordion === 'guarantee'}>
+            <AccordionHeader 
+              $isOpen={openAccordion === 'guarantee'}
+              onClick={() => toggleAccordion('guarantee')}
+              type="button"
             >
-              Submit
-            </Button>
-          </ButtonContainer>
-        </form>
-      </ModalContainer>
-    </ModalOverlay>
+              ✅ Our Guarantee
+              <ChevronIcon $isOpen={openAccordion === 'guarantee'}>▼</ChevronIcon>
+            </AccordionHeader>
+            <AccordionContent $isOpen={openAccordion === 'guarantee'}>
+              <AccordionInner>
+                <GuaranteeSection>
+                  <GuaranteeTitle>
+                    <span>✅</span>
+                    Our Guarantee
+                  </GuaranteeTitle>
+                  <GuaranteeList>
+                    <GuaranteeItem><strong>Your key never touches our server.</strong> All requests are made directly from your browser to https://api.openai.com.</GuaranteeItem>
+                    <GuaranteeItem><strong>We don't store or log the key—anywhere.</strong> The key lives only in browser memory (React state). We do not write it to localStorage, cookies, analytics, or error logs. Closing or refreshing the tab wipes it.</GuaranteeItem>
+                  </GuaranteeList>
+                </GuaranteeSection>
+              </AccordionInner>
+            </AccordionContent>
+          </AccordionItem>
+
+          <AccordionItem $isOpen={openAccordion === 'risks'}>
+            <AccordionHeader 
+              $isOpen={openAccordion === 'risks'}
+              onClick={() => toggleAccordion('risks')}
+              type="button"
+            >
+              ⚠️ Risks You Accept
+              <ChevronIcon $isOpen={openAccordion === 'risks'}>▼</ChevronIcon>
+            </AccordionHeader>
+            <AccordionContent $isOpen={openAccordion === 'risks'}>
+              <AccordionInner>
+                <RiskList>
+                  <RiskItem><strong>Pasting keys into random websites is discouraged.</strong> You have to take us at our word that we are not storing or misusing your key.</RiskItem>
+                  <RiskItem><strong>Billing exposure.</strong> Every prompt counts against your OpenAI quota. We will provide estimates for the cost of the prompt.</RiskItem>
+                </RiskList>
+              </AccordionInner>
+            </AccordionContent>
+          </AccordionItem>
+
+          <AccordionItem $isOpen={openAccordion === 'mitigation'}>
+            <AccordionHeader 
+              $isOpen={openAccordion === 'mitigation'}
+              onClick={() => toggleAccordion('mitigation')}
+              type="button"
+            >
+              🛡️ How You Can Mitigate Those Risks
+              <ChevronIcon $isOpen={openAccordion === 'mitigation'}>▼</ChevronIcon>
+            </AccordionHeader>
+            <AccordionContent $isOpen={openAccordion === 'mitigation'}>
+              <AccordionInner>
+                <MitigationList>
+                  <MitigationItem><strong>Set a hard spending cap.</strong> Billing → Usage limits — choose a small monthly cap. OpenAI will auto-disable the key beyond that.</MitigationItem>
+                  <MitigationItem><strong>Rotate or revoke often.</strong> Delete and recreate the key as you like.</MitigationItem>
+                  <MitigationItem><strong>Never paste the key on shared machines.</strong> If you must, clear the clipboard afterward on shared machines.</MitigationItem>
+                </MitigationList>
+              </AccordionInner>
+            </AccordionContent>
+          </AccordionItem>
+
+          <AccordionItem $isOpen={openAccordion === 'faq'}>
+            <AccordionHeader 
+              $isOpen={openAccordion === 'faq'}
+              onClick={() => toggleAccordion('faq')}
+              type="button"
+            >
+              ❓ FAQ (Quick Answers)
+              <ChevronIcon $isOpen={openAccordion === 'faq'}>▼</ChevronIcon>
+            </AccordionHeader>
+            <AccordionContent $isOpen={openAccordion === 'faq'}>
+              <AccordionInner>
+                <FAQList>
+                  <FAQItem>
+                    <FAQQuestion>Where is my key stored?</FAQQuestion>
+                    <FAQAnswer>In volatile memory only. Refreshing the page removes it.</FAQAnswer>
+                  </FAQItem>
+                  <FAQItem>
+                    <FAQQuestion>Do you proxy or inspect prompts?</FAQQuestion>
+                    <FAQAnswer>No. Requests go straight to OpenAI; we never see the content.</FAQAnswer>
+                  </FAQItem>
+                  <FAQItem>
+                    <FAQQuestion>Can I keep the key between visits?</FAQQuestion>
+                    <FAQAnswer>Not at this time.</FAQAnswer>
+                  </FAQItem>
+                  <FAQItem>
+                    <FAQQuestion>How do I revoke access?</FAQQuestion>
+                    <FAQAnswer>Delete the key in your OpenAI dashboard.</FAQAnswer>
+                  </FAQItem>
+                </FAQList>
+              </AccordionInner>
+            </AccordionContent>
+          </AccordionItem>
+        </AccordionContainer>
+
+        <ButtonContainer>
+          <Button type="button" onClick={handleClose}>
+            Cancel
+          </Button>
+          <Button 
+            type="submit" 
+            $isPrimary 
+            $isDisabled={!apiKey.trim()}
+            disabled={!apiKey.trim()}
+          >
+            Submit
+          </Button>
+        </ButtonContainer>
+      </form>
+    </Modal>
   );
 };
 

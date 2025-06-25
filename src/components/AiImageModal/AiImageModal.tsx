@@ -5,6 +5,7 @@ import { selectSystemContext, selectUseOpenAIImageGeneration, setSystemContext }
 import { createImageGeneratorService, ImageQuality } from '../../services/imageGeneratorService';
 import { buildImagePrompt } from '../../utils/promptBuilder';
 import SystemContextModal from '../Header/SystemContextModal';
+import Modal from '../Modal';
 
 interface AiImageModalProps {
   isOpen: boolean;
@@ -15,43 +16,6 @@ interface AiImageModalProps {
   imageUrl?: string; // Optional existing image to display
   existingPrompt?: string; // Optional existing prompt to pre-populate
 }
-
-const ModalOverlay = styled.div<{ $isOpen: boolean }>`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: ${props => props.$isOpen ? 'flex' : 'none'};
-  align-items: center;
-  justify-content: center;
-  z-index: 2000;
-  backdrop-filter: blur(4px);
-`;
-
-const ModalContainer = styled.div`
-  background: white;
-  border-radius: 12px;
-  max-width: 1000px;
-  width: 90%;
-  max-height: 80vh;
-  overflow: hidden;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-  animation: modalSlideIn 0.3s ease-out;
-  display: flex;
-  
-  @keyframes modalSlideIn {
-    from {
-      opacity: 0;
-      transform: translateY(-20px) scale(0.95);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-    }
-  }
-`;
 
 const LeftPanel = styled.div`
   flex: 1;
@@ -410,6 +374,12 @@ const CostInfo = styled.div`
   text-align: center;
 `;
 
+const ModalContent = styled.div`
+  display: flex;
+  max-height: 80vh;
+  overflow: hidden;
+`;
+
 const AiImageModal: React.FC<AiImageModalProps> = ({ 
   isOpen, 
   onClose, 
@@ -437,7 +407,7 @@ const AiImageModal: React.FC<AiImageModalProps> = ({
     switch (quality) {
       case 'low': return 0.01;
       case 'medium': return 0.05;
-      case 'high': return 0.20;
+      case 'high': return 0.10;
       default: return 0.05;
     }
   };
@@ -529,8 +499,8 @@ const AiImageModal: React.FC<AiImageModalProps> = ({
 
   return (
     <>
-      <ModalOverlay $isOpen={isOpen} onClick={handleClose}>
-        <ModalContainer onClick={(e) => e.stopPropagation()}>
+      <Modal isOpen={isOpen} onClose={handleClose} maxWidth="1000px" minWidth="800px" padding="0">
+        <ModalContent>
           <LeftPanel>
             <ModalHeader>AI Image Generation</ModalHeader>
             
@@ -682,8 +652,8 @@ const AiImageModal: React.FC<AiImageModalProps> = ({
               )}
             </PreviewSection>
           </RightPanel>
-        </ModalContainer>
-      </ModalOverlay>
+        </ModalContent>
+      </Modal>
       
       {/* Full resolution image overlay */}
       <FullResOverlay $isOpen={showFullRes} onClick={handleFullResClose}>
