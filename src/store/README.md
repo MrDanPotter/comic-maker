@@ -16,7 +16,6 @@ The application has been integrated with Redux for state management. The Redux s
 ```typescript
 interface ComicPagesState {
   pages: ComicPage[];
-  currentPageId: string | null;
 }
 ```
 
@@ -44,7 +43,6 @@ interface AppState {
 - `addPage(page: ComicPage)` - Add a new comic page
 - `removePage(pageId: string)` - Remove a comic page
 - `reorderPages(pages: ComicPage[])` - Reorder comic pages
-- `setCurrentPage(pageId: string | null)` - Set the current active page
 - `updatePanel({ pageId, panelId, updates })` - Update a panel's properties
 - `setPanelImage({ pageId, panelId, imageUrl })` - Set an image for a panel
 
@@ -68,7 +66,6 @@ interface AppState {
 
 ### Comic Pages Selectors
 - `selectAllPages` - Get all comic pages
-- `selectCurrentPageId` - Get the current page ID
 - `selectPageById` - Get a specific page by ID
 - `selectPanelById` - Get a specific panel by page and panel ID
 

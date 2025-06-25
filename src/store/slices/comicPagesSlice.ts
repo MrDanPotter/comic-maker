@@ -4,7 +4,6 @@ import { layouts } from '../../utils/layouts';
 
 interface ComicPagesState {
   pages: ComicPage[];
-  currentPageId: string | null;
 }
 
 const initialState: ComicPagesState = {
@@ -12,7 +11,6 @@ const initialState: ComicPagesState = {
     id: "1",
     panels: layouts.fullPage(),
   }],
-  currentPageId: null,
 };
 
 const comicPagesSlice = createSlice({
@@ -27,9 +25,6 @@ const comicPagesSlice = createSlice({
     },
     reorderPages: (state, action: PayloadAction<ComicPage[]>) => {
       state.pages = action.payload;
-    },
-    setCurrentPage: (state, action: PayloadAction<string | null>) => {
-      state.currentPageId = action.payload;
     },
     updatePanel: (state, action: PayloadAction<{ pageId: string; panelId: string; updates: Partial<Panel> }>) => {
       const page = state.pages.find(p => p.id === action.payload.pageId);
@@ -56,14 +51,12 @@ export const {
   addPage, 
   removePage, 
   reorderPages, 
-  setCurrentPage,
   updatePanel,
   setPanelImage
 } = comicPagesSlice.actions;
 
 // Selectors
 export const selectAllPages = (state: { comicPages: ComicPagesState }) => state.comicPages.pages;
-export const selectCurrentPageId = (state: { comicPages: ComicPagesState }) => state.comicPages.currentPageId;
 export const selectPageById = (state: { comicPages: ComicPagesState }, pageId: string) => 
   state.comicPages.pages.find(page => page.id === pageId);
 export const selectPanelById = (state: { comicPages: ComicPagesState }, pageId: string, panelId: string) => {

@@ -6,17 +6,13 @@ import {
   addPage, 
   removePage, 
   reorderPages, 
-  setCurrentPage,
   updatePanel,
   setPanelImage,
-  selectAllPages,
-  selectCurrentPageId
+  selectAllPages
 } from './store/slices/comicPagesSlice';
 import { 
   addImage, 
-  removeImage, 
   markImageAsUsed, 
-  markImageAsUnused,
   selectAllImages
 } from './store/slices/imageLibrarySlice';
 import ComicPage from './components/ComicAssembly/ComicPage';
