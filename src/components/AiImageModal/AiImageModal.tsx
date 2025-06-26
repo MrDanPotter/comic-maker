@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useAppSelector, useAppDispatch } from '../../store/store';
-import { selectSystemContext, selectUseOpenAIImageGeneration, setSystemContext } from '../../store/slices/appStateSlice';
+import { selectSystemContext, selectUseOpenAIImageGeneration, setSystemContext, ReferenceImage } from '../../store/slices/appStateSlice';
 import { createImageGeneratorService, ImageQuality } from '../../services/imageGeneratorService';
 import { buildImagePrompt } from '../../utils/promptBuilder';
 import SystemContextModal from '../Header/SystemContextModal';
+import ReferenceImageSelectorModal from './ReferenceImageSelectorModal';
+import ReferenceImageCard from './ReferenceImageCard';
 import Modal from '../Modal';
 import Image from '../Image';
 
@@ -318,6 +320,48 @@ const ModalContent = styled.div`
   overflow: hidden;
 `;
 
+const AddImageContextButton = styled.button`
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-family: 'Roboto', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  margin-bottom: 24px;
+  
+  &:hover {
+    background: #5a6fd8;
+    transform: translateY(-1px);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+`;
+
+const SelectedImagesContainer = styled.div`
+  margin-bottom: 24px;
+`;
+
+const SelectedImagesTitle = styled.h4`
+  font-family: 'Roboto', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #555;
+  margin: 0 0 12px 0;
+`;
+
+const SelectedImageGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+`;
+
 const AiImageModal: React.FC<AiImageModalProps> = ({ 
   isOpen, 
   onClose, 
@@ -338,6 +382,8 @@ const AiImageModal: React.FC<AiImageModalProps> = ({
   const [generatedImageUrl, setGeneratedImageUrl] = useState(imageUrl || '');
   const [error, setError] = useState('');
   const [showSystemContextModal, setShowSystemContextModal] = useState(false);
+  const [showReferenceImageSelector, setShowReferenceImageSelector] = useState(false);
+  const [selectedReferenceImages, setSelectedReferenceImages] = useState<ReferenceImage[]>([]);
 
   // Cost calculation based on quality
   const getCostForQuality = (quality: ImageQuality): number => {
@@ -416,11 +462,27 @@ const AiImageModal: React.FC<AiImageModalProps> = ({
     setIsGenerating(false);
     setGeneratedImageUrl('');
     setError('');
+    setSelectedReferenceImages([]);
     onClose();
   };
 
   const handleSetSystemContext = (context: string, useOpenAI: boolean) => {
     dispatch(setSystemContext(context));
+  };
+
+  const handleReferenceImagesSelected = (images: ReferenceImage[]) => {
+    setSelectedReferenceImages(images);
+  };
+
+  const handleRemoveReferenceImage = (imageId: string) => {
+    setSelectedReferenceImages(selectedReferenceImages.filter(img => img.id !== imageId));
+  };
+
+  const isImageReferencedInPrompt = (image: ReferenceImage): boolean => {
+    if (!image.customName) return true; // If no custom name, consider it referenced
+    const promptLower = promptText.toLowerCase();
+    const nameLower = image.customName.toLowerCase();
+    return promptLower.includes(nameLower);
   };
 
   return (
@@ -512,6 +574,30 @@ const AiImageModal: React.FC<AiImageModalProps> = ({
                 </CheckboxContainer>
               )}
               
+              {/* Add Image Context Button - moved below system context checkbox */}
+              <AddImageContextButton onClick={() => setShowReferenceImageSelector(true)}>
+                Add Image Context
+              </AddImageContextButton>
+              
+              {/* Selected Reference Images */}
+              {selectedReferenceImages.length > 0 && (
+                <SelectedImagesContainer>
+                  <SelectedImagesTitle>Selected Reference Images:</SelectedImagesTitle>
+                  <SelectedImageGrid>
+                    {selectedReferenceImages.map((image) => (
+                      <ReferenceImageCard
+                        key={image.id}
+                        image={image}
+                        isReferenced={isImageReferencedInPrompt(image)}
+                        showStatusIndicator={true}
+                        onRemove={() => handleRemoveReferenceImage(image.id)}
+                        size="small"
+                      />
+                    ))}
+                  </SelectedImageGrid>
+                </SelectedImagesContainer>
+              )}
+              
               <ButtonContainer>
                 <Button type="button" onClick={handleClose} disabled={isGenerating}>
                   Cancel
@@ -593,6 +679,15 @@ const AiImageModal: React.FC<AiImageModalProps> = ({
         onSubmit={handleSetSystemContext}
         currentContext={systemContext}
         currentUseOpenAI={useOpenAIImageGeneration}
+      />
+      
+      {/* Reference Image Selector Modal */}
+      <ReferenceImageSelectorModal
+        isOpen={showReferenceImageSelector}
+        onClose={() => setShowReferenceImageSelector(false)}
+        onImagesSelected={handleReferenceImagesSelected}
+        selectedImages={selectedReferenceImages}
+        promptText={promptText}
       />
     </>
   );
