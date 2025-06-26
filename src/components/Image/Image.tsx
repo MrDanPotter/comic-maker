@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import styled from 'styled-components';
 
 interface ImageProps {
@@ -58,7 +59,7 @@ const FullResOverlay = styled.div<{ $isOpen: boolean }>`
   display: ${props => props.$isOpen ? 'flex' : 'none'};
   align-items: center;
   justify-content: center;
-  z-index: 3000;
+  z-index: 9999;
   animation: ${props => props.$isOpen ? 'fadeIn' : 'fadeOut'} 0.3s ease;
   
   @keyframes fadeIn {
@@ -143,15 +144,16 @@ const Image: React.FC<ImageProps> = ({
         />
       </ImageContainer>
       
-      {/* Full resolution image overlay */}
-      {expandable && (
+      {/* Full resolution image overlay - rendered at body level */}
+      {expandable && typeof document !== 'undefined' && createPortal(
         <FullResOverlay $isOpen={showFullRes} onClick={handleFullResClose}>
           <FullResImage 
             src={src} 
             alt={alt}
             onClick={(e) => e.stopPropagation()}
           />
-        </FullResOverlay>
+        </FullResOverlay>,
+        document.body
       )}
     </>
   );
