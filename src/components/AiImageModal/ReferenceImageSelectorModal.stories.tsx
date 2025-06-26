@@ -3,6 +3,8 @@ import ReferenceImageSelectorModal from './ReferenceImageSelectorModal';
 import { Provider } from 'react-redux';
 import { store } from '../../store/store';
 import { addReferenceImage } from '../../store/slices/appStateSlice';
+import { configureStore } from '@reduxjs/toolkit';
+import appStateReducer from '../../store/slices/appStateSlice';
 
 const meta: Meta<typeof ReferenceImageSelectorModal> = {
   title: 'Components/AiImageModal/ReferenceImageSelectorModal',
@@ -108,17 +110,25 @@ export const EmptyState: Story = {
   },
   decorators: [
     (Story) => {
-      // Clear the store to show empty state
-      const emptyStore = {
-        ...store,
-        getState: () => ({
+      // Create a fresh store with empty state for the empty state story
+      const emptyStore = configureStore({
+        reducer: {
+          appState: appStateReducer,
+        },
+        preloadedState: {
           appState: {
-            referenceImages: [],
+            aiEnabled: false,
+            apiKey: null,
+            showApiKeyModal: false,
+            systemContext: '',
+            useOpenAIImageGeneration: true,
+            referenceImages: [], // Empty reference images
           },
-        }),
-      };
+        },
+      });
+      
       return (
-        <Provider store={emptyStore as any}>
+        <Provider store={emptyStore}>
           <Story />
         </Provider>
       );
