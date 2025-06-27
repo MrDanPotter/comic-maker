@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
+import { HelpCircle } from 'react-feather';
 import { useAppDispatch, useAppSelector } from '../../store/store';
 import { 
   addReferenceImage, 
@@ -95,15 +96,6 @@ const Button = styled.button<{ $isPrimary?: boolean }>`
   &:active {
     transform: translateY(0);
   }
-`;
-
-const InfoText = styled.p`
-  font-family: 'Roboto', sans-serif;
-  font-size: 0.9rem;
-  color: #666;
-  margin: 0 0 16px 0;
-  line-height: 1.5;
-  text-align: center;
 `;
 
 const CheckboxContainer = styled.div`
@@ -322,6 +314,61 @@ const SourceOption = styled.div<{ $isSelected: boolean }>`
   }
 `;
 
+const TitleContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+`;
+
+const HelpIcon = styled.div`
+  position: relative;
+  cursor: pointer;
+  color: #667eea;
+  transition: color 0.2s ease;
+  
+  &:hover {
+    color: #5a6fd8;
+  }
+  
+  svg {
+    width: 18px;
+    height: 18px;
+  }
+`;
+
+const Tooltip = styled.div<{ $isVisible: boolean }>`
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #333;
+  color: white;
+  padding: 12px 16px;
+  border-radius: 6px;
+  font-family: 'Roboto', sans-serif;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  white-space: nowrap;
+  z-index: 1000;
+  opacity: ${props => props.$isVisible ? 1 : 0};
+  visibility: ${props => props.$isVisible ? 'visible' : 'hidden'};
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+  margin-top: 8px;
+  width: 300px;
+  white-space: normal;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-bottom-color: #333;
+  }
+`;
+
 const SystemContextModal: React.FC<SystemContextModalProps> = ({
   isOpen,
   onClose,
@@ -336,6 +383,7 @@ const SystemContextModal: React.FC<SystemContextModalProps> = ({
   const [useImageLibrary, setUseImageLibrary] = useState(false);
   const [showImageLibrarySelector, setShowImageLibrarySelector] = useState(false);
   const [pendingImageType, setPendingImageType] = useState<'style' | 'character' | 'scene' | null>(null);
+  const [showTooltip, setShowTooltip] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -356,7 +404,16 @@ const SystemContextModal: React.FC<SystemContextModalProps> = ({
     setUseImageLibrary(false); // Reset source selection
     setShowImageLibrarySelector(false);
     setPendingImageType(null);
+    setShowTooltip(false); // Reset tooltip
     onClose();
+  };
+
+  const handleTooltipShow = () => {
+    setShowTooltip(true);
+  };
+
+  const handleTooltipHide = () => {
+    setShowTooltip(false);
   };
 
   const handleReferenceButtonClick = (type: 'style' | 'character' | 'scene') => {
@@ -413,12 +470,27 @@ const SystemContextModal: React.FC<SystemContextModalProps> = ({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} title="Edit System Context" maxWidth="700px">
-      <InfoText>
-        Set the overall tone and art style that will be used to generate all AI images.
-        This context will be included in every image generation prompt.
-      </InfoText>
-      
+    <Modal isOpen={isOpen} onClose={handleClose} title={
+      <TitleContainer>
+        Edit System Context
+        <HelpIcon
+          onMouseEnter={handleTooltipShow}
+          onMouseLeave={handleTooltipHide}
+          onFocus={handleTooltipShow}
+          onBlur={handleTooltipHide}
+          tabIndex={0}
+          role="button"
+          aria-label="Help information"
+        >
+          <HelpCircle />
+          <Tooltip $isVisible={showTooltip}>
+            Set the overall tone and art style that will be used to generate all AI images.
+            This context will be included in every image generation prompt.
+            You can also add reference images to help the AI generate images that are more consistent with your style.
+          </Tooltip>
+        </HelpIcon>
+      </TitleContainer>
+    } maxWidth="700px">
       <form onSubmit={handleSubmit}>
         <FormGroup>
           <Label htmlFor="system-context">System Context</Label>

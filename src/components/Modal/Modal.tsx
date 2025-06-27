@@ -4,7 +4,7 @@ import styled from 'styled-components';
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
-  title?: string;
+  title?: string | React.ReactNode;
   children: React.ReactNode;
   maxWidth?: string;
   minWidth?: string;
