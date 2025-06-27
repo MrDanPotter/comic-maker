@@ -11,6 +11,7 @@ import {
 } from '../../store/slices/appStateSlice';
 import Modal from '../Modal';
 import Image from '../Image';
+import ImageLibrarySelectorModal from './ImageLibrarySelectorModal';
 
 interface SystemContextModalProps {
   isOpen: boolean;
@@ -278,6 +279,49 @@ const HiddenFileInput = styled.input`
   display: none;
 `;
 
+const SourcePickerContainer = styled.div`
+  margin-bottom: 24px;
+`;
+
+const SourcePickerLabel = styled.label`
+  display: block;
+  font-family: 'Roboto', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #555;
+  margin-bottom: 12px;
+`;
+
+const SourcePickerGroup = styled.div`
+  display: flex;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #f8f9fa;
+`;
+
+const SourceOption = styled.div<{ $isSelected: boolean }>`
+  flex: 1;
+  padding: 12px 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-right: 1px solid #e0e0e0;
+  background: ${props => props.$isSelected ? '#667eea' : 'transparent'};
+  color: ${props => props.$isSelected ? 'white' : '#555'};
+  font-family: 'Roboto', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 500;
+  
+  &:last-child {
+    border-right: none;
+  }
+  
+  &:hover {
+    background: ${props => props.$isSelected ? '#5a6fd8' : '#e9ecef'};
+  }
+`;
+
 const SystemContextModal: React.FC<SystemContextModalProps> = ({
   isOpen,
   onClose,
@@ -289,6 +333,9 @@ const SystemContextModal: React.FC<SystemContextModalProps> = ({
   const referenceImages = useAppSelector(selectReferenceImages);
   const [context, setContext] = useState(currentContext);
   const [useFakeGeneration, setUseFakeGeneration] = useState(!currentUseOpenAI);
+  const [useImageLibrary, setUseImageLibrary] = useState(false);
+  const [showImageLibrarySelector, setShowImageLibrarySelector] = useState(false);
+  const [pendingImageType, setPendingImageType] = useState<'style' | 'character' | 'scene' | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -306,13 +353,23 @@ const SystemContextModal: React.FC<SystemContextModalProps> = ({
   const handleClose = () => {
     setContext(currentContext); // Reset to original value
     setUseFakeGeneration(!currentUseOpenAI); // Reset to original value
+    setUseImageLibrary(false); // Reset source selection
+    setShowImageLibrarySelector(false);
+    setPendingImageType(null);
     onClose();
   };
 
   const handleReferenceButtonClick = (type: 'style' | 'character' | 'scene') => {
-    if (fileInputRef.current) {
-      fileInputRef.current.setAttribute('data-type', type);
-      fileInputRef.current.click();
+    if (useImageLibrary) {
+      // Open image library selector
+      setPendingImageType(type);
+      setShowImageLibrarySelector(true);
+    } else {
+      // Use filesystem (current functionality)
+      if (fileInputRef.current) {
+        fileInputRef.current.setAttribute('data-type', type);
+        fileInputRef.current.click();
+      }
     }
   };
 
@@ -347,6 +404,12 @@ const SystemContextModal: React.FC<SystemContextModalProps> = ({
 
   const handleUpdateReferenceImageName = (id: string, customName: string) => {
     dispatch(updateReferenceImageName({ id, customName }));
+  };
+
+  const handleImageLibraryImageSelected = (referenceImage: ReferenceImage) => {
+    dispatch(addReferenceImage(referenceImage));
+    setShowImageLibrarySelector(false);
+    setPendingImageType(null);
   };
 
   return (
@@ -385,6 +448,25 @@ const SystemContextModal: React.FC<SystemContextModalProps> = ({
         </CheckboxContainer>
 
         <SectionTitle>Add reference images</SectionTitle>
+        
+        <SourcePickerContainer>
+          <SourcePickerLabel>Image Source</SourcePickerLabel>
+          <SourcePickerGroup>
+            <SourceOption 
+              $isSelected={!useImageLibrary}
+              onClick={() => setUseImageLibrary(false)}
+            >
+              Use Filesystem
+            </SourceOption>
+            <SourceOption 
+              $isSelected={useImageLibrary}
+              onClick={() => setUseImageLibrary(true)}
+            >
+              Use Image Library
+            </SourceOption>
+          </SourcePickerGroup>
+        </SourcePickerContainer>
+        
         <ReferenceButtonsContainer>
           <ReferenceButton type="button" onClick={() => handleReferenceButtonClick('style')}>
             Style
@@ -453,6 +535,16 @@ const SystemContextModal: React.FC<SystemContextModalProps> = ({
         type="file"
         accept="image/*"
         onChange={handleFileSelect}
+      />
+      
+      <ImageLibrarySelectorModal
+        isOpen={showImageLibrarySelector}
+        onClose={() => {
+          setShowImageLibrarySelector(false);
+          setPendingImageType(null);
+        }}
+        onImageSelected={handleImageLibraryImageSelected}
+        imageType={pendingImageType || 'style'}
       />
     </Modal>
   );
