@@ -10,12 +10,22 @@ export interface ImageGenerationResponse {
 
 export type ImageQuality = 'low' | 'medium' | 'high';
 
+// Import the ReferenceImage interface from the global state
+export interface ReferenceImage {
+  id: string;
+  url: string;
+  type: 'style' | 'character' | 'scene';
+  name: string;
+  customName?: string;
+}
+
 export interface ImageGeneratorService {
   generateImage(
     prompt: string, 
     apiKey: string, 
     aspectRatio?: string,
-    quality?: ImageQuality
+    quality?: ImageQuality,
+    referenceImages?: ReferenceImage[]
   ): Promise<ImageGenerationResponse>;
   validateApiKey(apiKey: string): boolean;
   testApiKey(apiKey: string): Promise<boolean>;

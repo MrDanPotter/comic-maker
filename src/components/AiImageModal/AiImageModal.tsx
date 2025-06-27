@@ -431,7 +431,8 @@ const AiImageModal: React.FC<AiImageModalProps> = ({
         fullPrompt, 
         apiKey, 
         enforceAspectRatio ? aspectRatio : '1:1',
-        quality
+        quality,
+        selectedReferenceImages
       );
       
       if (response.success) {

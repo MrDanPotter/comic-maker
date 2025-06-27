@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { X } from 'react-feather';
 import { ReferenceImage } from '../../store/slices/appStateSlice';
 import Image from '../Image';
 
@@ -9,6 +10,7 @@ interface ReferenceImageCardProps {
   isReferenced?: boolean;
   showStatusIndicator?: boolean;
   onClick?: () => void;
+  onRemove?: () => void;
   size?: 'small' | 'medium' | 'large';
 }
 
@@ -64,11 +66,41 @@ const StatusText = styled.span<{ $isReferenced: boolean; $size: string }>`
   font-weight: 500;
 `;
 
+const RemoveButton = styled.button<{ $size: string }>`
+  position: absolute;
+  top: ${props => props.$size === 'small' ? '4px' : '8px'};
+  right: ${props => props.$size === 'small' ? '4px' : '8px'};
+  width: ${props => props.$size === 'small' ? '20px' : '24px'};
+  height: ${props => props.$size === 'small' ? '20px' : '24px'};
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  color: #d32f2f;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  z-index: 1;
+  
+  &:hover {
+    background: #d32f2f;
+    color: white;
+    transform: scale(1.1);
+  }
+  
+  svg {
+    width: ${props => props.$size === 'small' ? '12px' : '14px'};
+    height: ${props => props.$size === 'small' ? '12px' : '14px'};
+  }
+`;
+
 const ReferenceImageCard: React.FC<ReferenceImageCardProps> = ({
   image,
   isSelected = false,
   isReferenced = true,
   onClick,
+  onRemove,
   showStatusIndicator = true,
   size = 'medium'
 }) => {
@@ -85,6 +117,19 @@ const ReferenceImageCard: React.FC<ReferenceImageCardProps> = ({
       $size={size}
       onClick={onClick}
     >
+      {onRemove && (
+        <RemoveButton 
+          $size={size}
+          onClick={(e) => {
+            e.stopPropagation();
+            onRemove();
+          }}
+          title="Remove reference image"
+        >
+          <X />
+        </RemoveButton>
+      )}
+      
       <ImageContainer $size={size}>
         <Image
           src={image.url}
