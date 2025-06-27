@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
-import { HelpCircle } from 'react-feather';
 import { useAppDispatch, useAppSelector } from '../../store/store';
 import { 
   addReferenceImage, 
@@ -13,6 +12,7 @@ import {
 import Modal from '../Modal';
 import Image from '../Image';
 import ImageLibrarySelectorModal from './ImageLibrarySelectorModal';
+import HelpTooltip from './HelpTooltip';
 
 interface SystemContextModalProps {
   isOpen: boolean;
@@ -98,41 +98,6 @@ const Button = styled.button<{ $isPrimary?: boolean }>`
   }
 `;
 
-const CheckboxContainer = styled.div`
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  margin-bottom: 24px;
-`;
-
-const Checkbox = styled.input`
-  width: 18px;
-  height: 18px;
-  accent-color: #667eea;
-  margin-top: 2px;
-`;
-
-const CheckboxLabelContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-`;
-
-const CheckboxLabel = styled.label`
-  font-family: 'Roboto', sans-serif;
-  font-size: 0.9rem;
-  color: #555;
-  cursor: pointer;
-  font-weight: 500;
-`;
-
-const CheckboxSubLabel = styled.span`
-  font-family: 'Roboto', sans-serif;
-  font-size: 0.8rem;
-  color: #888;
-  line-height: 1.4;
-`;
-
 const SectionTitle = styled.h3`
   font-family: 'Roboto', sans-serif;
   font-size: 1rem;
@@ -141,6 +106,9 @@ const SectionTitle = styled.h3`
   margin: 32px 0 16px 0;
   padding-bottom: 8px;
   border-bottom: 2px solid #e0e0e0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 `;
 
 const ReferenceButtonsContainer = styled.div`
@@ -276,7 +244,9 @@ const SourcePickerContainer = styled.div`
 `;
 
 const SourcePickerLabel = styled.label`
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 12px;
   font-family: 'Roboto', sans-serif;
   font-size: 0.9rem;
   font-weight: 500;
@@ -284,34 +254,30 @@ const SourcePickerLabel = styled.label`
   margin-bottom: 12px;
 `;
 
-const SourcePickerGroup = styled.div`
+const RadioGroup = styled.div`
   display: flex;
-  border: 2px solid #e0e0e0;
-  border-radius: 8px;
-  overflow: hidden;
-  background: #f8f9fa;
+  gap: 12px;
 `;
 
-const SourceOption = styled.div<{ $isSelected: boolean }>`
-  flex: 1;
-  padding: 12px 16px;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border-right: 1px solid #e0e0e0;
-  background: ${props => props.$isSelected ? '#667eea' : 'transparent'};
-  color: ${props => props.$isSelected ? 'white' : '#555'};
+const RadioOption = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+`;
+
+const RadioInput = styled.input`
+  width: 18px;
+  height: 18px;
+  accent-color: #667eea;
+  margin-top: 2px;
+`;
+
+const RadioLabel = styled.label`
   font-family: 'Roboto', sans-serif;
   font-size: 0.9rem;
+  color: #555;
+  cursor: pointer;
   font-weight: 500;
-  
-  &:last-child {
-    border-right: none;
-  }
-  
-  &:hover {
-    background: ${props => props.$isSelected ? '#5a6fd8' : '#e9ecef'};
-  }
 `;
 
 const TitleContainer = styled.div`
@@ -319,54 +285,6 @@ const TitleContainer = styled.div`
   align-items: center;
   gap: 8px;
   justify-content: center;
-`;
-
-const HelpIcon = styled.div`
-  position: relative;
-  cursor: pointer;
-  color: #667eea;
-  transition: color 0.2s ease;
-  
-  &:hover {
-    color: #5a6fd8;
-  }
-  
-  svg {
-    width: 18px;
-    height: 18px;
-  }
-`;
-
-const Tooltip = styled.div<{ $isVisible: boolean }>`
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #333;
-  color: white;
-  padding: 12px 16px;
-  border-radius: 6px;
-  font-family: 'Roboto', sans-serif;
-  font-size: 0.85rem;
-  line-height: 1.4;
-  white-space: nowrap;
-  z-index: 1000;
-  opacity: ${props => props.$isVisible ? 1 : 0};
-  visibility: ${props => props.$isVisible ? 'visible' : 'hidden'};
-  transition: opacity 0.2s ease, visibility 0.2s ease;
-  margin-top: 8px;
-  width: 300px;
-  white-space: normal;
-  
-  &::before {
-    content: '';
-    position: absolute;
-    bottom: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    border: 6px solid transparent;
-    border-bottom-color: #333;
-  }
 `;
 
 const SystemContextModal: React.FC<SystemContextModalProps> = ({
@@ -383,7 +301,6 @@ const SystemContextModal: React.FC<SystemContextModalProps> = ({
   const [useImageLibrary, setUseImageLibrary] = useState(false);
   const [showImageLibrarySelector, setShowImageLibrarySelector] = useState(false);
   const [pendingImageType, setPendingImageType] = useState<'style' | 'character' | 'scene' | null>(null);
-  const [showTooltip, setShowTooltip] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -404,16 +321,7 @@ const SystemContextModal: React.FC<SystemContextModalProps> = ({
     setUseImageLibrary(false); // Reset source selection
     setShowImageLibrarySelector(false);
     setPendingImageType(null);
-    setShowTooltip(false); // Reset tooltip
     onClose();
-  };
-
-  const handleTooltipShow = () => {
-    setShowTooltip(true);
-  };
-
-  const handleTooltipHide = () => {
-    setShowTooltip(false);
   };
 
   const handleReferenceButtonClick = (type: 'style' | 'character' | 'scene') => {
@@ -473,22 +381,10 @@ const SystemContextModal: React.FC<SystemContextModalProps> = ({
     <Modal isOpen={isOpen} onClose={handleClose} title={
       <TitleContainer>
         Edit System Context
-        <HelpIcon
-          onMouseEnter={handleTooltipShow}
-          onMouseLeave={handleTooltipHide}
-          onFocus={handleTooltipShow}
-          onBlur={handleTooltipHide}
-          tabIndex={0}
-          role="button"
-          aria-label="Help information"
-        >
-          <HelpCircle />
-          <Tooltip $isVisible={showTooltip}>
-            Set the overall tone and art style that will be used to generate all AI images.
-            This context will be included in every image generation prompt.
-            You can also add reference images to help the AI generate images that are more consistent with your style.
-          </Tooltip>
-        </HelpIcon>
+        <HelpTooltip
+          content="Set the overall tone and art style that will be used to generate all AI images. This context will be included in every image generation prompt. You can also add reference images to help the AI generate images that are more consistent with your style."
+          ariaLabel="Help information about system context"
+        />
       </TitleContainer>
     } maxWidth="700px">
       <form onSubmit={handleSubmit}>
@@ -502,35 +398,51 @@ const SystemContextModal: React.FC<SystemContextModalProps> = ({
           />
         </FormGroup>
         
-        <SectionTitle>Add reference images</SectionTitle>
+        <SectionTitle>
+          Add reference images
+          <HelpTooltip
+            content="Reference images help the AI understand your desired style, characters, or scenes. Add reference images here that will be used throughout your image generation prompts."
+            ariaLabel="Help information about reference images"
+          />
+        </SectionTitle>
         
         <SourcePickerContainer>
-          <SourcePickerLabel>Image Source</SourcePickerLabel>
-          <SourcePickerGroup>
-            <SourceOption 
-              $isSelected={!useImageLibrary}
-              onClick={() => setUseImageLibrary(false)}
-            >
-              Use Filesystem
-            </SourceOption>
-            <SourceOption 
-              $isSelected={useImageLibrary}
-              onClick={() => setUseImageLibrary(true)}
-            >
-              Use Image Library
-            </SourceOption>
-          </SourcePickerGroup>
+          <SourcePickerLabel>
+            Select image from: 
+            <RadioGroup>
+              <RadioOption>
+                <RadioInput
+                  type="radio"
+                  id="filesystem"
+                  name="imageSource"
+                  checked={!useImageLibrary}
+                  onChange={() => setUseImageLibrary(false)}
+                />
+                <RadioLabel htmlFor="filesystem">Filesystem</RadioLabel>
+              </RadioOption>
+              <RadioOption>
+                <RadioInput
+                  type="radio"
+                  id="imageLibrary"
+                  name="imageSource"
+                  checked={useImageLibrary}
+                  onChange={() => setUseImageLibrary(true)}
+                />
+                <RadioLabel htmlFor="imageLibrary">Image Library</RadioLabel>
+              </RadioOption>
+            </RadioGroup>
+          </SourcePickerLabel>
         </SourcePickerContainer>
         
         <ReferenceButtonsContainer>
           <ReferenceButton type="button" onClick={() => handleReferenceButtonClick('style')}>
-            Style
+            Add Style
           </ReferenceButton>
           <ReferenceButton type="button" onClick={() => handleReferenceButtonClick('character')}>
-            Character
+            Add Character
           </ReferenceButton>
           <ReferenceButton type="button" onClick={() => handleReferenceButtonClick('scene')}>
-            Scene
+            Add Scene
           </ReferenceButton>
         </ReferenceButtonsContainer>
 

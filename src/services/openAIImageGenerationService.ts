@@ -136,6 +136,19 @@ export class OpenAIImageGenerationService implements ImageGeneratorService {
         { type: 'input_text', text: prompt }
       ];
 
+      // order reference images by type such that character images come first, then scene images, then style images
+      const orderedReferenceImages = referenceImages.sort((a, b) => {
+        if (a.type === 'character') return -1;
+        if (b.type === 'character') return 1;
+        if (a.type === 'scene') return -1;
+        if (b.type === 'scene') return 1;
+        if (a.type === 'style') return -1;
+        if (b.type === 'style') return 1;
+        return 0;
+      });
+
+      const containsCharacterOrSceneImages = orderedReferenceImages.some(refImage => refImage.type === 'character' || refImage.type === 'scene');
+
       // Add reference images as base64 data
       for (const refImage of referenceImages) {
         try {
@@ -146,7 +159,11 @@ export class OpenAIImageGenerationService implements ImageGeneratorService {
           
           switch (refImage.type) {
             case 'style':
-              description = `The following image is a reference for the art style`;
+              if (containsCharacterOrSceneImages) {
+                description = `The following image is a reference for the art style, style for the output image should be in this style.  other reference images not marked for style should be translated into this style.`;
+              } else {
+                description = `The following image is a reference for the art style, style for the output image should be in this style`;
+              }
               break;
             case 'character':
               description = `The following image is a reference for the character: ${refImage.customName}`;
