@@ -14,6 +14,8 @@ import {
 } from '../../store/slices/appStateSlice';
 import AiKeyModal from './AiKeyModal';
 import SystemContextModal from './SystemContextModal';
+import { Settings } from 'react-feather';
+import AppSettingsModal from './AppSettingsModal';
 
 const HeaderContainer = styled.header`
   position: fixed;
@@ -121,6 +123,39 @@ const ToggleSwitch = styled.div<{ $isEnabled: boolean }>`
   }
 `;
 
+const AppSettingsButton = styled.button`
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-family: 'Roboto', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-right: 8px;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: translateY(-1px);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+  
+  @media (max-width: 768px) {
+    font-size: 0.7rem;
+    padding: 6px 12px;
+  }
+`;
+
 const Header: React.FC = () => {
   const dispatch = useAppDispatch();
   const aiEnabled = useAppSelector(selectAiEnabled);
@@ -128,6 +163,7 @@ const Header: React.FC = () => {
   const systemContext = useAppSelector(selectSystemContext);
   const useOpenAIImageGeneration = useAppSelector(selectUseOpenAIImageGeneration);
   const [showSystemContextModal, setShowSystemContextModal] = useState(false);
+  const [showAppSettingsModal, setShowAppSettingsModal] = useState(false);
 
   const handleToggleAi = () => {
     dispatch(toggleAi());
@@ -152,9 +188,14 @@ const Header: React.FC = () => {
         <AppTitle>Comic Maker</AppTitle>
         <AiToggleContainer>
           {aiEnabled && (
-            <EditSystemContextButton onClick={() => setShowSystemContextModal(true)}>
-              Edit System Context
-            </EditSystemContextButton>
+            <>
+              <AppSettingsButton onClick={() => setShowAppSettingsModal(true)}>
+                <Settings size={18} /> App Settings
+              </AppSettingsButton>
+              <EditSystemContextButton onClick={() => setShowSystemContextModal(true)}>
+                Edit System Context
+              </EditSystemContextButton>
+            </>
           )}
           <AiToggleLabel onClick={handleToggleAi}>
             Enable AI
@@ -178,6 +219,11 @@ const Header: React.FC = () => {
         onSubmit={handleSetSystemContext}
         currentContext={systemContext}
         currentUseOpenAI={useOpenAIImageGeneration}
+      />
+      
+      <AppSettingsModal
+        isOpen={showAppSettingsModal}
+        onClose={() => setShowAppSettingsModal(false)}
       />
     </>
   );

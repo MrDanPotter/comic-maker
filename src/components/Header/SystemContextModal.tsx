@@ -493,7 +493,7 @@ const SystemContextModal: React.FC<SystemContextModalProps> = ({
     } maxWidth="700px">
       <form onSubmit={handleSubmit}>
         <FormGroup>
-          <Label htmlFor="system-context">System Context</Label>
+          <Label htmlFor="system-context">Text Instructions</Label>
           <TextArea
             id="system-context"
             value={context}
@@ -502,23 +502,6 @@ const SystemContextModal: React.FC<SystemContextModalProps> = ({
           />
         </FormGroup>
         
-        <CheckboxContainer>
-          <Checkbox
-            id="use-fake-generation"
-            type="checkbox"
-            checked={useFakeGeneration}
-            onChange={(e) => setUseFakeGeneration(e.target.checked)}
-          />
-          <CheckboxLabelContainer>
-            <CheckboxLabel htmlFor="use-fake-generation">
-              Use fake image generation
-            </CheckboxLabel>
-            <CheckboxSubLabel>
-              This option will let you test image creation flows by utilizing random images, no images will be generated and your key will not be used for image generation
-            </CheckboxSubLabel>
-          </CheckboxLabelContainer>
-        </CheckboxContainer>
-
         <SectionTitle>Add reference images</SectionTitle>
         
         <SourcePickerContainer>
