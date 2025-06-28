@@ -626,7 +626,6 @@ const AiImageModal: React.FC<AiImageModalProps> = ({
                         isReferenced={isImageReferencedInPrompt(image)}
                         showStatusIndicator={true}
                         onRemove={() => handleRemoveReferenceImage(image.id)}
-                        size="small"
                       />
                     ))}
                   </SelectedImageGrid>

@@ -11,13 +11,12 @@ interface ReferenceImageCardProps {
   showStatusIndicator?: boolean;
   onClick?: () => void;
   onRemove?: () => void;
-  size?: 'small' | 'medium' | 'large';
 }
 
-const CardContainer = styled.div<{ $isSelected: boolean; $isReferenced: boolean; $isClickable: boolean; $size: string }>`
+const CardContainer = styled.div<{ $isSelected: boolean; $isReferenced: boolean; $isClickable: boolean }>`
   border: 2px solid ${props => props.$isSelected ? '#667eea' : '#e0e0e0'};
   border-radius: 8px;
-  padding: ${props => props.$size === 'small' ? '8px' : props.$size === 'large' ? '16px' : '12px'};
+  padding: 12px;
   background: ${props => props.$isSelected ? '#f0f4ff' : 'white'};
   cursor: ${props => props.$isClickable ? 'pointer' : 'default'};
   transition: all 0.2s ease;
@@ -30,10 +29,10 @@ const CardContainer = styled.div<{ $isSelected: boolean; $isReferenced: boolean;
   }
 `;
 
-const ImageContainer = styled.div<{ $size: string }>`
-  width: 100%;
-  height: ${props => props.$size === 'small' ? '80px' : props.$size === 'large' ? '160px' : '120px'};
-  margin-bottom: ${props => props.$size === 'small' ? '6px' : '8px'};
+const ImageContainer = styled.div`
+  width: 120px;
+  height: 120px;
+  margin-bottom: 8px;
   border-radius: 4px;
   overflow: hidden;
 `;
@@ -44,34 +43,34 @@ const ImageInfo = styled.div`
   gap: 4px;
 `;
 
-const ImageType = styled.span<{ $size: string }>`
+const ImageType = styled.span`
   font-family: 'Roboto', sans-serif;
-  font-size: ${props => props.$size === 'small' ? '0.7rem' : props.$size === 'large' ? '1rem' : '0.8rem'};
+  font-size: 0.8rem;
   color: #667eea;
   font-weight: 500;
   text-transform: capitalize;
 `;
 
-const CustomName = styled.span<{ $size: string }>`
+const CustomName = styled.span`
   font-family: 'Roboto', sans-serif;
-  font-size: ${props => props.$size === 'small' ? '0.7rem' : props.$size === 'large' ? '1rem' : '0.8rem'};
+  font-size: 0.8rem;
   color: #666;
   font-style: italic;
 `;
 
-const StatusText = styled.span<{ $isReferenced: boolean; $size: string }>`
+const StatusText = styled.span<{ $isReferenced: boolean }>`
   font-family: 'Roboto', sans-serif;
-  font-size: ${props => props.$size === 'small' ? '0.6rem' : props.$size === 'large' ? '0.9rem' : '0.7rem'};
+  font-size: 0.7rem;
   color: ${props => props.$isReferenced ? '#4caf50' : '#ff9800'};
   font-weight: 500;
 `;
 
-const RemoveButton = styled.button<{ $size: string }>`
+const RemoveButton = styled.button`
   position: absolute;
-  top: ${props => props.$size === 'small' ? '4px' : '8px'};
-  right: ${props => props.$size === 'small' ? '4px' : '8px'};
-  width: ${props => props.$size === 'small' ? '20px' : '24px'};
-  height: ${props => props.$size === 'small' ? '20px' : '24px'};
+  top: 8px;
+  right: 8px;
+  width: 24px;
+  height: 24px;
   border: none;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.9);
@@ -90,8 +89,8 @@ const RemoveButton = styled.button<{ $size: string }>`
   }
   
   svg {
-    width: ${props => props.$size === 'small' ? '12px' : '14px'};
-    height: ${props => props.$size === 'small' ? '12px' : '14px'};
+    width: 14px;
+    height: 14px;
   }
 `;
 
@@ -101,8 +100,7 @@ const ReferenceImageCard: React.FC<ReferenceImageCardProps> = ({
   isReferenced = true,
   onClick,
   onRemove,
-  showStatusIndicator = true,
-  size = 'medium'
+  showStatusIndicator = true
 }) => {
 
   const getStatusText = (isReferenced: boolean): string => {
@@ -114,12 +112,10 @@ const ReferenceImageCard: React.FC<ReferenceImageCardProps> = ({
       $isSelected={isSelected}
       $isReferenced={isReferenced}
       $isClickable={!!onClick}
-      $size={size}
       onClick={onClick}
     >
       {onRemove && (
         <RemoveButton 
-          $size={size}
           onClick={(e) => {
             e.stopPropagation();
             onRemove();
@@ -130,12 +126,12 @@ const ReferenceImageCard: React.FC<ReferenceImageCardProps> = ({
         </RemoveButton>
       )}
       
-      <ImageContainer $size={size}>
+      <ImageContainer>
         <Image
           src={image.url}
           alt={image.name}
           width="100%"
-          height={size === 'small' ? '80px' : size === 'large' ? '160px' : '120px'}
+          height="120px"
           borderRadius="4px"
           expandable={true}
           title="Click to view full resolution"
@@ -143,12 +139,12 @@ const ReferenceImageCard: React.FC<ReferenceImageCardProps> = ({
       </ImageContainer>
       
       <ImageInfo>
-        <ImageType $size={size}>{image.type}</ImageType>
+        <ImageType>{image.type}</ImageType>
         {image.customName && (
-          <CustomName $size={size}>"{image.customName}"</CustomName>
+          <CustomName>"{image.customName}"</CustomName>
         )}
         {showStatusIndicator && (
-          <StatusText $isReferenced={isReferenced} $size={size}>
+          <StatusText $isReferenced={isReferenced}>
             {getStatusText(isReferenced)}
           </StatusText>
         )}

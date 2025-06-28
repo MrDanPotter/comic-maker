@@ -16,12 +16,6 @@ const meta: Meta<typeof ReferenceImageCard> = {
       control: 'boolean',
       description: 'Whether the image is referenced in the prompt',
     },
-
-    size: {
-      control: { type: 'select' },
-      options: ['small', 'medium', 'large'],
-      description: 'Size of the card',
-    },
   },
 };
 
@@ -57,7 +51,6 @@ export const Default: Story = {
     image: sampleImages[0],
     isSelected: false,
     isReferenced: true,
-    size: 'medium',
   },
 };
 
@@ -66,7 +59,6 @@ export const Selected: Story = {
     image: sampleImages[1],
     isSelected: true,
     isReferenced: true,
-    size: 'medium',
   },
 };
 
@@ -75,7 +67,6 @@ export const Unreferenced: Story = {
     image: sampleImages[2],
     isSelected: false,
     isReferenced: false,
-    size: 'medium',
   },
 };
 
@@ -85,25 +76,6 @@ export const Clickable: Story = {
     isSelected: false,
     isReferenced: true,
     onClick: () => console.log('Card clicked'),
-    size: 'medium',
-  },
-};
-
-export const SmallSize: Story = {
-  args: {
-    image: sampleImages[1],
-    isSelected: false,
-    isReferenced: true,
-    size: 'small',
-  },
-};
-
-export const LargeSize: Story = {
-  args: {
-    image: sampleImages[2],
-    isSelected: false,
-    isReferenced: true,
-    size: 'large',
   },
 };
 
@@ -113,6 +85,5 @@ export const AllFeatures: Story = {
     isSelected: true,
     isReferenced: false,
     onClick: () => console.log('Card clicked'),
-    size: 'medium',
   },
 };

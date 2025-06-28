@@ -156,7 +156,6 @@ const ReferenceImageSelectorModal: React.FC<ReferenceImageSelectorModalProps> = 
                 isSelected={isSelected}
                 isReferenced={isReferenced}
                 onClick={() => handleImageToggle(image)}
-                size="medium"
                 showStatusIndicator={false}
               />
             );
