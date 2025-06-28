@@ -35,7 +35,7 @@ const meta: Meta<typeof Image> = {
       control: 'text',
       description: 'Border radius of the image container',
     },
-    expandable: {
+    expandOnClick: {
       control: 'boolean',
       description: 'Whether the image can be expanded to full screen on click',
     },
@@ -67,7 +67,7 @@ export const Expandable: Story = {
     alt: 'Expandable image',
     width: '300px',
     height: '200px',
-    expandable: true,
+    expandOnClick: true,
     title: 'Click to view full resolution',
   },
   parameters: {
@@ -86,7 +86,7 @@ export const SquareImage: Story = {
     width: '200px',
     height: '200px',
     borderRadius: '8px',
-    expandable: true,
+    expandOnClick: true,
   },
 };
 
@@ -97,7 +97,7 @@ export const ContainedFit: Story = {
     width: '300px',
     height: '200px',
     objectFit: 'contain',
-    expandable: true,
+    expandOnClick: true,
   },
   parameters: {
     docs: {
@@ -114,7 +114,7 @@ export const WithCustomClick: Story = {
     alt: 'Image with custom click handler',
     width: '300px',
     height: '200px',
-    expandable: false,
+    expandOnClick: false,
     onClick: () => alert('Image clicked!'),
   },
   parameters: {
@@ -133,7 +133,7 @@ export const RoundedImage: Story = {
     width: '200px',
     height: '200px',
     borderRadius: '50%',
-    expandable: true,
+    expandOnClick: true,
   },
 };
 
@@ -163,7 +163,7 @@ export const AllVariations: Story = {
           alt="Expandable" 
           width="250px"
           height="150px"
-          expandable={true}
+          expandOnClick={true}
         />
       </div>
       <div>
@@ -174,7 +174,7 @@ export const AllVariations: Story = {
           width="150px"
           height="150px"
           borderRadius="8px"
-          expandable={true}
+          expandOnClick={true}
         />
       </div>
       <div>
@@ -185,7 +185,7 @@ export const AllVariations: Story = {
           width="250px"
           height="150px"
           objectFit="contain"
-          expandable={true}
+          expandOnClick={true}
         />
       </div>
       <div>
@@ -196,7 +196,7 @@ export const AllVariations: Story = {
           width="150px"
           height="150px"
           borderRadius="50%"
-          expandable={true}
+          expandOnClick={true}
         />
       </div>
       <div>
@@ -206,7 +206,7 @@ export const AllVariations: Story = {
           alt="Custom Click" 
           width="250px"
           height="150px"
-          expandable={false}
+          expandOnClick={false}
           onClick={() => alert('Custom click!')}
         />
       </div>

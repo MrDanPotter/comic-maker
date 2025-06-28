@@ -158,7 +158,7 @@ const ImageLibrarySelectorModal: React.FC<ImageLibrarySelectorModalProps> = ({
                     width="100%"
                     height="80px"
                     borderRadius="4px"
-                    expandable={true}
+                    expandOnClick={true}
                     title="Click to view full resolution"
                   />
                 </ImageContainer>

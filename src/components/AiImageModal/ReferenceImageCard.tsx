@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import styled from 'styled-components';
-import { X } from 'react-feather';
+import { X, Maximize2 } from 'react-feather';
 import { ReferenceImage } from '../../store/slices/appStateSlice';
-import Image from '../Image';
+import Image, { ImageRef } from '../Image';
 
 interface ReferenceImageCardProps {
   image: ReferenceImage;
@@ -11,6 +11,7 @@ interface ReferenceImageCardProps {
   showStatusIndicator?: boolean;
   onClick?: () => void;
   onRemove?: () => void;
+  onExpand?: () => void;
 }
 
 const CardContainer = styled.div<{ $isSelected: boolean; $isReferenced: boolean; $isClickable: boolean }>`
@@ -21,6 +22,8 @@ const CardContainer = styled.div<{ $isSelected: boolean; $isReferenced: boolean;
   cursor: ${props => props.$isClickable ? 'pointer' : 'default'};
   transition: all 0.2s ease;
   position: relative;
+  display: flex;
+  flex-direction: column;
   
   &:hover {
     border-color: ${props => props.$isClickable ? '#667eea' : props.$isSelected ? '#667eea' : '#e0e0e0'};
@@ -30,17 +33,19 @@ const CardContainer = styled.div<{ $isSelected: boolean; $isReferenced: boolean;
 `;
 
 const ImageContainer = styled.div`
-  width: 120px;
-  height: 120px;
+  width: 100%;
+  aspect-ratio: 1;
   margin-bottom: 8px;
   border-radius: 4px;
   overflow: hidden;
+  position: relative;
 `;
 
 const ImageInfo = styled.div`
   display: flex;
   flex-direction: column;
   gap: 4px;
+  flex-shrink: 0;
 `;
 
 const ImageType = styled.span`
@@ -69,11 +74,11 @@ const RemoveButton = styled.button`
   position: absolute;
   top: 8px;
   right: 8px;
-  width: 24px;
-  height: 24px;
-  border: none;
+  width: 29px;
+  height: 29px;
+  border: 2px solid #d32f2f;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.95);
   color: #d32f2f;
   cursor: pointer;
   display: flex;
@@ -89,8 +94,37 @@ const RemoveButton = styled.button`
   }
   
   svg {
-    width: 14px;
-    height: 14px;
+    width: 17px;
+    height: 17px;
+  }
+`;
+
+const ExpandButton = styled.button<{ $hasRemoveButton: boolean }>`
+  position: absolute;
+  top: 8px;
+  right: ${props => props.$hasRemoveButton ? '42px' : '8px'};
+  width: 29px;
+  height: 29px;
+  border: 2px solid #667eea;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.95);
+  color: #667eea;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  z-index: 1;
+  
+  &:hover {
+    background: #667eea;
+    color: white;
+    transform: scale(1.1);
+  }
+  
+  svg {
+    width: 17px;
+    height: 17px;
   }
 `;
 
@@ -100,11 +134,21 @@ const ReferenceImageCard: React.FC<ReferenceImageCardProps> = ({
   isReferenced = true,
   onClick,
   onRemove,
+  onExpand,
   showStatusIndicator = true
 }) => {
+  const imageRef = useRef<ImageRef>(null);
 
   const getStatusText = (isReferenced: boolean): string => {
     return isReferenced ? 'Referenced' : 'Not referenced';
+  };
+
+  const handleExpand = () => {
+    if (onExpand) {
+      onExpand();
+    } else if (imageRef.current) {
+      imageRef.current.expand();
+    }
   };
 
   return (
@@ -114,6 +158,17 @@ const ReferenceImageCard: React.FC<ReferenceImageCardProps> = ({
       $isClickable={!!onClick}
       onClick={onClick}
     >
+      <ExpandButton 
+        $hasRemoveButton={!!onRemove}
+        onClick={(e) => {
+          e.stopPropagation();
+          handleExpand();
+        }}
+        title="Expand image"
+      >
+        <Maximize2 />
+      </ExpandButton>
+      
       {onRemove && (
         <RemoveButton 
           onClick={(e) => {
@@ -128,13 +183,13 @@ const ReferenceImageCard: React.FC<ReferenceImageCardProps> = ({
       
       <ImageContainer>
         <Image
+          ref={imageRef}
           src={image.url}
           alt={image.name}
           width="100%"
-          height="120px"
+          height="100%"
           borderRadius="4px"
-          expandable={true}
-          title="Click to view full resolution"
+          expandOnClick={false}
         />
       </ImageContainer>
       

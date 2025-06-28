@@ -68,7 +68,7 @@ describe('OpenAIImageGenerationService with Reference Images', () => {
     const result = await service.generateImage(
       mockPrompt, 
       mockApiKey, 
-      '1:1', 
+      'square', 
       'medium', 
       mockReferenceImages
     );
@@ -84,7 +84,7 @@ describe('OpenAIImageGenerationService with Reference Images', () => {
     const result = await service.generateImage(
       mockPrompt, 
       mockApiKey, 
-      '1:1', 
+      'square', 
       'medium'
     );
 
@@ -130,7 +130,7 @@ describe('OpenAIImageGenerationService with Reference Images', () => {
     const result = await service.generateImage(
       mockPrompt, 
       mockApiKey, 
-      '1:1', 
+      'square', 
       'medium', 
       testReferenceImages
     );

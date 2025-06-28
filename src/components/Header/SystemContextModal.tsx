@@ -457,7 +457,7 @@ const SystemContextModal: React.FC<SystemContextModalProps> = ({
                     width="60px"
                     height="60px"
                     borderRadius="4px"
-                    expandable={true}
+                    expandOnClick={true}
                     title="Click to view full resolution"
                   />
                 </ReferenceImageThumbnail>

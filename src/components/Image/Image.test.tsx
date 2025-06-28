@@ -22,7 +22,7 @@ describe('Image Component', () => {
   });
 
   it('renders with expandable prop', () => {
-    render(<Image {...defaultProps} expandable={true} />);
+    render(<Image {...defaultProps} expandOnClick={true} />);
     const images = screen.getAllByAltText('Test image');
     expect(images).toHaveLength(2); // Main image + full-screen image
     expect(images[0]).toBeInTheDocument();
@@ -42,7 +42,7 @@ describe('Image Component', () => {
 
   it('calls onClick when provided and not expandable', () => {
     const handleClick = jest.fn();
-    render(<Image {...defaultProps} expandable={false} onClick={handleClick} />);
+    render(<Image {...defaultProps} expandOnClick={false} onClick={handleClick} />);
     const image = screen.getByAltText('Test image');
     fireEvent.click(image);
     expect(handleClick).toHaveBeenCalledTimes(1);
@@ -50,7 +50,7 @@ describe('Image Component', () => {
 
   it('does not call onClick when expandable', () => {
     const handleClick = jest.fn();
-    render(<Image {...defaultProps} expandable={true} onClick={handleClick} />);
+    render(<Image {...defaultProps} expandOnClick={true} onClick={handleClick} />);
     const images = screen.getAllByAltText('Test image');
     fireEvent.click(images[0]); // Click the main image
     expect(handleClick).not.toHaveBeenCalled();

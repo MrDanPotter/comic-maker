@@ -106,7 +106,7 @@ const LibraryImage: React.FC<LibraryImageProps> = ({
         width="100%"
         height="100%"
         objectFit="cover"
-        expandable={true}
+        expandOnClick={true}
         title="Click to view full resolution"
       />
       {(onDownload || onDelete) && (

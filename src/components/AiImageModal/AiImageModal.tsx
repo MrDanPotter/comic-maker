@@ -679,7 +679,7 @@ const AiImageModal: React.FC<AiImageModalProps> = ({
                       width="300px"
                       height="300px"
                       borderRadius="8px"
-                      expandable={true}
+                      expandOnClick={true}
                       title="Click to view full resolution"
                     />
                   </PreviewImage>

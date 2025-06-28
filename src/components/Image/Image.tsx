@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, forwardRef, useImperativeHandle } from 'react';
 import { createPortal } from 'react-dom';
 import styled from 'styled-components';
 
@@ -9,37 +9,41 @@ interface ImageProps {
   height?: string | number;
   objectFit?: 'cover' | 'contain' | 'fill' | 'none' | 'scale-down';
   borderRadius?: string;
-  expandable?: boolean;
+  expandOnClick?: boolean;
   className?: string;
   onClick?: () => void;
   title?: string;
+}
+
+export interface ImageRef {
+  expand: () => void;
 }
 
 const ImageContainer = styled.div<{ 
   $width?: string | number; 
   $height?: string | number;
   $borderRadius?: string;
-  $expandable?: boolean;
+  $expandOnClick?: boolean;
 }>`
   position: relative;
   width: ${props => props.$width || '100%'};
   height: ${props => props.$height || 'auto'};
   border-radius: ${props => props.$borderRadius || '0'};
   overflow: hidden;
-  cursor: ${props => props.$expandable ? 'pointer' : 'default'};
+  cursor: ${props => props.$expandOnClick ? 'pointer' : 'default'};
 `;
 
 const StyledImage = styled.img<{ 
   $objectFit?: string;
-  $expandable?: boolean;
+  $expandOnClick?: boolean;
 }>`
   width: 100%;
   height: 100%;
   object-fit: ${props => props.$objectFit || 'cover'};
   object-position: center;
-  transition: ${props => props.$expandable ? 'transform 0.2s ease, box-shadow 0.2s ease' : 'none'};
+  transition: ${props => props.$expandOnClick ? 'transform 0.2s ease, box-shadow 0.2s ease' : 'none'};
   
-  ${props => props.$expandable && `
+  ${props => props.$expandOnClick && `
     &:hover {
       transform: scale(1.02);
       box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
@@ -99,22 +103,28 @@ const FullResImage = styled.img`
   }
 `;
 
-const Image: React.FC<ImageProps> = ({
+const Image = forwardRef<ImageRef, ImageProps>(({
   src,
   alt,
   width,
   height,
   objectFit = 'cover',
   borderRadius,
-  expandable = false,
+  expandOnClick = false,
   className,
   onClick,
   title
-}) => {
+}, ref) => {
   const [showFullRes, setShowFullRes] = useState(false);
 
+  useImperativeHandle(ref, () => ({
+    expand: () => {
+      setShowFullRes(true);
+    }
+  }));
+
   const handleImageClick = () => {
-    if (expandable) {
+    if (expandOnClick) {
       setShowFullRes(true);
     } else if (onClick) {
       onClick();
@@ -131,7 +141,7 @@ const Image: React.FC<ImageProps> = ({
         $width={width}
         $height={height}
         $borderRadius={borderRadius}
-        $expandable={expandable}
+        $expandOnClick={expandOnClick}
         className={className}
         onClick={handleImageClick}
         title={title}
@@ -140,12 +150,12 @@ const Image: React.FC<ImageProps> = ({
           src={src}
           alt={alt}
           $objectFit={objectFit}
-          $expandable={expandable}
+          $expandOnClick={expandOnClick}
         />
       </ImageContainer>
       
       {/* Full resolution image overlay - rendered at body level */}
-      {expandable && typeof document !== 'undefined' && createPortal(
+      {typeof document !== 'undefined' && createPortal(
         <FullResOverlay $isOpen={showFullRes} onClick={handleFullResClose}>
           <FullResImage 
             src={src} 
@@ -157,6 +167,8 @@ const Image: React.FC<ImageProps> = ({
       )}
     </>
   );
-};
+});
+
+Image.displayName = 'Image';
 
 export default Image; 
