@@ -25,7 +25,8 @@ export interface ImageGeneratorService {
     apiKey: string, 
     aspectRatio?: string,
     quality?: ImageQuality,
-    referenceImages?: ReferenceImage[]
+    referenceImages?: ReferenceImage[],
+    systemContext?: string
   ): Promise<ImageGenerationResponse>;
   validateApiKey(apiKey: string): boolean;
   testApiKey(apiKey: string): Promise<boolean>;

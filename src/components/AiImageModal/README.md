@@ -48,11 +48,12 @@ The modal uses a two-column layout:
 |------|------|----------|-------------|
 | `isOpen` | `boolean` | Yes | Whether the modal is open or closed |
 | `onClose` | `() => void` | Yes | Callback function when modal is closed |
-| `onImageGenerated` | `(imageUrl: string, prompt?: string) => void` | Yes | Callback function when an image is successfully generated |
+| `onImageGenerated` | `(imageUrl: string, prompt?: string, referenceImages?: ReferenceImage[]) => void` | Yes | Callback function when an image is successfully generated |
 | `aspectRatio` | `string` | Yes | The aspect ratio for the generated image (e.g., "1:1", "16:9") |
 | `apiKey` | `string` | Yes | OpenAI API key for image generation |
 | `imageUrl` | `string` | No | Optional existing image URL to display in the preview area |
 | `existingPrompt` | `string` | No | Optional existing prompt to pre-populate in the text area |
+| `existingReferenceImages` | `ReferenceImage[]` | No | Optional existing reference images to pre-populate in the reference image selector |
 
 ## Usage
 
@@ -63,28 +64,38 @@ import AiImageModal from '../AiImageModal';
 <AiImageModal
   isOpen={showModal}
   onClose={() => setShowModal(false)}
-  onImageGenerated={(imageUrl, prompt) => {
+  onImageGenerated={(imageUrl, prompt, referenceImages) => {
     console.log('Generated image:', imageUrl);
     console.log('User prompt:', prompt);
-    // Handle the generated image and prompt
+    console.log('Reference images:', referenceImages);
+    // Handle the generated image, prompt, and reference images
   }}
   aspectRatio="1:1"
   apiKey="your-openai-api-key"
 />
 
-// With existing image and prompt
+// With existing image, prompt, and reference images
 <AiImageModal
   isOpen={showModal}
   onClose={() => setShowModal(false)}
-  onImageGenerated={(imageUrl, prompt) => {
+  onImageGenerated={(imageUrl, prompt, referenceImages) => {
     console.log('Generated image:', imageUrl);
     console.log('User prompt:', prompt);
-    // Handle the generated image and prompt
+    console.log('Reference images:', referenceImages);
+    // Handle the generated image, prompt, and reference images
   }}
   aspectRatio="1:1"
   apiKey="your-openai-api-key"
   imageUrl="https://example.com/existing-image.jpg"
   existingPrompt="A majestic dragon soaring through a stormy sky"
+  existingReferenceImages={[
+    {
+      id: "ref1",
+      url: "https://example.com/style-reference.jpg",
+      type: "style",
+      name: "Art Style Reference"
+    }
+  ]}
 />
 ```
 ## Integration

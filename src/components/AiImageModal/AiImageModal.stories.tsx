@@ -65,7 +65,7 @@ export const Default: Story = {
     aspectRatio: '1:1',
     apiKey: mockApiKey,
     onClose: () => console.log('Modal closed'),
-    onImageGenerated: (imageUrl: string, prompt?: string) => console.log('Image generated:', imageUrl, 'with prompt:', prompt),
+    onImageGenerated: (imageUrl: string, prompt?: string, referenceImages?: any[]) => console.log('Image generated:', imageUrl, 'with prompt:', prompt, 'and reference images:', referenceImages),
   },
 };
 
@@ -76,7 +76,7 @@ export const WithExistingImage: Story = {
     apiKey: mockApiKey,
     imageUrl: placeholderImage,
     onClose: () => console.log('Modal closed'),
-    onImageGenerated: (imageUrl: string, prompt?: string) => console.log('Image generated:', imageUrl, 'with prompt:', prompt),
+    onImageGenerated: (imageUrl: string, prompt?: string, referenceImages?: any[]) => console.log('Image generated:', imageUrl, 'with prompt:', prompt, 'and reference images:', referenceImages),
   },
   parameters: {
     docs: {
@@ -94,7 +94,7 @@ export const WithFullResolutionImage: Story = {
     apiKey: mockApiKey,
     imageUrl: placeholderImageLarge,
     onClose: () => console.log('Modal closed'),
-    onImageGenerated: (imageUrl: string, prompt?: string) => console.log('Image generated:', imageUrl, 'with prompt:', prompt),
+    onImageGenerated: (imageUrl: string, prompt?: string, referenceImages?: any[]) => console.log('Image generated:', imageUrl, 'with prompt:', prompt, 'and reference images:', referenceImages),
   },
   parameters: {
     docs: {
@@ -113,7 +113,7 @@ export const WithExistingPrompt: Story = {
     imageUrl: placeholderImage,
     existingPrompt: 'A majestic dragon soaring through a stormy sky with lightning illuminating its scales',
     onClose: () => console.log('Modal closed'),
-    onImageGenerated: (imageUrl: string, prompt?: string) => console.log('Image generated:', imageUrl, 'with prompt:', prompt),
+    onImageGenerated: (imageUrl: string, prompt?: string, referenceImages?: any[]) => console.log('Image generated:', imageUrl, 'with prompt:', prompt, 'and reference images:', referenceImages),
   },
   parameters: {
     docs: {

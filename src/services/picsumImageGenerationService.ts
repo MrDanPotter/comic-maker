@@ -10,14 +10,22 @@ export class PicsumImageGenerationService implements ImageGeneratorService {
     apiKey: string, 
     aspectRatio: string = '1:1',
     quality: ImageQuality = 'medium',
-    referenceImages?: ReferenceImage[]
+    referenceImages?: ReferenceImage[],
+    systemContext?: string
   ): Promise<ImageGenerationResponse> {
     try {
       console.log('Generating image with Picsum');
       console.log("prompt: " + prompt);
       console.log("quality: " + quality);
+      if (systemContext) {
+        console.log("system context provided");
+      }
       if (referenceImages && referenceImages.length > 0) {
         console.log("reference images provided:", referenceImages.length);
+        const styleImages = referenceImages.filter(img => img.type === 'style');
+        if (styleImages.length > 0) {
+          console.log("style reference images present:", styleImages.length);
+        }
       }
       
       // Simulate API call delay

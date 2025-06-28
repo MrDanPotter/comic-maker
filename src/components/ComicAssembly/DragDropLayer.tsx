@@ -4,6 +4,7 @@ import { Droppable } from '@hello-pangea/dnd';
 import { useAppSelector, useAppDispatch } from '../../store/store';
 import { selectAiEnabled, selectApiKey } from '../../store/slices/appStateSlice';
 import { addImage, selectAllImages } from '../../store/slices/imageLibrarySlice';
+import { ReferenceImage } from '../../services/imageGeneratorService';
 import { Panel, BoundingBox } from '../../types/comic';
 import AiSparkleButton from './AiSparkleButton';
 import AiImageModal from '../AiImageModal';
@@ -92,7 +93,7 @@ const DragDropLayer: React.FC<DragDropLayerProps> = ({
     setSelectedPanelId(null);
   };
 
-  const handleImageGenerated = (imageUrl: string, prompt?: string) => {
+  const handleImageGenerated = (imageUrl: string, prompt?: string, referenceImages?: ReferenceImage[]) => {
     if (selectedPanelId) {
       onPanelImageUpdate(selectedPanelId, imageUrl);
       
@@ -104,7 +105,8 @@ const DragDropLayer: React.FC<DragDropLayerProps> = ({
         usedInPanels: [selectedPanelId],
         source: 'ai' as const,
         isDownloaded: false,
-        prompt: prompt
+        prompt: prompt,
+        referenceImages: referenceImages
       };
       dispatch(addImage(newImage));
     }
@@ -113,13 +115,14 @@ const DragDropLayer: React.FC<DragDropLayerProps> = ({
   // Get existing image information for the selected panel
   const getExistingImageInfo = (panelId: string) => {
     const selectedPanel = panels.find(p => p.id === panelId);
-    if (!selectedPanel?.imageUrl) return { imageUrl: undefined, prompt: undefined };
+    if (!selectedPanel?.imageUrl) return { imageUrl: undefined, prompt: undefined, referenceImages: undefined };
     
-    // Find the image in the library to get the prompt
+    // Find the image in the library to get the prompt and reference images
     const imageInLibrary = allImages.find(img => img.url === selectedPanel.imageUrl);
     return {
       imageUrl: selectedPanel.imageUrl,
-      prompt: imageInLibrary?.prompt
+      prompt: imageInLibrary?.prompt,
+      referenceImages: imageInLibrary?.referenceImages
     };
   };
 
@@ -145,7 +148,7 @@ const DragDropLayer: React.FC<DragDropLayerProps> = ({
 
   const selectedPanel = selectedPanelId ? panels.find(p => p.id === selectedPanelId) : null;
   const aspectRatio = selectedPanel ? getPanelAspectRatio(selectedPanel) : '1:1';
-  const existingImageInfo = selectedPanelId ? getExistingImageInfo(selectedPanelId) : { imageUrl: undefined, prompt: undefined };
+  const existingImageInfo = selectedPanelId ? getExistingImageInfo(selectedPanelId) : { imageUrl: undefined, prompt: undefined, referenceImages: undefined };
 
   return (
     <>
@@ -202,6 +205,7 @@ const DragDropLayer: React.FC<DragDropLayerProps> = ({
           apiKey={apiKey}
           imageUrl={existingImageInfo.imageUrl}
           existingPrompt={existingImageInfo.prompt}
+          existingReferenceImages={existingImageInfo.referenceImages}
         />
       )}
     </>

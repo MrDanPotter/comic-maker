@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useAppSelector, useAppDispatch } from '../../store/store';
-import { selectSystemContext, selectUseOpenAIImageGeneration, setSystemContext, ReferenceImage } from '../../store/slices/appStateSlice';
-import { createImageGeneratorService, ImageQuality } from '../../services/imageGeneratorService';
-import { buildImagePrompt } from '../../utils/promptBuilder';
+import { selectSystemContext, selectUseOpenAIImageGeneration, setSystemContext } from '../../store/slices/appStateSlice';
+import { createImageGeneratorService, ImageQuality, ReferenceImage } from '../../services/imageGeneratorService';
 import SystemContextModal from '../Header/SystemContextModal';
 import ReferenceImageSelectorModal from './ReferenceImageSelectorModal';
 import ReferenceImageCard from './ReferenceImageCard';
@@ -13,11 +12,12 @@ import Image from '../Image';
 interface AiImageModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onImageGenerated: (imageUrl: string, prompt?: string) => void;
+  onImageGenerated: (imageUrl: string, prompt?: string, referenceImages?: ReferenceImage[]) => void;
   aspectRatio: string;
   apiKey: string;
   imageUrl?: string; // Optional existing image to display
   existingPrompt?: string; // Optional existing prompt to pre-populate
+  existingReferenceImages?: ReferenceImage[]; // Optional existing reference images to pre-populate
 }
 
 const LeftPanel = styled.div`
@@ -369,21 +369,21 @@ const AiImageModal: React.FC<AiImageModalProps> = ({
   aspectRatio, 
   apiKey, 
   imageUrl, 
-  existingPrompt 
+  existingPrompt, 
+  existingReferenceImages 
 }) => {
   const dispatch = useAppDispatch();
   const systemContext = useAppSelector(selectSystemContext);
   const useOpenAIImageGeneration = useAppSelector(selectUseOpenAIImageGeneration);
   const [promptText, setPromptText] = useState(existingPrompt || '');
   const [enforceAspectRatio, setEnforceAspectRatio] = useState(true);
-  const [includeSystemContext, setIncludeSystemContext] = useState(true);
   const [quality, setQuality] = useState<ImageQuality>('medium');
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedImageUrl, setGeneratedImageUrl] = useState(imageUrl || '');
   const [error, setError] = useState('');
   const [showSystemContextModal, setShowSystemContextModal] = useState(false);
   const [showReferenceImageSelector, setShowReferenceImageSelector] = useState(false);
-  const [selectedReferenceImages, setSelectedReferenceImages] = useState<ReferenceImage[]>([]);
+  const [selectedReferenceImages, setSelectedReferenceImages] = useState<ReferenceImage[]>(existingReferenceImages || []);
 
   // Cost calculation based on quality
   const getCostForQuality = (quality: ImageQuality): number => {
@@ -398,41 +398,36 @@ const AiImageModal: React.FC<AiImageModalProps> = ({
   const currentCost = getCostForQuality(quality);
 
   // Update generatedImageUrl when imageUrl prop changes
-  React.useEffect(() => {
+  useEffect(() => {
     setGeneratedImageUrl(imageUrl || '');
   }, [imageUrl]);
 
   // Update promptText when existingPrompt prop changes
-  React.useEffect(() => {
+  useEffect(() => {
     setPromptText(existingPrompt || '');
   }, [existingPrompt]);
 
+  // Update selectedReferenceImages when existingReferenceImages prop changes
+  useEffect(() => {
+    setSelectedReferenceImages(existingReferenceImages || []);
+  }, [existingReferenceImages]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!promptText.trim()) return;
-
     setIsGenerating(true);
     setError('');
     setGeneratedImageUrl('');
 
     try {
-      // Build the full prompt
-      const fullPrompt = buildImagePrompt({
-        userPrompt: promptText.trim(),
-        systemContext,
-        includeSystemContext,
-        enforceAspectRatio,
-        aspectRatio: enforceAspectRatio ? aspectRatio : '1:1'
-      });
-
       // Create the appropriate service and generate image
       const imageService = createImageGeneratorService(useOpenAIImageGeneration);
       const response = await imageService.generateImage(
-        fullPrompt, 
+        promptText.trim(), 
         apiKey, 
         enforceAspectRatio ? aspectRatio : '1:1',
         quality,
-        selectedReferenceImages
+        selectedReferenceImages,
+        systemContext
       );
       
       if (response.success) {
@@ -450,7 +445,7 @@ const AiImageModal: React.FC<AiImageModalProps> = ({
 
   const handleUseImage = () => {
     if (generatedImageUrl) {
-      onImageGenerated(generatedImageUrl, promptText.trim());
+      onImageGenerated(generatedImageUrl, promptText.trim(), selectedReferenceImages);
       handleClose();
     }
   };
@@ -458,7 +453,6 @@ const AiImageModal: React.FC<AiImageModalProps> = ({
   const handleClose = () => {
     setPromptText('');
     setEnforceAspectRatio(true);
-    setIncludeSystemContext(true);
     setQuality('medium');
     setIsGenerating(false);
     setGeneratedImageUrl('');
@@ -505,7 +499,6 @@ const AiImageModal: React.FC<AiImageModalProps> = ({
               </AlertContainer>
             )}
             
-            <form onSubmit={handleSubmit}>
               <FormGroup>
                 <Label htmlFor="image-prompt">Describe the image you want to generate</Label>
                 <TextArea
@@ -560,22 +553,6 @@ const AiImageModal: React.FC<AiImageModalProps> = ({
                 </CheckboxLabel>
               </CheckboxContainer>
               
-              {systemContext.trim() && (
-                <CheckboxContainer>
-                  <Checkbox
-                    id="include-system-context"
-                    type="checkbox"
-                    checked={includeSystemContext}
-                    onChange={(e) => setIncludeSystemContext(e.target.checked)}
-                    disabled={isGenerating}
-                  />
-                  <CheckboxLabel htmlFor="include-system-context">
-                    Include system context
-                  </CheckboxLabel>
-                </CheckboxContainer>
-              )}
-              
-              {/* Add Image Context Button - moved below system context checkbox */}
               <AddImageContextButton onClick={() => setShowReferenceImageSelector(true)}>
                 Add Image Context
               </AddImageContextButton>
@@ -609,12 +586,12 @@ const AiImageModal: React.FC<AiImageModalProps> = ({
                   $isDisabled={!promptText.trim() || isGenerating}
                   $isLoading={isGenerating}
                   disabled={!promptText.trim() || isGenerating}
+                  onClick={handleSubmit}
                 >
                   {isGenerating && <LoadingSpinner />}
                   {isGenerating ? 'Generating...' : 'Generate'}
                 </Button>
               </ButtonContainer>
-            </form>
             
             {error && <ErrorMessage>{error}</ErrorMessage>}
           </LeftPanel>
@@ -650,7 +627,6 @@ const AiImageModal: React.FC<AiImageModalProps> = ({
                       title="Click to view full resolution"
                     />
                   </PreviewImage>
-                  {/* Only show "Use Image" button if this is a newly generated image, not an existing one */}
                   {!imageUrl && (
                     <ButtonContainer style={{ marginTop: '20px' }}>
                       <Button 
