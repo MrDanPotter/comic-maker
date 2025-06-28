@@ -5,7 +5,7 @@ import { useAppSelector, useAppDispatch } from '../../store/store';
 import { selectAiEnabled, selectApiKey } from '../../store/slices/appStateSlice';
 import { addImage, selectAllImages } from '../../store/slices/imageLibrarySlice';
 import { ReferenceImage } from '../../services/imageGeneratorService';
-import { Panel, BoundingBox } from '../../types/comic';
+import { Panel, BoundingBox, AspectRatio } from '../../types/comic';
 import AiSparkleButton from './AiSparkleButton';
 import AiImageModal from '../AiImageModal';
 
@@ -126,7 +126,7 @@ const DragDropLayer: React.FC<DragDropLayerProps> = ({
     };
   };
 
-  const getPanelAspectRatio = (panel: Panel): string => {
+  const getPanelAspectRatio = (panel: Panel): AspectRatio => {
     const bounds = {
       left: Math.min(...panel.points.map(p => p[0])),
       right: Math.max(...panel.points.map(p => p[0])),
@@ -137,17 +137,18 @@ const DragDropLayer: React.FC<DragDropLayerProps> = ({
     const width = bounds.right - bounds.left;
     const height = bounds.bottom - bounds.top;
     
-    // Simplify the ratio
-    const gcd = (a: number, b: number): number => b === 0 ? a : gcd(b, a % b);
-    const divisor = gcd(Math.round(width), Math.round(height));
-    const ratioWidth = Math.round(width / divisor);
-    const ratioHeight = Math.round(height / divisor);
-    
-    return `${ratioWidth}:${ratioHeight}`;
+    // Determine aspect ratio based on width vs height
+    if (Math.abs(width - height) < 200) {
+      return 'square';
+    } else if (width > height) {
+      return 'landscape';
+    } else {
+      return 'portrait';
+    }
   };
 
   const selectedPanel = selectedPanelId ? panels.find(p => p.id === selectedPanelId) : null;
-  const aspectRatio = selectedPanel ? getPanelAspectRatio(selectedPanel) : '1:1';
+  const aspectRatio = selectedPanel ? getPanelAspectRatio(selectedPanel) : ('square' as AspectRatio);
   const existingImageInfo = selectedPanelId ? getExistingImageInfo(selectedPanelId) : { imageUrl: undefined, prompt: undefined, referenceImages: undefined };
 
   return (

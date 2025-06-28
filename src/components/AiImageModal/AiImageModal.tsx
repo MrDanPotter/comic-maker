@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { useAppSelector, useAppDispatch } from '../../store/store';
 import { selectSystemContext, selectUseOpenAIImageGeneration, setSystemContext } from '../../store/slices/appStateSlice';
 import { createImageGeneratorService, ImageQuality, ReferenceImage } from '../../services/imageGeneratorService';
+import { AspectRatio } from '../../types/comic';
 import SystemContextModal from '../Header/SystemContextModal';
 import ReferenceImageSelectorModal from './ReferenceImageSelectorModal';
 import ReferenceImageCard from './ReferenceImageCard';
@@ -13,7 +14,7 @@ interface AiImageModalProps {
   isOpen: boolean;
   onClose: () => void;
   onImageGenerated: (imageUrl: string, prompt?: string, referenceImages?: ReferenceImage[]) => void;
-  aspectRatio: string;
+  aspectRatio: AspectRatio;
   apiKey: string;
   imageUrl?: string; // Optional existing image to display
   existingPrompt?: string; // Optional existing prompt to pre-populate
@@ -83,26 +84,6 @@ const TextArea = styled.textarea`
   &::placeholder {
     color: #999;
   }
-`;
-
-const CheckboxContainer = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 24px;
-`;
-
-const Checkbox = styled.input`
-  width: 18px;
-  height: 18px;
-  accent-color: #667eea;
-`;
-
-const CheckboxLabel = styled.label`
-  font-family: 'Roboto', sans-serif;
-  font-size: 0.9rem;
-  color: #555;
-  cursor: pointer;
 `;
 
 const ButtonContainer = styled.div`
@@ -265,53 +246,111 @@ const QualityPickerLabel = styled.label`
 
 const QualityPickerGroup = styled.div`
   display: flex;
-  border: 2px solid #e0e0e0;
-  border-radius: 8px;
-  overflow: hidden;
-  background: #f8f9fa;
+  gap: 8px;
+  margin-bottom: 8px;
 `;
 
 const QualityOption = styled.div<{ $isSelected: boolean }>`
   flex: 1;
-  padding: 12px 16px;
+  padding: 12px;
+  border: 2px solid ${props => props.$isSelected ? '#667eea' : '#e0e0e0'};
+  border-radius: 8px;
   text-align: center;
   cursor: pointer;
   transition: all 0.2s ease;
-  border-right: 1px solid #e0e0e0;
-  background: ${props => props.$isSelected ? '#667eea' : 'transparent'};
-  color: ${props => props.$isSelected ? 'white' : '#555'};
-  font-family: 'Roboto', sans-serif;
-  font-size: 0.9rem;
-  font-weight: 500;
-  
-  &:last-child {
-    border-right: none;
-  }
+  background: ${props => props.$isSelected ? '#f0f4ff' : 'white'};
   
   &:hover {
-    background: ${props => props.$isSelected ? '#5a6fd8' : '#e9ecef'};
+    border-color: ${props => props.$isSelected ? '#667eea' : '#ccc'};
+    transform: translateY(-1px);
   }
 `;
 
 const QualityOptionTitle = styled.div`
-  font-weight: 600;
+  font-family: 'Roboto', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #333;
   margin-bottom: 4px;
 `;
 
-const QualityOptionCost = styled.div`
-  font-size: 0.8rem;
-  opacity: 0.8;
-`;
-
 const CostInfo = styled.div`
-  margin-top: 8px;
-  padding: 8px 12px;
-  background: #e8f4fd;
-  border-radius: 6px;
   font-family: 'Roboto', sans-serif;
   font-size: 0.8rem;
-  color: #0c5460;
+  color: #666;
   text-align: center;
+`;
+
+const AspectRatioPickerContainer = styled.div`
+  margin-bottom: 24px;
+`;
+
+const AspectRatioPickerLabel = styled.label`
+  display: block;
+  font-family: 'Roboto', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #555;
+  margin-bottom: 12px;
+`;
+
+const AspectRatioPickerGroup = styled.div`
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+`;
+
+const AspectRatioOption = styled.div<{ $isSelected: boolean }>`
+  flex: 1;
+  padding: 8px;
+  border: 2px solid ${props => props.$isSelected ? '#667eea' : '#e0e0e0'};
+  border-radius: 8px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: ${props => props.$isSelected ? '#f0f4ff' : 'white'};
+  
+  &:hover {
+    border-color: ${props => props.$isSelected ? '#667eea' : '#ccc'};
+    transform: translateY(-1px);
+  }
+`;
+
+const AspectRatioOptionIcon = styled.div`
+  font-size: 1.2rem;
+  margin-bottom: 4px;
+`;
+
+const SquareIcon = styled.div`
+  width: 24px;
+  height: 24px;
+  border: 2px solid #333;
+  background: #f0f0f0;
+  margin: 0 auto 4px;
+`;
+
+const LandscapeIcon = styled.div`
+  width: 32px;
+  height: 20px;
+  border: 2px solid #333;
+  background: #f0f0f0;
+  margin: 0 auto 4px;
+`;
+
+const PortraitIcon = styled.div`
+  width: 20px;
+  height: 32px;
+  border: 2px solid #333;
+  background: #f0f0f0;
+  margin: 0 auto 4px;
+`;
+
+const AspectRatioOptionTitle = styled.div`
+  font-family: 'Roboto', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 4px;
 `;
 
 const ModalContent = styled.div`
@@ -366,7 +405,7 @@ const AiImageModal: React.FC<AiImageModalProps> = ({
   isOpen, 
   onClose, 
   onImageGenerated, 
-  aspectRatio, 
+  aspectRatio: initialAspectRatio, 
   apiKey, 
   imageUrl, 
   existingPrompt, 
@@ -375,8 +414,9 @@ const AiImageModal: React.FC<AiImageModalProps> = ({
   const dispatch = useAppDispatch();
   const systemContext = useAppSelector(selectSystemContext);
   const useOpenAIImageGeneration = useAppSelector(selectUseOpenAIImageGeneration);
+  
   const [promptText, setPromptText] = useState(existingPrompt || '');
-  const [enforceAspectRatio, setEnforceAspectRatio] = useState(true);
+  const [aspectRatio, setAspectRatio] = useState<AspectRatio>(initialAspectRatio);
   const [quality, setQuality] = useState<ImageQuality>('medium');
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedImageUrl, setGeneratedImageUrl] = useState(imageUrl || '');
@@ -388,9 +428,9 @@ const AiImageModal: React.FC<AiImageModalProps> = ({
   // Cost calculation based on quality
   const getCostForQuality = (quality: ImageQuality): number => {
     switch (quality) {
-      case 'low': return 0.01;
+      case 'low': return 0.02;
       case 'medium': return 0.05;
-      case 'high': return 0.10;
+      case 'high': return 0.20;
       default: return 0.05;
     }
   };
@@ -424,7 +464,7 @@ const AiImageModal: React.FC<AiImageModalProps> = ({
       const response = await imageService.generateImage(
         promptText.trim(), 
         apiKey, 
-        enforceAspectRatio ? aspectRatio : '1:1',
+        aspectRatio,
         quality,
         selectedReferenceImages,
         systemContext
@@ -452,7 +492,7 @@ const AiImageModal: React.FC<AiImageModalProps> = ({
 
   const handleClose = () => {
     setPromptText('');
-    setEnforceAspectRatio(true);
+    setAspectRatio(initialAspectRatio);
     setQuality('medium');
     setIsGenerating(false);
     setGeneratedImageUrl('');
@@ -511,28 +551,25 @@ const AiImageModal: React.FC<AiImageModalProps> = ({
               </FormGroup>
               
               <QualityPickerContainer>
-                <QualityPickerLabel>Image Quality</QualityPickerLabel>
+                <QualityPickerLabel>Compute Resources</QualityPickerLabel>
                 <QualityPickerGroup>
                   <QualityOption 
                     $isSelected={quality === 'low'}
                     onClick={() => !isGenerating && setQuality('low')}
                   >
                     <QualityOptionTitle>Low</QualityOptionTitle>
-                    <QualityOptionCost>Fast</QualityOptionCost>
                   </QualityOption>
                   <QualityOption 
                     $isSelected={quality === 'medium'}
                     onClick={() => !isGenerating && setQuality('medium')}
                   >
                     <QualityOptionTitle>Medium</QualityOptionTitle>
-                    <QualityOptionCost>Balanced</QualityOptionCost>
                   </QualityOption>
                   <QualityOption 
                     $isSelected={quality === 'high'}
                     onClick={() => !isGenerating && setQuality('high')}
                   >
                     <QualityOptionTitle>High</QualityOptionTitle>
-                    <QualityOptionCost>Best</QualityOptionCost>
                   </QualityOption>
                 </QualityPickerGroup>
                 <CostInfo>
@@ -540,18 +577,38 @@ const AiImageModal: React.FC<AiImageModalProps> = ({
                 </CostInfo>
               </QualityPickerContainer>
               
-              <CheckboxContainer>
-                <Checkbox
-                  id="enforce-aspect-ratio"
-                  type="checkbox"
-                  checked={enforceAspectRatio}
-                  onChange={(e) => setEnforceAspectRatio(e.target.checked)}
-                  disabled={isGenerating}
-                />
-                <CheckboxLabel htmlFor="enforce-aspect-ratio">
-                  Enforce aspect ratio of panel ({aspectRatio})
-                </CheckboxLabel>
-              </CheckboxContainer>
+              <AspectRatioPickerContainer>
+                <AspectRatioPickerLabel>Image Aspect Ratio</AspectRatioPickerLabel>
+                <AspectRatioPickerGroup>
+                  <AspectRatioOption 
+                    $isSelected={aspectRatio === 'square'}
+                    onClick={() => !isGenerating && setAspectRatio('square')}
+                  >
+                    <AspectRatioOptionIcon>
+                      <SquareIcon />
+                    </AspectRatioOptionIcon>
+                    <AspectRatioOptionTitle>Square</AspectRatioOptionTitle>
+                  </AspectRatioOption>
+                  <AspectRatioOption 
+                    $isSelected={aspectRatio === 'landscape'}
+                    onClick={() => !isGenerating && setAspectRatio('landscape')}
+                  >
+                    <AspectRatioOptionIcon>
+                      <LandscapeIcon />
+                    </AspectRatioOptionIcon>
+                    <AspectRatioOptionTitle>Landscape</AspectRatioOptionTitle>
+                  </AspectRatioOption>
+                  <AspectRatioOption 
+                    $isSelected={aspectRatio === 'portrait'}
+                    onClick={() => !isGenerating && setAspectRatio('portrait')}
+                  >
+                    <AspectRatioOptionIcon>
+                      <PortraitIcon />
+                    </AspectRatioOptionIcon>
+                    <AspectRatioOptionTitle>Portrait</AspectRatioOptionTitle>
+                  </AspectRatioOption>
+                </AspectRatioPickerGroup>
+              </AspectRatioPickerContainer>
               
               <AddImageContextButton onClick={() => setShowReferenceImageSelector(true)}>
                 Add Image Context

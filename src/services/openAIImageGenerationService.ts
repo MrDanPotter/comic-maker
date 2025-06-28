@@ -5,17 +5,23 @@ import {
   ImageQuality,
   ReferenceImage,
 } from './imageGeneratorService';
+import { AspectRatio } from '../types/comic';
 import { buildImagePromptContent, buildPromptText } from '../utils/promptBuilder';
 
 /**
- * Helper: map common aspect-ratios to OpenAI size strings.
- * Extend or tweak as you need.
+ * Helper: map aspect ratio to OpenAI size strings.
  */
-const getImageSize = (aspectRatio = '1:1'): '1024x1024' | '1536x1024' | '1024x1536' => {
-  const [w, h] = aspectRatio.split(':').map(Number);
-  if (w === h) return '1024x1024';      // square
-  return w > h ? '1536x1024'            // landscape
-               : '1024x1536';           // portrait
+const getImageSize = (aspectRatio: AspectRatio = 'square'): '1024x1024' | '1536x1024' | '1024x1536' => {
+  switch (aspectRatio) {
+    case 'square':
+      return '1024x1024';
+    case 'landscape':
+      return '1536x1024';
+    case 'portrait':
+      return '1024x1536';
+    default:
+      return '1024x1024';
+  }
 };
 
 /**
@@ -35,7 +41,7 @@ export class OpenAIImageGenerationService implements ImageGeneratorService {
   async generateImage(
     prompt: string,
     apiKey: string,
-    aspectRatio: string = '1:1',
+    aspectRatio: AspectRatio = 'square',
     quality: ImageQuality = 'medium',
     referenceImages?: ReferenceImage[],
     systemContext?: string
@@ -49,7 +55,7 @@ export class OpenAIImageGenerationService implements ImageGeneratorService {
       }
 
       // Otherwise, use the traditional GPT-Image-1 API
-      return await this.generateImageTraditional(openai, prompt, aspectRatio, quality, systemContext, referenceImages);
+      return await this.generateImageTraditional(openai, prompt, aspectRatio, quality, systemContext);
     } catch (err) {
       console.error('OpenAI image generation failed:', err);
       return {
@@ -64,15 +70,14 @@ export class OpenAIImageGenerationService implements ImageGeneratorService {
   private async generateImageTraditional(
     openai: OpenAI,
     prompt: string,
-    aspectRatio: string,
+    aspectRatio: AspectRatio,
     quality: ImageQuality,
-    systemContext?: string,
-    referenceImages?: ReferenceImage[]
+    systemContext?: string
   ): Promise<ImageGenerationResponse> {
     const size = getImageSize(aspectRatio);
 
     // Build the prompt using promptBuilder
-    const promptText = buildPromptText(prompt, systemContext, true, aspectRatio, referenceImages);
+    const promptText = buildPromptText(prompt, systemContext);
 
     const response = await openai.images.generate({
       model: 'gpt-image-1',          // newest model
@@ -98,15 +103,13 @@ export class OpenAIImageGenerationService implements ImageGeneratorService {
     openai: OpenAI,
     prompt: string,
     referenceImages: ReferenceImage[],
-    aspectRatio: string,
+    aspectRatio: AspectRatio,
     systemContext?: string
   ): Promise<ImageGenerationResponse> {
     try {
       // Build the content array using the promptBuilder
       const content = await buildImagePromptContent({
         userPrompt: prompt,
-        enforceAspectRatio: true,
-        aspectRatio,
         referenceImages,
         systemContext
       });

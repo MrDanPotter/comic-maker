@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { Provider } from 'react-redux';
 import { store } from '../../store/store';
 import { placeholderImage, placeholderImageLarge } from '../../assets/placeholder';
+import { AspectRatio } from '../../types/comic';
 import AiImageModal from './AiImageModal';
 
 const meta: Meta<typeof AiImageModal> = {
@@ -62,7 +63,7 @@ const mockApiKey = 'sk-test-1234567890abcdef';
 export const Default: Story = {
   args: {
     isOpen: true,
-    aspectRatio: '1:1',
+    aspectRatio: 'square' as AspectRatio,
     apiKey: mockApiKey,
     onClose: () => console.log('Modal closed'),
     onImageGenerated: (imageUrl: string, prompt?: string, referenceImages?: any[]) => console.log('Image generated:', imageUrl, 'with prompt:', prompt, 'and reference images:', referenceImages),
@@ -72,7 +73,7 @@ export const Default: Story = {
 export const WithExistingImage: Story = {
   args: {
     isOpen: true,
-    aspectRatio: '1:1',
+    aspectRatio: 'square' as AspectRatio,
     apiKey: mockApiKey,
     imageUrl: placeholderImage,
     onClose: () => console.log('Modal closed'),
@@ -90,7 +91,7 @@ export const WithExistingImage: Story = {
 export const WithFullResolutionImage: Story = {
   args: {
     isOpen: true,
-    aspectRatio: '1:1',
+    aspectRatio: 'square' as AspectRatio,
     apiKey: mockApiKey,
     imageUrl: placeholderImageLarge,
     onClose: () => console.log('Modal closed'),
@@ -108,7 +109,7 @@ export const WithFullResolutionImage: Story = {
 export const WithExistingPrompt: Story = {
   args: {
     isOpen: true,
-    aspectRatio: '1:1',
+    aspectRatio: 'square' as AspectRatio,
     apiKey: mockApiKey,
     imageUrl: placeholderImage,
     existingPrompt: 'A majestic dragon soaring through a stormy sky with lightning illuminating its scales',

@@ -1,4 +1,5 @@
 import { ImageGeneratorService, ImageGenerationResponse, ImageQuality, ReferenceImage } from './imageGeneratorService';
+import { AspectRatio } from '../types/comic';
 
 /**
  * Picsum Image Generation Service
@@ -8,7 +9,7 @@ export class PicsumImageGenerationService implements ImageGeneratorService {
   async generateImage(
     prompt: string, 
     apiKey: string, 
-    aspectRatio: string = '1:1',
+    aspectRatio: AspectRatio = 'square',
     quality: ImageQuality = 'medium',
     referenceImages?: ReferenceImage[],
     systemContext?: string

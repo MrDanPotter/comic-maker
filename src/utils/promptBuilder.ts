@@ -44,20 +44,16 @@ const imageUrlToBase64 = async (imageUrl: string): Promise<string> => {
 export async function buildImagePromptContent({
   userPrompt,
   systemContext,
-  enforceAspectRatio,
-  aspectRatio,
   referenceImages
 }: {
   userPrompt: string;
   systemContext?: string;
-  enforceAspectRatio: boolean;
-  aspectRatio: string;
   referenceImages?: ReferenceImage[];
 }): Promise<any[]> {
   const content: any[] = [];
 
   // Build the main prompt text
-  const promptText = buildPromptText(userPrompt, systemContext, enforceAspectRatio, aspectRatio, referenceImages);
+  const promptText = buildPromptText(userPrompt, systemContext, referenceImages);
   content.push({ type: 'input_text', text: promptText });
 
   // Add reference images if provided
@@ -74,8 +70,6 @@ export async function buildImagePromptContent({
 export function buildPromptText(
   userPrompt: string,
   systemContext?: string,
-  enforceAspectRatio: boolean = false,
-  aspectRatio: string = '1:1',
   referenceImages?: ReferenceImage[]
 ): string {
   const parts: string[] = [];
@@ -92,14 +86,6 @@ export function buildPromptText(
         'Use vibrant colors and clear composition.',
         'Ensure the image is suitable for a comic book or graphic novel context.'
       );
-    }
-  }
-
-  // Add aspect ratio instruction if enforced
-  if (enforceAspectRatio && aspectRatio) {
-    const aspectRatioInstruction = buildAspectRatioInstruction(aspectRatio);
-    if (aspectRatioInstruction) {
-      parts.push(aspectRatioInstruction);
     }
   }
 
@@ -163,20 +149,5 @@ async function addReferenceImagesToContent(content: any[], referenceImages: Refe
       console.warn(`Failed to process reference image ${refImage.name}:`, error);
       // Continue with other images
     }
-  }
-}
-
-/**
- * Build aspect ratio specific instructions
- */
-function buildAspectRatioInstruction(aspectRatio: string): string {
-  const [width, height] = aspectRatio.split(':').map(Number);
-  
-  if (width === height) {
-    return 'The image must be perfectly square (1:1 aspect ratio).';
-  } else if (width > height) {
-    return `The image must be landscape orientation with aspect ratio ${aspectRatio}.`;
-  } else {
-    return `The image must be portrait orientation with aspect ratio ${aspectRatio}.`;
   }
 } 

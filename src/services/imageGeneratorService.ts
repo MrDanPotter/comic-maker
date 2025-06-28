@@ -1,3 +1,5 @@
+import { AspectRatio } from '../types/comic';
+
 // Import the implementations
 import { PicsumImageGenerationService } from './picsumImageGenerationService';
 import { OpenAIImageGenerationService } from './openAIImageGenerationService';
@@ -23,7 +25,7 @@ export interface ImageGeneratorService {
   generateImage(
     prompt: string, 
     apiKey: string, 
-    aspectRatio?: string,
+    aspectRatio?: AspectRatio,
     quality?: ImageQuality,
     referenceImages?: ReferenceImage[],
     systemContext?: string

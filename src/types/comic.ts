@@ -2,6 +2,8 @@ import { ReferenceImage } from '../services/imageGeneratorService';
 
 export type Point = [number, number];
 
+export type AspectRatio = 'square' | 'portrait' | 'landscape';
+
 export interface BoundingBox {
   top: number;
   left: number;
