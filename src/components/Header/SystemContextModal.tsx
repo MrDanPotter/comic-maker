@@ -20,6 +20,7 @@ interface SystemContextModalProps {
   onSubmit: (context: string, useOpenAI: boolean) => void;
   currentContext: string;
   currentUseOpenAI: boolean;
+  defaultReferenceImageSource?: 'filesystem' | 'imageLibrary';
 }
 
 const FormGroup = styled.div`
@@ -292,21 +293,25 @@ const SystemContextModal: React.FC<SystemContextModalProps> = ({
   onClose,
   onSubmit,
   currentContext,
-  currentUseOpenAI
+  currentUseOpenAI,
+  defaultReferenceImageSource = 'filesystem'
 }) => {
   const dispatch = useAppDispatch();
   const referenceImages = useAppSelector(selectReferenceImages);
   const [context, setContext] = useState(currentContext);
   const [useFakeGeneration, setUseFakeGeneration] = useState(!currentUseOpenAI);
-  const [useImageLibrary, setUseImageLibrary] = useState(false);
+  const [useImageLibrary, setUseImageLibrary] = useState(defaultReferenceImageSource === 'imageLibrary');
   const [showImageLibrarySelector, setShowImageLibrarySelector] = useState(false);
   const [pendingImageType, setPendingImageType] = useState<'style' | 'character' | 'scene' | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    setContext(currentContext);
-    setUseFakeGeneration(!currentUseOpenAI);
-  }, [currentContext, currentUseOpenAI]);
+    if (isOpen) {
+      setContext(currentContext);
+      setUseFakeGeneration(!currentUseOpenAI);
+      setUseImageLibrary(defaultReferenceImageSource === 'imageLibrary');
+    }
+  }, [isOpen, currentContext, currentUseOpenAI, defaultReferenceImageSource]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -318,7 +323,7 @@ const SystemContextModal: React.FC<SystemContextModalProps> = ({
   const handleClose = () => {
     setContext(currentContext); // Reset to original value
     setUseFakeGeneration(!currentUseOpenAI); // Reset to original value
-    setUseImageLibrary(false); // Reset source selection
+    setUseImageLibrary(defaultReferenceImageSource === 'imageLibrary'); // Reset source selection
     setShowImageLibrarySelector(false);
     setPendingImageType(null);
     onClose();

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useAppSelector, useAppDispatch } from '../../store/store';
-import { selectSystemContext, selectUseOpenAIImageGeneration, setSystemContext } from '../../store/slices/appStateSlice';
+import { selectSystemContext, selectUseOpenAIImageGeneration, setSystemContext, selectReferenceImages } from '../../store/slices/appStateSlice';
 import { createImageGeneratorService, ImageQuality, ReferenceImage } from '../../services/imageGeneratorService';
 import { AspectRatio } from '../../types/comic';
 import SystemContextModal from '../Header/SystemContextModal';
@@ -414,6 +414,7 @@ const AiImageModal: React.FC<AiImageModalProps> = ({
   const dispatch = useAppDispatch();
   const systemContext = useAppSelector(selectSystemContext);
   const useOpenAIImageGeneration = useAppSelector(selectUseOpenAIImageGeneration);
+  const referenceImages = useAppSelector(selectReferenceImages);
   
   const [promptText, setPromptText] = useState(existingPrompt || '');
   const [aspectRatio, setAspectRatio] = useState<AspectRatio>(initialAspectRatio);
@@ -528,13 +529,13 @@ const AiImageModal: React.FC<AiImageModalProps> = ({
             <ModalHeader>AI Image Generation</ModalHeader>
             
             {/* System Context Alert */}
-            {!systemContext.trim() && (
+            {!systemContext.trim() && referenceImages.length === 0 && (
               <AlertContainer>
                 <AlertText>
-                  Note: system context has not yet been set. System context is not required but allows you to create a more consistent art style in your images.
+                  Note: neither system context nor reference images have been set. These are not required but help create more consistent art styles in your generated images.
                 </AlertText>
                 <SetContextButton onClick={() => setShowSystemContextModal(true)}>
-                  Set it now
+                  Set them now
                 </SetContextButton>
               </AlertContainer>
             )}

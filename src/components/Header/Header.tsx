@@ -12,6 +12,7 @@ import {
   setSystemContext,
   setUseOpenAIImageGeneration
 } from '../../store/slices/appStateSlice';
+import { selectAllImages } from '../../store/slices/imageLibrarySlice';
 import AiKeyModal from './AiKeyModal';
 import SystemContextModal from './SystemContextModal';
 import { Settings } from 'react-feather';
@@ -162,8 +163,12 @@ const Header: React.FC = () => {
   const showApiKeyModal = useAppSelector(selectShowApiKeyModal);
   const systemContext = useAppSelector(selectSystemContext);
   const useOpenAIImageGeneration = useAppSelector(selectUseOpenAIImageGeneration);
+  const imageLibraryImages = useAppSelector(selectAllImages);
   const [showSystemContextModal, setShowSystemContextModal] = useState(false);
   const [showAppSettingsModal, setShowAppSettingsModal] = useState(false);
+
+  // Determine default reference image source based on whether user has images in library
+  const defaultReferenceImageSource = imageLibraryImages.length > 0 ? 'imageLibrary' : 'filesystem';
 
   const handleToggleAi = () => {
     dispatch(toggleAi());
@@ -219,6 +224,7 @@ const Header: React.FC = () => {
         onSubmit={handleSetSystemContext}
         currentContext={systemContext}
         currentUseOpenAI={useOpenAIImageGeneration}
+        defaultReferenceImageSource={defaultReferenceImageSource}
       />
       
       <AppSettingsModal
