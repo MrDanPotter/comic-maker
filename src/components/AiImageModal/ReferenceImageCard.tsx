@@ -2,10 +2,11 @@ import React, { useRef } from 'react';
 import styled from 'styled-components';
 import { X, Maximize2 } from 'react-feather';
 import { ReferenceImage } from '../../store/slices/appStateSlice';
-import Image, { ImageRef } from '../Image';
+import { Image } from '../../types/comic';
+import ImageComponent, { ImageRef } from '../Image';
 
 interface ReferenceImageCardProps {
-  image: ReferenceImage;
+  image: ReferenceImage | Image;
   isSelected?: boolean;
   isReferenced?: boolean;
   showStatusIndicator?: boolean;
@@ -56,6 +57,14 @@ const ImageType = styled.span`
   text-transform: capitalize;
 `;
 
+const ImageSource = styled.span`
+  font-family: 'Roboto', sans-serif;
+  font-size: 0.8rem;
+  color: #667eea;
+  font-weight: 500;
+  text-transform: capitalize;
+`;
+
 const CustomName = styled.span`
   font-family: 'Roboto', sans-serif;
   font-size: 0.8rem;
@@ -67,6 +76,13 @@ const StatusText = styled.span<{ $isReferenced: boolean }>`
   font-family: 'Roboto', sans-serif;
   font-size: 0.7rem;
   color: ${props => props.$isReferenced ? '#4caf50' : '#ff9800'};
+  font-weight: 500;
+`;
+
+const ImageStatus = styled.span<{ $isUsed: boolean }>`
+  font-family: 'Roboto', sans-serif;
+  font-size: 0.7rem;
+  color: ${props => props.$isUsed ? '#4caf50' : '#ff9800'};
   font-weight: 500;
 `;
 
@@ -139,8 +155,21 @@ const ReferenceImageCard: React.FC<ReferenceImageCardProps> = ({
 }) => {
   const imageRef = useRef<ImageRef>(null);
 
+  // Type guards to determine image type
+  const isReferenceImage = (img: ReferenceImage | Image): img is ReferenceImage => {
+    return 'type' in img && 'name' in img;
+  };
+
+  const isLibraryImage = (img: ReferenceImage | Image): img is Image => {
+    return 'source' in img && 'isUsed' in img;
+  };
+
   const getStatusText = (isReferenced: boolean): string => {
     return isReferenced ? 'Referenced' : 'Not referenced';
+  };
+
+  const getLibraryStatusText = (isUsed: boolean): string => {
+    return isUsed ? 'Used in comic' : 'Available';
   };
 
   const handleExpand = () => {
@@ -149,6 +178,45 @@ const ReferenceImageCard: React.FC<ReferenceImageCardProps> = ({
     } else if (imageRef.current) {
       imageRef.current.expand();
     }
+  };
+
+  const getImageAlt = () => {
+    if (isReferenceImage(image)) {
+      return image.name;
+    }
+    return `Image ${image.id}`;
+  };
+
+  const getImageType = () => {
+    if (isReferenceImage(image)) {
+      return image.type;
+    }
+    return image.source;
+  };
+
+  const getCustomName = () => {
+    if (isReferenceImage(image)) {
+      return image.customName;
+    }
+    if (isLibraryImage(image) && image.source === 'ai' && image.prompt) {
+      return image.prompt;
+    }
+    return undefined;
+  };
+
+  const getStatusDisplay = () => {
+    if (isReferenceImage(image)) {
+      return showStatusIndicator ? (
+        <StatusText $isReferenced={isReferenced}>
+          {getStatusText(isReferenced)}
+        </StatusText>
+      ) : null;
+    }
+    return (
+      <ImageStatus $isUsed={image.isUsed}>
+        {getLibraryStatusText(image.isUsed)}
+      </ImageStatus>
+    );
   };
 
   return (
@@ -182,10 +250,10 @@ const ReferenceImageCard: React.FC<ReferenceImageCardProps> = ({
       )}
       
       <ImageContainer>
-        <Image
+        <ImageComponent
           ref={imageRef}
           src={image.url}
-          alt={image.name}
+          alt={getImageAlt()}
           width="100%"
           height="100%"
           borderRadius="4px"
@@ -194,15 +262,15 @@ const ReferenceImageCard: React.FC<ReferenceImageCardProps> = ({
       </ImageContainer>
       
       <ImageInfo>
-        <ImageType>{image.type}</ImageType>
-        {image.customName && (
-          <CustomName>"{image.customName}"</CustomName>
+        {isReferenceImage(image) ? (
+          <ImageType>{getImageType()}</ImageType>
+        ) : (
+          <ImageSource>{getImageType()}</ImageSource>
         )}
-        {showStatusIndicator && (
-          <StatusText $isReferenced={isReferenced}>
-            {getStatusText(isReferenced)}
-          </StatusText>
+        {getCustomName() && (
+          <CustomName>"{getCustomName()}"</CustomName>
         )}
+        {getStatusDisplay()}
       </ImageInfo>
     </CardContainer>
   );

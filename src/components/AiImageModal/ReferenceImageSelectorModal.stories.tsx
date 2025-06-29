@@ -5,6 +5,7 @@ import { store } from '../../store/store';
 import { addReferenceImage } from '../../store/slices/appStateSlice';
 import { configureStore } from '@reduxjs/toolkit';
 import appStateReducer from '../../store/slices/appStateSlice';
+import type { ReferenceImageType } from '../../types/comic';
 
 const meta: Meta<typeof ReferenceImageSelectorModal> = {
   title: 'Components/AiImageModal/ReferenceImageSelectorModal',
@@ -39,30 +40,29 @@ const sampleReferenceImages = [
   {
     id: '1',
     url: 'https://picsum.photos/200/200?random=1',
-    type: 'style' as const,
-    name: 'comic_style.jpg',
+    type: 'style' as ReferenceImageType,
+    name: 'Comic Style Reference'
   },
   {
     id: '2',
     url: 'https://picsum.photos/200/200?random=2',
-    type: 'character' as const,
-    name: 'superhero.jpg',
-    customName: 'Spider-Man',
+    type: 'character' as ReferenceImageType,
+    name: 'Hero Character',
+    customName: 'Superhero'
   },
   {
     id: '3',
     url: 'https://picsum.photos/200/200?random=3',
-    type: 'scene' as const,
-    name: 'cityscape.jpg',
-    customName: 'New York City',
+    type: 'scene' as ReferenceImageType,
+    name: 'City Scene',
+    customName: 'Metropolitan City'
   },
   {
     id: '4',
     url: 'https://picsum.photos/200/200?random=4',
-    type: 'character' as const,
-    name: 'villain.jpg',
-    customName: 'Green Goblin',
-  },
+    type: 'character' as ReferenceImageType,
+    name: 'Villain Character'
+  }
 ];
 
 // Add sample images to store for testing

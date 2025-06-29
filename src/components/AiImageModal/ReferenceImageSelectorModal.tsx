@@ -2,6 +2,9 @@ import React from 'react';
 import styled from 'styled-components';
 import { useAppSelector } from '../../store/store';
 import { selectReferenceImages, ReferenceImage } from '../../store/slices/appStateSlice';
+import { selectAllImages } from '../../store/slices/imageLibrarySlice';
+import { Image } from '../../types/comic';
+import type { ReferenceImageType } from '../../types/comic';
 import Modal from '../Modal';
 import ReferenceImageCard from './ReferenceImageCard';
 
@@ -84,6 +87,22 @@ const Button = styled.button<{ $isPrimary?: boolean }>`
   }
 `;
 
+const SectionTitle = styled.h3`
+  font-family: 'Roboto', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #333;
+  margin: 0 0 16px 0;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #f0f0f0;
+`;
+
+const SectionDivider = styled.div`
+  height: 1px;
+  background: #e0e0e0;
+  margin: 32px 0;
+`;
+
 const ReferenceImageSelectorModal: React.FC<ReferenceImageSelectorModalProps> = ({
   isOpen,
   onClose,
@@ -92,7 +111,9 @@ const ReferenceImageSelectorModal: React.FC<ReferenceImageSelectorModalProps> = 
   promptText
 }) => {
   const referenceImages = useAppSelector(selectReferenceImages);
+  const imageLibraryImages = useAppSelector(selectAllImages);
   const [localSelectedImages, setLocalSelectedImages] = React.useState<ReferenceImage[]>(selectedImages);
+  const [localSelectedLibraryImages, setLocalSelectedLibraryImages] = React.useState<Image[]>([]);
 
   React.useEffect(() => {
     setLocalSelectedImages(selectedImages);
@@ -107,13 +128,34 @@ const ReferenceImageSelectorModal: React.FC<ReferenceImageSelectorModalProps> = 
     }
   };
 
+  const handleLibraryImageToggle = (image: Image) => {
+    const isSelected = localSelectedLibraryImages.some(img => img.id === image.id);
+    if (isSelected) {
+      setLocalSelectedLibraryImages(localSelectedLibraryImages.filter(img => img.id !== image.id));
+    } else {
+      setLocalSelectedLibraryImages([...localSelectedLibraryImages, image]);
+    }
+  };
+
   const handleConfirm = () => {
-    onImagesSelected(localSelectedImages);
+    // Convert selected library images to reference images format
+    const libraryImagesAsReferences: ReferenceImage[] = localSelectedLibraryImages.map(img => ({
+      id: img.id,
+      url: img.url,
+      type: 'scene' as ReferenceImageType, // Default to scene type for library images
+      name: `Library Image ${img.id}`,
+      customName: img.source === 'ai' && img.prompt ? img.prompt : undefined
+    }));
+    
+    // Combine both types of selected images
+    const allSelectedImages = [...localSelectedImages, ...libraryImagesAsReferences];
+    onImagesSelected(allSelectedImages);
     onClose();
   };
 
   const handleCancel = () => {
     setLocalSelectedImages(selectedImages);
+    setLocalSelectedLibraryImages([]);
     onClose();
   };
 
@@ -124,7 +166,16 @@ const ReferenceImageSelectorModal: React.FC<ReferenceImageSelectorModalProps> = 
     return promptLower.includes(nameLower);
   };
 
-  if (referenceImages.length === 0) {
+  const isLibraryImageReferencedInPrompt = (image: Image): boolean => {
+    if (image.source === 'ai' && image.prompt) {
+      const promptLower = promptText.toLowerCase();
+      const imagePromptLower = image.prompt.toLowerCase();
+      return promptLower.includes(imagePromptLower);
+    }
+    return true; // If no prompt, consider it referenced
+  };
+
+  if (referenceImages.length === 0 && imageLibraryImages.length === 0) {
     return (
       <Modal isOpen={isOpen} onClose={onClose} title="Add Image Context" maxWidth="600px">
         <EmptyState>
@@ -144,23 +195,55 @@ const ReferenceImageSelectorModal: React.FC<ReferenceImageSelectorModalProps> = 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Add Image Context" maxWidth="800px">
       <ModalContent>
-        <ReferenceImageGrid>
-          {referenceImages.map((image) => {
-            const isSelected = localSelectedImages.some(img => img.id === image.id);
-            const isReferenced = isImageReferencedInPrompt(image);
-            
-            return (
-              <ReferenceImageCard
-                key={image.id}
-                image={image}
-                isSelected={isSelected}
-                isReferenced={isReferenced}
-                onClick={() => handleImageToggle(image)}
-                showStatusIndicator={false}
-              />
-            );
-          })}
-        </ReferenceImageGrid>
+        {referenceImages.length > 0 && (
+          <>
+            <SectionTitle>Reference Images</SectionTitle>
+            <ReferenceImageGrid>
+              {referenceImages.map((image) => {
+                const isSelected = localSelectedImages.some(img => img.id === image.id);
+                const isReferenced = isImageReferencedInPrompt(image);
+                
+                return (
+                  <ReferenceImageCard
+                    key={image.id}
+                    image={image}
+                    isSelected={isSelected}
+                    isReferenced={isReferenced}
+                    onClick={() => handleImageToggle(image)}
+                    showStatusIndicator={false}
+                  />
+                );
+              })}
+            </ReferenceImageGrid>
+          </>
+        )}
+
+        {referenceImages.length > 0 && imageLibraryImages.length > 0 && (
+          <SectionDivider />
+        )}
+
+        {imageLibraryImages.length > 0 && (
+          <>
+            <SectionTitle>Image Library</SectionTitle>
+            <ReferenceImageGrid>
+              {imageLibraryImages.map((image) => {
+                const isSelected = localSelectedLibraryImages.some(img => img.id === image.id);
+                const isReferenced = isLibraryImageReferencedInPrompt(image);
+                
+                return (
+                  <ReferenceImageCard
+                    key={image.id}
+                    image={image}
+                    isSelected={isSelected}
+                    isReferenced={isReferenced}
+                    onClick={() => handleLibraryImageToggle(image)}
+                    showStatusIndicator={false}
+                  />
+                );
+              })}
+            </ReferenceImageGrid>
+          </>
+        )}
         
         <ButtonContainer>
           <Button onClick={handleCancel}>

@@ -1,4 +1,5 @@
 import { ReferenceImage } from '../services/imageGeneratorService';
+import type { ReferenceImageType } from '../types/comic';
 
 /**
  * Helper: Convert data URL to base64 string
@@ -79,7 +80,7 @@ export function buildPromptText(
     parts.push(systemContext.trim());
   } else {
     // Only add default instructions if no style reference images are present
-    const hasStyleImages = referenceImages?.some(img => img.type === 'style') ?? false;
+    const hasStyleImages = referenceImages?.some(img => img.type === 'style' as ReferenceImageType) ?? false;
     if (!hasStyleImages) {
       parts.push(
         'Create a high-quality, detailed image that matches the description exactly.',
@@ -99,23 +100,29 @@ export function buildPromptText(
  * Add reference images to the content array
  */
 async function addReferenceImagesToContent(content: any[], referenceImages: ReferenceImage[]): Promise<void> {
-  // Order reference images by type such that character images come first, then scene images, then style images
-  const orderedReferenceImages = referenceImages.sort((a, b) => {
-    if (a.type === 'character') return -1;
-    if (b.type === 'character') return 1;
-    if (a.type === 'scene') return -1;
-    if (b.type === 'scene') return 1;
-    if (a.type === 'style') return -1;
-    if (b.type === 'style') return 1;
+  // Sort reference images by priority: character > scene > style
+  const sortedReferenceImages = referenceImages?.sort((a, b) => {
+    if (a.type === 'character' as ReferenceImageType) return -1;
+    if (b.type === 'character' as ReferenceImageType) return 1;
+    if (a.type === 'scene' as ReferenceImageType) return -1;
+    if (b.type === 'scene' as ReferenceImageType) return 1;
     return 0;
-  });
+  }) || [];
 
-  const containsCharacterOrSceneImages = orderedReferenceImages.some(refImage => 
-    refImage.type === 'character' || refImage.type === 'scene'
-  );
+  // Add style images first if we have them
+  const hasStyleImages = referenceImages?.some(img => img.type === 'style' as ReferenceImageType) ?? false;
+  if (hasStyleImages) {
+    const styleImages = referenceImages?.filter(img => img.type === 'style' as ReferenceImageType) || [];
+    sortedReferenceImages.unshift(...styleImages);
+  }
+
+  // Add character and scene references
+  const characterAndSceneRefs = referenceImages?.filter(refImage => 
+    refImage.type === 'character' as ReferenceImageType || refImage.type === 'scene' as ReferenceImageType
+  ) || [];
 
   // Add reference images as base64 data
-  for (const refImage of referenceImages) {
+  for (const refImage of sortedReferenceImages) {
     try {
       const base64Data = await imageUrlToBase64(refImage.url);
       
@@ -123,17 +130,13 @@ async function addReferenceImagesToContent(content: any[], referenceImages: Refe
       let description = '';
       
       switch (refImage.type) {
-        case 'style':
-          if (containsCharacterOrSceneImages) {
-            description = `The following image is a reference for the art style, style for the output image should be in this style.  other reference images not marked for style should be translated into this style.`;
-          } else {
-            description = `The following image is a reference for the art style, style for the output image should be in this style`;
-          }
+        case 'style' as ReferenceImageType:
+          description = `The following image is a reference for the art style, style for the output image should be in this style.  other reference images not marked for style should be translated into this style.`;
           break;
-        case 'character':
+        case 'character' as ReferenceImageType:
           description = `The following image is a reference for the character: ${refImage.customName}`;
           break;
-        case 'scene':
+        case 'scene' as ReferenceImageType:
           description = `The following image is a reference for the scene: ${refImage.customName}`;
           break;
         default:

@@ -9,6 +9,7 @@ import {
   updateReferenceImageName,
   ReferenceImage 
 } from '../../store/slices/appStateSlice';
+import type { ReferenceImageType } from '../../types/comic';
 import Modal from '../Modal';
 import Image from '../Image';
 import ImageLibrarySelectorModal from './ImageLibrarySelectorModal';
@@ -302,7 +303,7 @@ const SystemContextModal: React.FC<SystemContextModalProps> = ({
   const [useFakeGeneration, setUseFakeGeneration] = useState(!currentUseOpenAI);
   const [useImageLibrary, setUseImageLibrary] = useState(defaultReferenceImageSource === 'imageLibrary');
   const [showImageLibrarySelector, setShowImageLibrarySelector] = useState(false);
-  const [pendingImageType, setPendingImageType] = useState<'style' | 'character' | 'scene' | null>(null);
+  const [pendingImageType, setPendingImageType] = useState<ReferenceImageType | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -329,7 +330,7 @@ const SystemContextModal: React.FC<SystemContextModalProps> = ({
     onClose();
   };
 
-  const handleReferenceButtonClick = (type: 'style' | 'character' | 'scene') => {
+  const handleReferenceButtonClick = (type: ReferenceImageType) => {
     if (useImageLibrary) {
       // Open image library selector
       setPendingImageType(type);
@@ -345,7 +346,7 @@ const SystemContextModal: React.FC<SystemContextModalProps> = ({
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    const type = event.target.getAttribute('data-type') as 'style' | 'character' | 'scene';
+    const type = event.target.getAttribute('data-type') as ReferenceImageType;
     
     if (file && type) {
       const reader = new FileReader();

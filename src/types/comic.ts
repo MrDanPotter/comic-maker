@@ -4,6 +4,8 @@ export type Point = [number, number];
 
 export type AspectRatio = 'square' | 'portrait' | 'landscape';
 
+export type ReferenceImageType = 'style' | 'character' | 'scene' | 'other';
+
 export interface BoundingBox {
   top: number;
   left: number;

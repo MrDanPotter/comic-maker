@@ -1,5 +1,6 @@
 import { ImageGeneratorService, ImageGenerationResponse, ImageQuality, ReferenceImage } from './imageGeneratorService';
 import { AspectRatio } from '../types/comic';
+import type { ReferenceImageType } from '../types/comic';
 
 /**
  * Helper: map aspect ratio to Picsum size parameters
@@ -40,7 +41,7 @@ export class PicsumImageGenerationService implements ImageGeneratorService {
       }
       if (referenceImages && referenceImages.length > 0) {
         console.log("reference images provided:", referenceImages.length);
-        const styleImages = referenceImages.filter(img => img.type === 'style');
+        const styleImages = referenceImages.filter(img => img.type === 'style' as ReferenceImageType);
         if (styleImages.length > 0) {
           console.log("style reference images present:", styleImages.length);
         }

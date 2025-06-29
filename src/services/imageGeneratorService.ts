@@ -1,4 +1,4 @@
-import { AspectRatio } from '../types/comic';
+import { AspectRatio, ReferenceImageType } from '../types/comic';
 
 // Import the implementations
 import { PicsumImageGenerationService } from './picsumImageGenerationService';
@@ -16,7 +16,7 @@ export type ImageQuality = 'low' | 'medium' | 'high';
 export interface ReferenceImage {
   id: string;
   url: string;
-  type: 'style' | 'character' | 'scene';
+  type: ReferenceImageType;
   name: string;
   customName?: string;
 }

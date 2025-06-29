@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import ReferenceImageCard from './ReferenceImageCard';
-import localImage from '../../assets/913-300x300.jpg';
+import type { ReferenceImageType } from '../../types/comic';
 
 const meta: Meta<typeof ReferenceImageCard> = {
   title: 'Components/AiImageModal/ReferenceImageCard',
@@ -32,39 +32,39 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 // Sample reference images for testing
-const sampleImages = [
-  {
-    id: '1',
-    url: localImage,
-    type: 'style' as const,
-    name: 'comic_style.jpg',
-  },
-  {
-    id: '2',
-    url: localImage,
-    type: 'character' as const,
-    name: 'superhero.jpg',
-    customName: 'Spider-Man',
-  },
-  {
-    id: '3',
-    url: localImage,
-    type: 'scene' as const,
-    name: 'cityscape.jpg',
-    customName: 'New York City',
-  },
-  {
-    id: '4',
-    url: localImage,
-    type: 'character' as const,
-    name: 'villain.jpg',
-    customName: 'Green Goblin',
-  },
-];
+const styleImage = {
+  id: '1',
+  url: 'https://picsum.photos/200/200?random=1',
+  type: 'style' as ReferenceImageType,
+  name: 'Comic Style Reference'
+};
+
+const characterImage = {
+  id: '2',
+  url: 'https://picsum.photos/200/200?random=2',
+  type: 'character' as ReferenceImageType,
+  name: 'Hero Character',
+  customName: 'Superhero'
+};
+
+const sceneImage = {
+  id: '3',
+  url: 'https://picsum.photos/200/200?random=3',
+  type: 'scene' as ReferenceImageType,
+  name: 'City Scene',
+  customName: 'Metropolitan City'
+};
+
+const characterImageNoName = {
+  id: '4',
+  url: 'https://picsum.photos/200/200?random=4',
+  type: 'character' as ReferenceImageType,
+  name: 'Villain Character'
+};
 
 export const Default: Story = {
   args: {
-    image: sampleImages[0],
+    image: styleImage,
     isSelected: false,
     isReferenced: true,
     showStatusIndicator: true,
@@ -73,7 +73,7 @@ export const Default: Story = {
 
 export const Selected: Story = {
   args: {
-    image: sampleImages[1],
+    image: characterImage,
     isSelected: true,
     isReferenced: true,
     showStatusIndicator: true,
@@ -82,7 +82,7 @@ export const Selected: Story = {
 
 export const Unreferenced: Story = {
   args: {
-    image: sampleImages[2],
+    image: sceneImage,
     isSelected: false,
     isReferenced: false,
     showStatusIndicator: true,
@@ -91,7 +91,7 @@ export const Unreferenced: Story = {
 
 export const Clickable: Story = {
   args: {
-    image: sampleImages[0],
+    image: styleImage,
     isSelected: false,
     isReferenced: true,
     showStatusIndicator: true,
@@ -101,7 +101,7 @@ export const Clickable: Story = {
 
 export const WithExpandButton: Story = {
   args: {
-    image: sampleImages[0],
+    image: styleImage,
     isSelected: false,
     isReferenced: true,
     showStatusIndicator: true,
@@ -110,7 +110,7 @@ export const WithExpandButton: Story = {
 
 export const WithRemoveButton: Story = {
   args: {
-    image: sampleImages[1],
+    image: characterImage,
     isSelected: false,
     isReferenced: true,
     showStatusIndicator: true,
@@ -120,7 +120,7 @@ export const WithRemoveButton: Story = {
 
 export const SelectedWithRemove: Story = {
   args: {
-    image: sampleImages[2],
+    image: sceneImage,
     isSelected: true,
     isReferenced: false,
     showStatusIndicator: true,
@@ -130,7 +130,7 @@ export const SelectedWithRemove: Story = {
 
 export const NoStatusIndicator: Story = {
   args: {
-    image: sampleImages[3],
+    image: characterImageNoName,
     isSelected: false,
     isReferenced: true,
     showStatusIndicator: false,
@@ -139,7 +139,7 @@ export const NoStatusIndicator: Story = {
 
 export const WithExpandAndRemove: Story = {
   args: {
-    image: sampleImages[2],
+    image: sceneImage,
     isSelected: false,
     isReferenced: true,
     showStatusIndicator: true,
@@ -149,7 +149,7 @@ export const WithExpandAndRemove: Story = {
 
 export const AllFeatures: Story = {
   args: {
-    image: sampleImages[1],
+    image: characterImage,
     isSelected: true,
     isReferenced: false,
     showStatusIndicator: true,
@@ -160,7 +160,7 @@ export const AllFeatures: Story = {
 
 export const StyleReference: Story = {
   args: {
-    image: sampleImages[0],
+    image: styleImage,
     isSelected: false,
     isReferenced: true,
     showStatusIndicator: true,
@@ -176,7 +176,7 @@ export const StyleReference: Story = {
 
 export const CharacterReference: Story = {
   args: {
-    image: sampleImages[1],
+    image: characterImage,
     isSelected: false,
     isReferenced: true,
     showStatusIndicator: true,
@@ -192,7 +192,7 @@ export const CharacterReference: Story = {
 
 export const SceneReference: Story = {
   args: {
-    image: sampleImages[2],
+    image: sceneImage,
     isSelected: false,
     isReferenced: true,
     showStatusIndicator: true,

@@ -1,9 +1,10 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { ReferenceImageType } from '../../types/comic';
 
 export interface ReferenceImage {
   id: string;
   url: string;
-  type: 'style' | 'character' | 'scene';
+  type: ReferenceImageType;
   name: string;
   customName?: string; // Optional custom name for character and scene references
 }

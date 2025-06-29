@@ -1,5 +1,6 @@
 import { OpenAIImageGenerationService } from '../openAIImageGenerationService';
 import { ReferenceImage } from '../imageGeneratorService';
+import type { ReferenceImageType } from '../../types/comic';
 
 // Mock OpenAI
 jest.mock('openai', () => ({
@@ -54,7 +55,7 @@ describe('OpenAIImageGenerationService with Reference Images', () => {
       {
         id: '1',
         url: 'data:image/jpeg;base64,mock-data-1',
-        type: 'style',
+        type: 'style' as ReferenceImageType,
         name: 'test-style.jpg',
         customName: 'Comic Style'
       }
@@ -107,21 +108,21 @@ describe('OpenAIImageGenerationService with Reference Images', () => {
       {
         id: '1',
         url: 'data:image/jpeg;base64,mock-data-1',
-        type: 'style',
+        type: 'style' as ReferenceImageType,
         name: 'comic-style.jpg',
         customName: 'Vintage Comic Style'
       },
       {
         id: '2',
         url: 'data:image/jpeg;base64,mock-data-2',
-        type: 'character',
+        type: 'character' as ReferenceImageType,
         name: 'hero.jpg',
         customName: 'Superhero'
       },
       {
         id: '3',
         url: 'data:image/jpeg;base64,mock-data-3',
-        type: 'scene',
+        type: 'scene' as ReferenceImageType,
         name: 'city.jpg'
         // No custom name, should use filename
       }
