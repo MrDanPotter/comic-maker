@@ -6,8 +6,8 @@ import { selectReferenceImages, ReferenceImage } from '../../store/slices/appSta
 import { selectAllImages } from '../../store/slices/imageLibrarySlice';
 import { Image } from '../../types/comic';
 import type { ReferenceImageType } from '../../types/comic';
-import Modal from '../Modal';
-import ReferenceImageCard from './ReferenceImageCard';
+import Modal from '../shared/Modal';
+import ReferenceImageCard from '../shared/ReferenceImageCard/ReferenceImageCard';
 
 interface ReferenceImageSelectorModalProps {
   isOpen: boolean;

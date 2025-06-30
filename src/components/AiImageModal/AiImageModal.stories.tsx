@@ -6,7 +6,7 @@ import { AspectRatio } from '../../types/comic';
 import AiImageModal from './AiImageModal';
 
 const meta: Meta<typeof AiImageModal> = {
-  title: 'Components/AiImageModal',
+  title: 'AiImageModal',
   component: AiImageModal,
   parameters: {
     layout: 'centered',

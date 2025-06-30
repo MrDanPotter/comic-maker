@@ -3,7 +3,7 @@ import React from 'react';
 import PageControls from './PageControls';
 
 const meta = {
-  title: 'Comic/PageControls',
+  title: 'Comic Builder/PageControls',
   component: PageControls,
   parameters: {
     layout: 'centered',

@@ -10,7 +10,7 @@ import image133 from '../../assets/133-200x200.jpg';
 import image913 from '../../assets/913-300x300.jpg';
 
 const meta: Meta<typeof ReferenceImageSelectorModal> = {
-  title: 'Components/AiImageModal/ReferenceImageSelectorModal',
+  title: 'AiImageModal/ReferenceImageSelectorModal',
   component: ReferenceImageSelectorModal,
   parameters: {
     layout: 'centered',

@@ -1,11 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import ReferenceImageCard from './ReferenceImageCard';
-import type { ReferenceImageType } from '../../types/comic';
-import image133 from '../../assets/133-200x200.jpg';
-import image913 from '../../assets/913-300x300.jpg';
+import type { ReferenceImageType } from '../../../types/comic';
+import image133 from '../../../assets/133-200x200.jpg';
+import image913 from '../../../assets/913-300x300.jpg';
 
 const meta: Meta<typeof ReferenceImageCard> = {
-  title: 'Components/AiImageModal/ReferenceImageCard',
+  title: 'Components/shared/ReferenceImageCard',
   component: ReferenceImageCard,
   parameters: {
     layout: 'centered',

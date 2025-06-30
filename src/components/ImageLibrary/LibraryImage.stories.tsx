@@ -3,7 +3,7 @@ import LibraryImage from './LibraryImage';
 import { placeholderImage } from '../../assets/placeholder';
 
 const meta: Meta<typeof LibraryImage> = {
-  title: 'Components/ImageLibrary/LibraryImage',
+  title: 'ImageLibrary/LibraryImage',
   component: LibraryImage,
   parameters: {
     layout: 'centered',

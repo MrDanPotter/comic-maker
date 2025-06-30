@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import Image from './Image';
-import { placeholderImage, placeholderImageLarge } from '../../assets/placeholder';
+import { placeholderImage, placeholderImageLarge } from '../../../assets/placeholder';
 
 const meta: Meta<typeof Image> = {
-  title: 'Components/Image',
+  title: 'Components/Shared/Image',
   component: Image,
   parameters: {
     layout: 'centered',

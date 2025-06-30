@@ -6,9 +6,9 @@ import { createImageGeneratorService, ImageQuality, ReferenceImage } from '../..
 import { AspectRatio } from '../../types/comic';
 import SystemContextModal from '../Header/SystemContextModal';
 import ReferenceImageSelectorModal from './ReferenceImageSelectorModal';
-import ReferenceImageCard from './ReferenceImageCard';
-import Modal from '../Modal';
-import Image from '../Image';
+import ReferenceImageCard from '../shared/ReferenceImageCard/ReferenceImageCard';
+import Modal from '../shared/Modal';
+import Image from '../shared/Image';
 
 interface AiImageModalProps {
   isOpen: boolean;

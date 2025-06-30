@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Check, Download, Trash2 } from 'react-feather';
-import Image from '../Image';
+import Image from '../shared/Image';
 
 interface LibraryImageProps {
   src: string;

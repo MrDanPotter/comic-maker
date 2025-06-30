@@ -4,8 +4,8 @@ import { useAppSelector } from '../../store/store';
 import { selectAllImages } from '../../store/slices/imageLibrarySlice';
 import { ReferenceImage } from '../../store/slices/appStateSlice';
 import type { ReferenceImageType } from '../../types/comic';
-import Modal from '../Modal';
-import Image from '../Image';
+import Modal from '../shared/Modal';
+import Image from '../shared/Image';
 
 interface ImageLibrarySelectorModalProps {
   isOpen: boolean;

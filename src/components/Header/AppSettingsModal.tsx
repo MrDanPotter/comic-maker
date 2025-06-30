@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import Modal from '../Modal';
+import Modal from '../shared/Modal';
 import { useAppDispatch, useAppSelector } from '../../store/store';
 import { selectUseOpenAIImageGeneration, setUseOpenAIImageGeneration } from '../../store/slices/appStateSlice';
 import { Settings } from 'react-feather';

@@ -1,8 +1,8 @@
 import React, { useRef } from 'react';
 import styled from 'styled-components';
 import { X, Maximize2 } from 'react-feather';
-import { ReferenceImage } from '../../store/slices/appStateSlice';
-import { Image } from '../../types/comic';
+import { ReferenceImage } from '../../../store/slices/appStateSlice';
+import { Image } from '../../../types/comic';
 import ImageComponent, { ImageRef } from '../Image';
 
 interface ReferenceImageCardProps {

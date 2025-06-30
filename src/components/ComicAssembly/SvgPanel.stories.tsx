@@ -4,7 +4,7 @@ import SvgPanel from './SvgPanel';
 import { placeholderImage } from '../../assets/placeholder';
 
 const meta = {
-  title: 'Comic/SvgPanel',
+  title: 'Comic Builder/SvgPanel',
   component: SvgPanel,
   parameters: {
     layout: 'centered',
