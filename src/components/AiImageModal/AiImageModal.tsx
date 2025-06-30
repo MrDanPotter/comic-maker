@@ -620,15 +620,22 @@ const AiImageModal: React.FC<AiImageModalProps> = ({
                 <SelectedImagesContainer>
                   <SelectedImagesTitle>Selected Reference Images:</SelectedImagesTitle>
                   <SelectedImageGrid>
-                    {selectedReferenceImages.map((image) => (
-                      <ReferenceImageCard
-                        key={image.id}
-                        image={image}
-                        isReferenced={isImageReferencedInPrompt(image)}
-                        showStatusIndicator={true}
-                        onRemove={() => handleRemoveReferenceImage(image.id)}
-                      />
-                    ))}
+                    {selectedReferenceImages.map((image) => {
+                      const isReferenced = isImageReferencedInPrompt(image);
+                      const statusText = isReferenced ? 'Referenced' : 'Not referenced';
+                      const statusColor = isReferenced ? '#4caf50' : '#ff9800';
+                      
+                      return (
+                        <ReferenceImageCard
+                          key={image.id}
+                          image={image}
+                          statusText={statusText}
+                          statusColor={statusColor}
+                          showStatusIndicator={true}
+                          onRemove={() => handleRemoveReferenceImage(image.id)}
+                        />
+                      );
+                    })}
                   </SelectedImageGrid>
                 </SelectedImagesContainer>
               )}

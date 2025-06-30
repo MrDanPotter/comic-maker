@@ -13,13 +13,17 @@ const meta: Meta<typeof ReferenceImageCard> = {
       control: 'boolean',
       description: 'Whether the card is selected',
     },
-    isReferenced: {
-      control: 'boolean',
-      description: 'Whether the image is referenced in the prompt',
+    statusText: {
+      control: 'text',
+      description: 'The status text to display',
+    },
+    statusColor: {
+      control: 'color',
+      description: 'The color of the status text',
     },
     showStatusIndicator: {
       control: 'boolean',
-      description: 'Whether to show the reference status indicator',
+      description: 'Whether to show the status indicator',
     },
     onExpand: {
       action: 'expanded',
@@ -66,7 +70,8 @@ export const Default: Story = {
   args: {
     image: styleImage,
     isSelected: false,
-    isReferenced: true,
+    statusText: 'Referenced',
+    statusColor: '#4caf50',
     showStatusIndicator: true,
   },
 };
@@ -75,7 +80,8 @@ export const Selected: Story = {
   args: {
     image: characterImage,
     isSelected: true,
-    isReferenced: true,
+    statusText: 'Referenced',
+    statusColor: '#4caf50',
     showStatusIndicator: true,
   },
 };
@@ -84,7 +90,8 @@ export const Unreferenced: Story = {
   args: {
     image: sceneImage,
     isSelected: false,
-    isReferenced: false,
+    statusText: 'Not referenced',
+    statusColor: '#ff9800',
     showStatusIndicator: true,
   },
 };
@@ -93,7 +100,8 @@ export const Clickable: Story = {
   args: {
     image: styleImage,
     isSelected: false,
-    isReferenced: true,
+    statusText: 'Referenced',
+    statusColor: '#4caf50',
     showStatusIndicator: true,
     onClick: () => console.log('Card clicked'),
   },
@@ -103,7 +111,8 @@ export const WithExpandButton: Story = {
   args: {
     image: styleImage,
     isSelected: false,
-    isReferenced: true,
+    statusText: 'Referenced',
+    statusColor: '#4caf50',
     showStatusIndicator: true,
   },
 };
@@ -112,7 +121,8 @@ export const WithRemoveButton: Story = {
   args: {
     image: characterImage,
     isSelected: false,
-    isReferenced: true,
+    statusText: 'Referenced',
+    statusColor: '#4caf50',
     showStatusIndicator: true,
     onRemove: () => console.log('Remove button clicked'),
   },
@@ -122,7 +132,8 @@ export const SelectedWithRemove: Story = {
   args: {
     image: sceneImage,
     isSelected: true,
-    isReferenced: false,
+    statusText: 'Not referenced',
+    statusColor: '#ff9800',
     showStatusIndicator: true,
     onRemove: () => console.log('Remove button clicked'),
   },
@@ -132,7 +143,8 @@ export const NoStatusIndicator: Story = {
   args: {
     image: characterImageNoName,
     isSelected: false,
-    isReferenced: true,
+    statusText: 'Referenced',
+    statusColor: '#4caf50',
     showStatusIndicator: false,
   },
 };
@@ -141,7 +153,8 @@ export const WithExpandAndRemove: Story = {
   args: {
     image: sceneImage,
     isSelected: false,
-    isReferenced: true,
+    statusText: 'Referenced',
+    statusColor: '#4caf50',
     showStatusIndicator: true,
     onRemove: () => console.log('Remove button clicked'),
   },
@@ -151,7 +164,8 @@ export const AllFeatures: Story = {
   args: {
     image: characterImage,
     isSelected: true,
-    isReferenced: false,
+    statusText: 'Not referenced',
+    statusColor: '#ff9800',
     showStatusIndicator: true,
     onClick: () => console.log('Card clicked'),
     onRemove: () => console.log('Remove button clicked'),
@@ -162,7 +176,8 @@ export const StyleReference: Story = {
   args: {
     image: styleImage,
     isSelected: false,
-    isReferenced: true,
+    statusText: 'Referenced',
+    statusColor: '#4caf50',
     showStatusIndicator: true,
   },
   parameters: {
@@ -178,7 +193,8 @@ export const CharacterReference: Story = {
   args: {
     image: characterImage,
     isSelected: false,
-    isReferenced: true,
+    statusText: 'Referenced',
+    statusColor: '#4caf50',
     showStatusIndicator: true,
   },
   parameters: {
@@ -194,7 +210,8 @@ export const SceneReference: Story = {
   args: {
     image: sceneImage,
     isSelected: false,
-    isReferenced: true,
+    statusText: 'Referenced',
+    statusColor: '#4caf50',
     showStatusIndicator: true,
   },
   parameters: {

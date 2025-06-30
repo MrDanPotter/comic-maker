@@ -334,13 +334,16 @@ const ReferenceImageSelectorModal: React.FC<ReferenceImageSelectorModalProps> = 
               {referenceImages.map((image) => {
                 const isSelected = localSelectedImages.some(img => img.id === image.id);
                 const isReferenced = isImageReferencedInPrompt(image);
+                const statusText = isReferenced ? 'Referenced' : 'Not referenced';
+                const statusColor = isReferenced ? '#4caf50' : '#ff9800';
                 
                 return (
                   <ReferenceImageCard
                     key={image.id}
                     image={image}
                     isSelected={isSelected}
-                    isReferenced={isReferenced}
+                    statusText={statusText}
+                    statusColor={statusColor}
                     onClick={() => handleImageToggle(image)}
                     showStatusIndicator={false}
                   />
@@ -390,13 +393,16 @@ const ReferenceImageSelectorModal: React.FC<ReferenceImageSelectorModalProps> = 
                 {imageLibraryImages.map((image) => {
                   const isSelected = localSelectedLibraryImages.some(img => img.id === image.id);
                   const isReferenced = isLibraryImageReferencedInPrompt(image);
+                  const statusText = isReferenced ? 'Referenced' : 'Not referenced';
+                  const statusColor = isReferenced ? '#4caf50' : '#ff9800';
                   
                   return (
                     <ReferenceImageCard
                       key={image.id}
                       image={image}
                       isSelected={isSelected}
-                      isReferenced={isReferenced}
+                      statusText={statusText}
+                      statusColor={statusColor}
                       onClick={() => handleLibraryImageToggle(image)}
                       showStatusIndicator={false}
                     />

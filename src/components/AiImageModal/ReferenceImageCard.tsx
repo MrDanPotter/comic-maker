@@ -8,14 +8,15 @@ import ImageComponent, { ImageRef } from '../Image';
 interface ReferenceImageCardProps {
   image: ReferenceImage | Image;
   isSelected?: boolean;
-  isReferenced?: boolean;
+  statusText?: string;
+  statusColor?: string;
   showStatusIndicator?: boolean;
   onClick?: () => void;
   onRemove?: () => void;
   onExpand?: () => void;
 }
 
-const CardContainer = styled.div<{ $isSelected: boolean; $isReferenced: boolean; $isClickable: boolean }>`
+const CardContainer = styled.div<{ $isSelected: boolean; $isClickable: boolean }>`
   border: 2px solid ${props => props.$isSelected ? '#667eea' : '#e0e0e0'};
   border-radius: 8px;
   padding: 12px;
@@ -72,17 +73,10 @@ const CustomName = styled.span`
   font-style: italic;
 `;
 
-const StatusText = styled.span<{ $isReferenced: boolean }>`
+const StatusText = styled.span<{ $color: string }>`
   font-family: 'Roboto', sans-serif;
   font-size: 0.7rem;
-  color: ${props => props.$isReferenced ? '#4caf50' : '#ff9800'};
-  font-weight: 500;
-`;
-
-const ImageStatus = styled.span<{ $isUsed: boolean }>`
-  font-family: 'Roboto', sans-serif;
-  font-size: 0.7rem;
-  color: ${props => props.$isUsed ? '#4caf50' : '#ff9800'};
+  color: ${props => props.$color};
   font-weight: 500;
 `;
 
@@ -147,7 +141,8 @@ const ExpandButton = styled.button<{ $hasRemoveButton: boolean }>`
 const ReferenceImageCard: React.FC<ReferenceImageCardProps> = ({
   image,
   isSelected = false,
-  isReferenced = true,
+  statusText,
+  statusColor = '#4caf50',
   onClick,
   onRemove,
   onExpand,
@@ -162,14 +157,6 @@ const ReferenceImageCard: React.FC<ReferenceImageCardProps> = ({
 
   const isLibraryImage = (img: ReferenceImage | Image): img is Image => {
     return 'source' in img && 'isUsed' in img;
-  };
-
-  const getStatusText = (isReferenced: boolean): string => {
-    return isReferenced ? 'Referenced' : 'Not referenced';
-  };
-
-  const getLibraryStatusText = (isUsed: boolean): string => {
-    return isUsed ? 'Used in comic' : 'Available';
   };
 
   const handleExpand = () => {
@@ -205,24 +192,19 @@ const ReferenceImageCard: React.FC<ReferenceImageCardProps> = ({
   };
 
   const getStatusDisplay = () => {
-    if (isReferenceImage(image)) {
-      return showStatusIndicator ? (
-        <StatusText $isReferenced={isReferenced}>
-          {getStatusText(isReferenced)}
-        </StatusText>
-      ) : null;
+    if (!showStatusIndicator || !statusText) {
+      return null;
     }
     return (
-      <ImageStatus $isUsed={image.isUsed}>
-        {getLibraryStatusText(image.isUsed)}
-      </ImageStatus>
+      <StatusText $color={statusColor}>
+        {statusText}
+      </StatusText>
     );
   };
 
   return (
     <CardContainer
       $isSelected={isSelected}
-      $isReferenced={isReferenced}
       $isClickable={!!onClick}
       onClick={onClick}
     >
