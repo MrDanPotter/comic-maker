@@ -722,6 +722,7 @@ const AiImageModal: React.FC<AiImageModalProps> = ({
         onImagesSelected={handleReferenceImagesSelected}
         selectedImages={selectedReferenceImages}
         promptText={promptText}
+        onOpenContextModal={() => setShowSystemContextModal(true)}
       />
     </>
   );
