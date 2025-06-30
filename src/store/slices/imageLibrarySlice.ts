@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Image } from '../../types/comic';
+import { selectPageByPanelId } from './comicPagesSlice';
 
 interface ImageLibraryState {
   images: Image[];
@@ -54,5 +55,48 @@ export const selectUsedImages = (state: { imageLibrary: ImageLibraryState }) =>
   state.imageLibrary.images.filter(image => image.isUsed);
 export const selectUnusedImages = (state: { imageLibrary: ImageLibraryState }) => 
   state.imageLibrary.images.filter(image => !image.isUsed);
+
+// Utility selectors for finding page numbers
+export const selectImagePageNumbers = (state: { imageLibrary: ImageLibraryState; comicPages: any }, imageId: string) => {
+  const image = state.imageLibrary.images.find(img => img.id === imageId);
+  if (!image || !image.usedInPanels.length) return [];
+  
+  const pageNumbers: number[] = [];
+  const seenPages = new Set<string>();
+  
+  for (const panelId of image.usedInPanels) {
+    const page = selectPageByPanelId(state, panelId);
+    if (page && !seenPages.has(page.id)) {
+      pageNumbers.push(page.pageNumber);
+      seenPages.add(page.id);
+    }
+  }
+  
+  return pageNumbers.sort((a, b) => a - b);
+};
+
+export const selectImagePageInfo = (state: { imageLibrary: ImageLibraryState; comicPages: any }, imageId: string) => {
+  const image = state.imageLibrary.images.find(img => img.id === imageId);
+  if (!image || !image.usedInPanels.length) return [];
+  
+  const pageInfo: Array<{ pageNumber: number; pageId: string; panelIds: string[] }> = [];
+  const pageMap = new Map<string, { pageNumber: number; pageId: string; panelIds: string[] }>();
+  
+  for (const panelId of image.usedInPanels) {
+    const page = selectPageByPanelId(state, panelId);
+    if (page) {
+      if (!pageMap.has(page.id)) {
+        pageMap.set(page.id, {
+          pageNumber: page.pageNumber,
+          pageId: page.id,
+          panelIds: []
+        });
+      }
+      pageMap.get(page.id)!.panelIds.push(panelId);
+    }
+  }
+  
+  return Array.from(pageMap.values()).sort((a, b) => a.pageNumber - b.pageNumber);
+};
 
 export default imageLibrarySlice.reducer; 

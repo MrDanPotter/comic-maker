@@ -6,6 +6,7 @@ describe('Panel Utilities', () => {
     it('should calculate correct bounds for a rectangular panel', () => {
       const panel: Panel = {
         id: '1',
+        pageId: 'page-1',
         shape: 'polygon',
         points: [
           [0, 0],
@@ -28,6 +29,7 @@ describe('Panel Utilities', () => {
     it('should handle non-rectangular panels', () => {
       const panel: Panel = {
         id: '1',
+        pageId: 'page-1',
         shape: 'polygon',
         points: [
           [0, 0],
@@ -51,6 +53,7 @@ describe('Panel Utilities', () => {
   describe('findAdjacentPanels', () => {
     const basePanel: Panel = {
       id: '1',
+      pageId: 'page-1',
       shape: 'polygon',
       points: [
         [0, 0],
@@ -64,6 +67,7 @@ describe('Panel Utilities', () => {
     it('should find right adjacent panel', () => {
       const rightPanel: Panel = {
         id: '2',
+        pageId: 'page-1',
         shape: 'polygon',
         points: [
           [110, 0],
@@ -84,6 +88,7 @@ describe('Panel Utilities', () => {
     it('should find left adjacent panel', () => {
       const leftPanel: Panel = {
         id: '2',
+        pageId: 'page-1',
         shape: 'polygon',
         points: [
           [-110, 0],
@@ -104,6 +109,7 @@ describe('Panel Utilities', () => {
     it('should find bottom adjacent panel', () => {
       const bottomPanel: Panel = {
         id: '2',
+        pageId: 'page-1',
         shape: 'polygon',
         points: [
           [0, 110],
@@ -124,6 +130,7 @@ describe('Panel Utilities', () => {
     it('should find top adjacent panel', () => {
       const topPanel: Panel = {
         id: '2',
+        pageId: 'page-1',
         shape: 'polygon',
         points: [
           [0, -110],
@@ -144,6 +151,7 @@ describe('Panel Utilities', () => {
     it('should not find non-adjacent panels', () => {
       const farPanel: Panel = {
         id: '2',
+        pageId: 'page-1',
         shape: 'polygon',
         points: [
           [200, 200],
@@ -165,6 +173,7 @@ describe('Panel Utilities', () => {
   describe('processVerticalGaps', () => {
     const basePanel: Panel = {
       id: '1',
+      pageId: 'page-1',
       shape: 'polygon',
       points: [
         [0, 0],
@@ -178,6 +187,7 @@ describe('Panel Utilities', () => {
     it('should process right gap correctly', () => {
       const rightPanel: Panel = {
         id: '2',
+        pageId: 'page-1',
         shape: 'polygon',
         points: [
           [110, 0],
@@ -212,6 +222,7 @@ describe('Panel Utilities', () => {
   describe('processHorizontalGaps', () => {
     const basePanel: Panel = {
       id: '1',
+      pageId: 'page-1',
       shape: 'polygon',
       points: [
         [0, 0],
@@ -225,6 +236,7 @@ describe('Panel Utilities', () => {
     it('should process bottom gap correctly', () => {
       const bottomPanel: Panel = {
         id: '2',
+        pageId: 'page-1',
         shape: 'polygon',
         points: [
           [0, 110],
@@ -262,6 +274,7 @@ describe('Panel Utilities', () => {
         // Top left
         {
           id: '1',
+          pageId: 'page-1',
           shape: 'polygon',
           points: [
             [0, 0],
@@ -274,6 +287,7 @@ describe('Panel Utilities', () => {
         // Top right
         {
           id: '2',
+          pageId: 'page-1',
           shape: 'polygon',
           points: [
             [110, 0],
@@ -286,6 +300,7 @@ describe('Panel Utilities', () => {
         // Bottom left
         {
           id: '3',
+          pageId: 'page-1',
           shape: 'polygon',
           points: [
             [0, 110],
@@ -298,6 +313,7 @@ describe('Panel Utilities', () => {
         // Bottom right
         {
           id: '4',
+          pageId: 'page-1',
           shape: 'polygon',
           points: [
             [110, 110],
@@ -325,6 +341,7 @@ describe('Panel Utilities', () => {
       const panels: Panel[] = [
         {
           id: '1',
+          pageId: 'page-1',
           shape: 'polygon',
           points: [
             [0, 0],
@@ -344,6 +361,7 @@ describe('Panel Utilities', () => {
       const panels: Panel[] = [
         {
           id: '1',
+          pageId: 'page-1',
           shape: 'polygon',
           points: [
             [0, 0],
@@ -355,6 +373,7 @@ describe('Panel Utilities', () => {
         },
         {
           id: '2',
+          pageId: 'page-1',
           shape: 'polygon',
           points: [
             [50, 50],

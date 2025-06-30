@@ -258,8 +258,13 @@ function App() {
     const pageNumber = reduxPages.length + 1;
     const newPage: ComicPageType = {
       id: pageNumber.toString(),
+      pageNumber: pageNumber,
       panels: layouts[templateName](),
     };
+    //assign pageId to each panel
+    newPage.panels.forEach(panel => {
+      panel.pageId = newPage.id;
+    });
     dispatch(addPage(newPage));
     console.log('Added new page:', newPage.id);
     

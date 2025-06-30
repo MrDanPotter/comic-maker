@@ -7,6 +7,7 @@ import { PAGE_WIDTH, PAGE_HEIGHT, PAGE_MARGIN } from './consts';
 function createPanel(points: [number, number][]): Panel {
   return {
     id: uuidv4(),
+    pageId: '-1',
     shape: 'polygon',
     points,
     dropZone: getBoundingBox(points)

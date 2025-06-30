@@ -13,6 +13,7 @@ describe('Panel Transformations', () => {
   // Helper function to create a simple rectangular panel
   const createRectPanel = (x1: number, y1: number, x2: number, y2: number): Panel => ({
     id: 'test-id',
+    pageId: 'test-page',
     shape: 'polygon',
     points: [
       [x1, y1],

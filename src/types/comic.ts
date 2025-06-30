@@ -26,6 +26,7 @@ export interface Image {
 
 export interface Panel {
   id: string;
+  pageId: string; // Reference to the parent page
   shape: 'polygon';
   points: Point[];
   dropZone?: BoundingBox;
@@ -34,5 +35,6 @@ export interface Panel {
 
 export interface ComicPage {
   id: string;
+  pageNumber: number; // The order of this page in the comic (1-based)
   panels: Panel[];
 } 

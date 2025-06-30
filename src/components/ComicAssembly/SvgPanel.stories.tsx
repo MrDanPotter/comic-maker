@@ -36,6 +36,7 @@ export const EmptyPanel: Story = {
     ...baseArgs,
     panels: [{
       id: '1',
+      pageId: 'page-1',
       shape: 'polygon',
       points: [
         [50, 50],
@@ -59,6 +60,7 @@ export const WithImage: Story = {
     ...baseArgs,
     panels: [{
       id: '2',
+      pageId: 'page-1',
       shape: 'polygon',
       points: [
         [50, 50],
@@ -84,6 +86,7 @@ export const MultiplePanels: Story = {
     panels: [
       {
         id: '3',
+        pageId: 'page-1',
         shape: 'polygon',
         points: [
           [50, 50],
@@ -101,6 +104,7 @@ export const MultiplePanels: Story = {
       },
       {
         id: '4',
+        pageId: 'page-1',
         shape: 'polygon',
         points: [
           [225, 50],  // 175 + 50px spacing
@@ -128,6 +132,7 @@ export const ResizablePanels: Story = {
       // Left panel
       {
         id: '5',
+        pageId: 'page-1',
         shape: 'polygon',
         points: [
           [50, 50],
@@ -145,6 +150,7 @@ export const ResizablePanels: Story = {
       // Right panel
       {
         id: '6',
+        pageId: 'page-1',
         shape: 'polygon',
         points: [
           [425, 50],
@@ -162,6 +168,7 @@ export const ResizablePanels: Story = {
       // Bottom panel
       {
         id: '7',
+        pageId: 'page-1',
         shape: 'polygon',
         points: [
           [50, 400],
