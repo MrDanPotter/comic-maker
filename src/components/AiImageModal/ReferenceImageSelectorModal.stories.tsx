@@ -6,6 +6,8 @@ import { addReferenceImage } from '../../store/slices/appStateSlice';
 import { configureStore } from '@reduxjs/toolkit';
 import appStateReducer from '../../store/slices/appStateSlice';
 import type { ReferenceImageType } from '../../types/comic';
+import image133 from '../../assets/133-200x200.jpg';
+import image913 from '../../assets/913-300x300.jpg';
 
 const meta: Meta<typeof ReferenceImageSelectorModal> = {
   title: 'Components/AiImageModal/ReferenceImageSelectorModal',
@@ -39,27 +41,27 @@ type Story = StoryObj<typeof meta>;
 const sampleReferenceImages = [
   {
     id: '1',
-    url: 'https://picsum.photos/200/200?random=1',
+    url: image133,
     type: 'style' as ReferenceImageType,
     name: 'Comic Style Reference'
   },
   {
     id: '2',
-    url: 'https://picsum.photos/200/200?random=2',
+    url: image913,
     type: 'character' as ReferenceImageType,
     name: 'Hero Character',
     customName: 'Superhero'
   },
   {
     id: '3',
-    url: 'https://picsum.photos/200/200?random=3',
+    url: image133,
     type: 'scene' as ReferenceImageType,
     name: 'City Scene',
     customName: 'Metropolitan City'
   },
   {
     id: '4',
-    url: 'https://picsum.photos/200/200?random=4',
+    url: image913,
     type: 'character' as ReferenceImageType,
     name: 'Villain Character'
   }

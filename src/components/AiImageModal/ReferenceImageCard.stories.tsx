@@ -1,6 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import ReferenceImageCard from './ReferenceImageCard';
 import type { ReferenceImageType } from '../../types/comic';
+import image133 from '../../assets/133-200x200.jpg';
+import image913 from '../../assets/913-300x300.jpg';
 
 const meta: Meta<typeof ReferenceImageCard> = {
   title: 'Components/AiImageModal/ReferenceImageCard',
@@ -38,14 +40,14 @@ type Story = StoryObj<typeof meta>;
 // Sample reference images for testing
 const styleImage = {
   id: '1',
-  url: 'https://picsum.photos/200/200?random=1',
+  url: image133,
   type: 'style' as ReferenceImageType,
   name: 'Comic Style Reference'
 };
 
 const characterImage = {
   id: '2',
-  url: 'https://picsum.photos/200/200?random=2',
+  url: image913,
   type: 'character' as ReferenceImageType,
   name: 'Hero Character',
   customName: 'Superhero'
@@ -53,7 +55,7 @@ const characterImage = {
 
 const sceneImage = {
   id: '3',
-  url: 'https://picsum.photos/200/200?random=3',
+  url: image133,
   type: 'scene' as ReferenceImageType,
   name: 'City Scene',
   customName: 'Metropolitan City'
@@ -61,7 +63,7 @@ const sceneImage = {
 
 const characterImageNoName = {
   id: '4',
-  url: 'https://picsum.photos/200/200?random=4',
+  url: image913,
   type: 'character' as ReferenceImageType,
   name: 'Villain Character'
 };
