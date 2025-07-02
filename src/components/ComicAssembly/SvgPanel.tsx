@@ -82,11 +82,17 @@ const SvgPanel: React.FC<SvgPanelProps> = ({ panels, pageId, onPanelsUpdate, onP
   const [isResizing, setIsResizing] = useState(false);
   const [localPanels, setLocalPanels] = useState(panels);
   const [hoveredPanelId, setHoveredPanelId] = useState<string | null>(null);
+
+  // Log hovered panel changes
+  React.useEffect(() => {
+    console.log(`🔄 Hovered panel changed to: ${hoveredPanelId}`);
+  }, [hoveredPanelId]);
   const [showAiModal, setShowAiModal] = useState(false);
   const [selectedPanelId, setSelectedPanelId] = useState<string | null>(null);
 
   // Update local panels when prop changes
   React.useEffect(() => {
+    console.log(`📋 Updating local panels:`, panels.map(p => ({ id: p.id, hasImage: !!p.imageUrl })));
     setLocalPanels(panels);
   }, [panels]);
 
@@ -283,13 +289,82 @@ const SvgPanel: React.FC<SvgPanelProps> = ({ panels, pageId, onPanelsUpdate, onP
 
   // AI-related handlers
 const handlePanelMouseEnter = (panelId: string) => {
+    console.log(`🐭 Mouse ENTER panel: ${panelId}`);
     if (aiEnabled && apiKey) {
+      console.log(`✨ Setting hovered panel to: ${panelId}`);
       setHoveredPanelId(panelId);
+    } else {
+      console.log(`❌ AI not enabled or no API key`);
     }
   };
 
-  const handlePanelMouseLeave = () => {
-    setHoveredPanelId(null);
+  // Track mouse position globally
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+
+  // Update mouse position on mouse move
+  React.useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePosition({ x: e.clientX, y: e.clientY });
+    };
+    
+    document.addEventListener('mousemove', handleMouseMove);
+    return () => document.removeEventListener('mousemove', handleMouseMove);
+  }, []);
+
+  // Log mouse position changes (throttled to avoid spam)
+  React.useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      console.log(`📍 Mouse position updated: (${mousePosition.x}, ${mousePosition.y})`);
+    }, 100); // Only log every 100ms to avoid console spam
+    
+    return () => clearTimeout(timeoutId);
+  }, [mousePosition]);
+
+  const createMouseLeaveHandler = (panelId: string) => () => {
+    console.log(`🐭 Mouse LEAVE panel: ${panelId}`);
+    console.log(`📍 Current mouse position: (${mousePosition.x}, ${mousePosition.y})`);
+    
+    const panel = localPanels.find(p => p.id === panelId);
+    if (!panel) {
+      console.log(`❌ Panel not found: ${panelId}`);
+      return;
+    }
+    
+    const dropZone = panel.dropZone || { top: 0, left: 0, width: 0, height: 0 };
+    console.log(`📦 Panel dropZone:`, dropZone);
+    
+    // Get the SVG container's position
+    const svgContainer = document.querySelector('.comic-page-svg');
+    if (!svgContainer) {
+      console.log(`❌ SVG container not found`);
+      return;
+    }
+    
+    const rect = svgContainer.getBoundingClientRect();
+    console.log(`📐 SVG container rect:`, rect);
+    
+    const relativeX = mousePosition.x - rect.left;
+    const relativeY = mousePosition.y - rect.top;
+    console.log(`📍 Relative mouse position: (${relativeX}, ${relativeY})`);
+    
+    // Check if mouse is still within the panel bounds
+    const isWithinPanel = 
+      relativeX >= dropZone.left && 
+      relativeX <= dropZone.left + dropZone.width &&
+      relativeY >= dropZone.top && 
+      relativeY <= dropZone.top + dropZone.height;
+    
+    console.log(`🔍 Mouse within panel bounds: ${isWithinPanel}`);
+    console.log(`   X check: ${relativeX} >= ${dropZone.left} && ${relativeX} <= ${dropZone.left + dropZone.width}`);
+    console.log(`   Y check: ${relativeY} >= ${dropZone.top} && ${relativeY} <= ${dropZone.top + dropZone.height}`);
+    
+    // Only hide if mouse is truly outside the panel
+    if (!isWithinPanel) {
+      console.log(`👋 Hiding AI button for panel: ${panelId}`);
+      setHoveredPanelId(null);
+    } else {
+      console.log(`✅ Keeping AI button visible for panel: ${panelId}`);
+    }
   };
 
   const handleSparkleClick = (panelId: string) => {
@@ -380,14 +455,14 @@ const handlePanelMouseEnter = (panelId: string) => {
                   dropZone={dropZone}
                   isResizing={isResizing}
                   onMouseEnter={() => handlePanelMouseEnter(panel.id)}
-                  onMouseLeave={handlePanelMouseLeave}
+                  onMouseLeave={createMouseLeaveHandler(panel.id)}
                 />
               ) : (
                 <EmptyPanelPolygon 
                   d={svgPath} 
                   $isResizing={isResizing}
                   onMouseEnter={() => handlePanelMouseEnter(panel.id)}
-                  onMouseLeave={handlePanelMouseLeave}
+                  onMouseLeave={createMouseLeaveHandler(panel.id)}
                 />
               )}
             </AnimatedGroup>
@@ -411,11 +486,13 @@ const handlePanelMouseEnter = (panelId: string) => {
         {/* AI Sparkle Buttons - SVG elements inside the SVG container */}
         {aiEnabled && apiKey && localPanels.map(panel => {
           const dropZone = panel.dropZone || { top: 0, left: 0, width: 0, height: 0 };
+          const isVisible = hoveredPanelId === panel.id;
+          console.log(`🎨 Rendering AI button for panel ${panel.id}: visible=${isVisible}`);
           return (
             <AiSparkleButton
               key={`ai-button-${panel.id}`}
               onClick={() => handleSparkleClick(panel.id)}
-              isVisible={hoveredPanelId === panel.id}
+              isVisible={isVisible}
               x={dropZone.left + dropZone.width - 48}
               y={dropZone.top + 8}
             />
