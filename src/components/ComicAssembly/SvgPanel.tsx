@@ -1,15 +1,38 @@
 import React, { useMemo, useState, useCallback } from 'react';
 import styled from 'styled-components';
-import { Panel } from '../../types/comic';
+import { useAppSelector, useAppDispatch } from '../../store/store';
+import { selectAiEnabled, selectApiKey } from '../../store/slices/appStateSlice';
+import { addImage, selectAllImages } from '../../store/slices/imageLibrarySlice';
+import { ReferenceImage } from '../../services/imageGeneratorService';
+import { Panel, AspectRatio } from '../../types/comic';
 import { pointsToSvgPath } from '../../utils/polygonUtils';
 import { isRectangular } from '../../utils/mathUtils';
 import PanelImage from './PanelImage';
 import ResizeIndicator from './ResizeIndicator';
+import AiSparkleButton from './AiSparkleButton';
+import AiImageModal from '../AiImageModal';
 
+/**
+ * SvgPanel Component
+ * 
+ * Renders comic panels as SVG elements with the following features:
+ * - SVG-based panel rendering with support for non-rectangular shapes
+ * - Panel images with drag-and-drop positioning within panels
+ * - Resize indicators for adjacent panels
+ * - AI sparkle buttons (SVG elements) for image generation
+ * - Mouse event handling for panel hover detection
+ * 
+ * All inner components are SVG elements:
+ * - PanelImage: SVG image elements with clipping masks
+ * - EmptyPanelPolygon: SVG path elements for empty panels
+ * - ResizeIndicator: SVG line elements for resize handles
+ * - SvgAiSparkleButton: SVG group elements for AI buttons
+ */
 interface SvgPanelProps {
   panels: Panel[];
   pageId: string;
   onPanelsUpdate: (panels: Panel[]) => void;
+  onPanelImageUpdate: (panelId: string, imageUrl: string) => void;
 }
 
 const PanelContainer = styled.svg`
@@ -51,9 +74,16 @@ interface PanelBounds {
   bottom: number;
 }
 
-const SvgPanel: React.FC<SvgPanelProps> = ({ panels, pageId, onPanelsUpdate }) => {
+const SvgPanel: React.FC<SvgPanelProps> = ({ panels, pageId, onPanelsUpdate, onPanelImageUpdate }) => {
+  const aiEnabled = useAppSelector(selectAiEnabled);
+  const apiKey = useAppSelector(selectApiKey);
+  const allImages = useAppSelector(selectAllImages);
+  const dispatch = useAppDispatch();
   const [isResizing, setIsResizing] = useState(false);
   const [localPanels, setLocalPanels] = useState(panels);
+  const [hoveredPanelId, setHoveredPanelId] = useState<string | null>(null);
+  const [showAiModal, setShowAiModal] = useState(false);
+  const [selectedPanelId, setSelectedPanelId] = useState<string | null>(null);
 
   // Update local panels when prop changes
   React.useEffect(() => {
@@ -251,46 +281,162 @@ const SvgPanel: React.FC<SvgPanelProps> = ({ panels, pageId, onPanelsUpdate }) =
     setIsResizing(false);
   }, []);
 
-  return (
-    <PanelContainer className="comic-page-svg">
-      {localPanels.map(panel => {
-        const svgPath = pointsToSvgPath(panel.points);
-        const dropZone = panel.dropZone || { top: 0, left: 0, width: 0, height: 0 };
+  // AI-related handlers
+const handlePanelMouseEnter = (panelId: string) => {
+    if (aiEnabled && apiKey) {
+      setHoveredPanelId(panelId);
+    }
+  };
 
-        return (
-          <AnimatedGroup key={panel.id} $isResizing={isResizing}>
-            {panel.imageUrl ? (
-              <PanelImage
-                src={panel.imageUrl}
-                panelId={panel.id}
-                pageId={pageId}
-                width={dropZone.width}
-                height={dropZone.height}
-                points={panel.points}
-                dropZone={dropZone}
-                isResizing={isResizing}
-              />
-            ) : (
-              <EmptyPanelPolygon d={svgPath} $isResizing={isResizing} />
-            )}
-          </AnimatedGroup>
-        );
-      })}
-      {resizeGaps.map((gap, index) => (
-        <ResizeIndicator
-          key={`gap-${index}`}
-          x1={gap.x1}
-          y1={gap.y1}
-          x2={gap.x2}
-          y2={gap.y2}
-          isVertical={gap.isVertical}
-          panels={gap.panels}
-          onResize={handleResize}
-          onResizeStart={handleResizeStart}
-          onResizeEnd={handleResizeEnd}
+  const handlePanelMouseLeave = () => {
+    setHoveredPanelId(null);
+  };
+
+  const handleSparkleClick = (panelId: string) => {
+    setSelectedPanelId(panelId);
+    setShowAiModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowAiModal(false);
+    setSelectedPanelId(null);
+  };
+
+  const handleImageGenerated = (imageUrl: string, prompt?: string, referenceImages?: ReferenceImage[]) => {
+    if (selectedPanelId) {
+      onPanelImageUpdate(selectedPanelId, imageUrl);
+      
+      // Add AI-generated image to the library
+      const newImage = {
+        id: `ai-image-${Date.now()}`,
+        url: imageUrl,
+        isUsed: true,
+        usedInPanels: [selectedPanelId],
+        source: 'ai' as const,
+        isDownloaded: false,
+        prompt: prompt,
+        referenceImages: referenceImages
+      };
+      dispatch(addImage(newImage));
+    }
+  };
+
+  // Get existing image information for the selected panel
+  const getExistingImageInfo = (panelId: string) => {
+    const selectedPanel = localPanels.find(p => p.id === panelId);
+    if (!selectedPanel?.imageUrl) return { imageUrl: undefined, prompt: undefined, referenceImages: undefined };
+    
+    // Find the image in the library to get the prompt and reference images
+    const imageInLibrary = allImages.find(img => img.url === selectedPanel.imageUrl);
+    return {
+      imageUrl: selectedPanel.imageUrl,
+      prompt: imageInLibrary?.prompt,
+      referenceImages: imageInLibrary?.referenceImages
+    };
+  };
+
+  const getPanelAspectRatio = (panel: Panel): AspectRatio => {
+    const bounds = {
+      left: Math.min(...panel.points.map(p => p[0])),
+      right: Math.max(...panel.points.map(p => p[0])),
+      top: Math.min(...panel.points.map(p => p[1])),
+      bottom: Math.max(...panel.points.map(p => p[1]))
+    };
+    
+    const width = bounds.right - bounds.left;
+    const height = bounds.bottom - bounds.top;
+    
+    // Determine aspect ratio based on width vs height
+    if (Math.abs(width - height) < 200) {
+      return 'square';
+    } else if (width > height) {
+      return 'landscape';
+    } else {
+      return 'portrait';
+    }
+  };
+
+  const selectedPanel = selectedPanelId ? localPanels.find(p => p.id === selectedPanelId) : null;
+  const aspectRatio = selectedPanel ? getPanelAspectRatio(selectedPanel) : ('square' as AspectRatio);
+  const existingImageInfo = selectedPanelId ? getExistingImageInfo(selectedPanelId) : { imageUrl: undefined, prompt: undefined, referenceImages: undefined };
+
+    return (
+    <>
+      <PanelContainer className="comic-page-svg">
+        {localPanels.map(panel => {
+          const svgPath = pointsToSvgPath(panel.points);
+          const dropZone = panel.dropZone || { top: 0, left: 0, width: 0, height: 0 };
+
+          return (
+            <AnimatedGroup key={panel.id} $isResizing={isResizing}>
+              {panel.imageUrl ? (
+                <PanelImage
+                  src={panel.imageUrl}
+                  panelId={panel.id}
+                  pageId={pageId}
+                  width={dropZone.width}
+                  height={dropZone.height}
+                  points={panel.points}
+                  dropZone={dropZone}
+                  isResizing={isResizing}
+                  onMouseEnter={() => handlePanelMouseEnter(panel.id)}
+                  onMouseLeave={handlePanelMouseLeave}
+                />
+              ) : (
+                <EmptyPanelPolygon 
+                  d={svgPath} 
+                  $isResizing={isResizing}
+                  onMouseEnter={() => handlePanelMouseEnter(panel.id)}
+                  onMouseLeave={handlePanelMouseLeave}
+                />
+              )}
+            </AnimatedGroup>
+          );
+        })}
+        {resizeGaps.map((gap, index) => (
+          <ResizeIndicator
+            key={`gap-${index}`}
+            x1={gap.x1}
+            y1={gap.y1}
+            x2={gap.x2}
+            y2={gap.y2}
+            isVertical={gap.isVertical}
+            panels={gap.panels}
+            onResize={handleResize}
+            onResizeStart={handleResizeStart}
+            onResizeEnd={handleResizeEnd}
+          />
+        ))}
+        
+        {/* AI Sparkle Buttons - SVG elements inside the SVG container */}
+        {aiEnabled && apiKey && localPanels.map(panel => {
+          const dropZone = panel.dropZone || { top: 0, left: 0, width: 0, height: 0 };
+          return (
+            <AiSparkleButton
+              key={`ai-button-${panel.id}`}
+              onClick={() => handleSparkleClick(panel.id)}
+              isVisible={hoveredPanelId === panel.id}
+              x={dropZone.left + dropZone.width - 48}
+              y={dropZone.top + 8}
+            />
+          );
+        })}
+      </PanelContainer>
+      
+      {/* AI Image Generation Modal */}
+      {showAiModal && apiKey && (
+        <AiImageModal
+          isOpen={showAiModal}
+          onClose={handleCloseModal}
+          onImageGenerated={handleImageGenerated}
+          aspectRatio={aspectRatio}
+          apiKey={apiKey}
+          imageUrl={existingImageInfo.imageUrl}
+          existingPrompt={existingImageInfo.prompt}
+          existingReferenceImages={existingImageInfo.referenceImages}
         />
-      ))}
-    </PanelContainer>
+      )}
+    </>
   );
 };
 

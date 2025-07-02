@@ -1,87 +1,94 @@
 import React from 'react';
-import styled from 'styled-components';
 
-interface AiSparkleButtonProps {
+interface SvgAiSparkleButtonProps {
   onClick: () => void;
   isVisible: boolean;
+  x: number;
+  y: number;
+  size?: number;
 }
 
-const ButtonContainer = styled.div<{ $isVisible: boolean }>`
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  z-index: 10;
-  opacity: ${props => props.$isVisible ? 1 : 0};
-  transform: ${props => props.$isVisible ? 'scale(1)' : 'scale(0.8)'};
-  transition: all 0.2s ease;
-  pointer-events: ${props => props.$isVisible ? 'auto' : 'none'};
-`;
-
-const SparkleButton = styled.button`
-  width: 40px;
-  height: 40px;
-  border: none;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-  transition: all 0.2s ease;
-  position: relative;
-  overflow: hidden;
+// SVG version of the sparkle button
+const SvgAiSparkleButton: React.FC<SvgAiSparkleButtonProps> = ({ 
+  onClick, 
+  isVisible, 
+  x, 
+  y, 
+  size = 40 
+}) => {
+  const [isHovered, setIsHovered] = React.useState(false);
+  const radius = size / 2;
+  const centerX = x + radius;
+  const centerY = y + radius;
   
-  &:hover {
-    transform: scale(1.1);
-    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
-  }
-  
-  &:active {
-    transform: scale(0.95);
-  }
-  
-  &::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-    transform: rotate(45deg);
-    animation: sparkle 2s infinite;
-  }
-  
-  @keyframes sparkle {
-    0% {
-      transform: rotate(45deg) translateX(-100%);
-    }
-    100% {
-      transform: rotate(45deg) translateX(100%);
-    }
-  }
-`;
-
-const SparkleIcon = styled.div`
-  position: relative;
-  z-index: 1;
-  font-size: 24px;
-  
-  &::before {
-    content: '✨';
-  }
-`;
-
-const AiSparkleButton: React.FC<AiSparkleButtonProps> = ({ onClick, isVisible }) => {
   return (
-    <ButtonContainer $isVisible={isVisible}>
-      <SparkleButton onClick={onClick} title="Generate AI Image">
-        <SparkleIcon />
-      </SparkleButton>
-    </ButtonContainer>
+    <g
+      opacity={isVisible ? 1 : 0}
+      transform={`translate(${centerX}, ${centerY}) ${isHovered ? 'scale(1.05)' : 'scale(1)'} translate(${-centerX}, ${-centerY})`}
+      style={{
+        cursor: 'pointer',
+        pointerEvents: isVisible ? 'auto' : 'none',
+        transition: 'transform 0.2s ease'
+      }}
+      onClick={onClick}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      {/* Button background with gradient */}
+      <defs>
+        <radialGradient id={`sparkle-gradient-${x}-${y}`}>
+          <stop offset="0%" stopColor={isHovered ? "#a0b2f0" : "#8fa1e8"} />
+          <stop offset="100%" stopColor={isHovered ? "#ac8dc8" : "#9b7bb8"} />
+        </radialGradient>
+        <filter id={`sparkle-shadow-${x}-${y}`}>
+          <feDropShadow dx="0" dy="4" stdDeviation={isHovered ? "8" : "6"} floodColor="rgba(102, 126, 234, 0.3)" />
+        </filter>
+      </defs>
+      
+      {/* Main button circle */}
+      <circle
+        cx={centerX}
+        cy={centerY}
+        r={radius}
+        fill={`url(#sparkle-gradient-${x}-${y})`}
+        stroke="#000"
+        strokeWidth="2"
+      />
+      
+      {/* Sparkle icon (3 stars in triangular pattern) */}
+      <g transform={`translate(${centerX}, ${centerY})`}>
+        {/* Star 1 (top) - largest */}
+        <path
+          d="M0,-8 L2,-2 L8,0 L2,2 L0,8 L-2,2 L-8,0 L-2,-2 Z"
+          fill="white"
+          opacity="0.9"
+        />
+        <circle cx="0" cy="0" r="2" fill="white" opacity="0.7" />
+        
+        {/* Star 2 (bottom left) - medium */}
+        <path
+          d="M-6,4 L-4.5,7 L-1,8 L-4.5,9 L-6,12 L-7.5,9 L-11,8 L-7.5,7 Z"
+          fill="white"
+          opacity="0.9"
+        />
+        <circle cx="-6" cy="8" r="1.5" fill="white" opacity="0.7" />
+        
+        {/* Star 3 (bottom right) - smallest */}
+        <path
+          d="M6,4 L7.5,7 L11,8 L7.5,9 L6,12 L4.5,9 L1,8 L4.5,7 Z"
+          fill="white"
+          opacity="0.9"
+        />
+        <circle cx="6" cy="8" r="1" fill="white" opacity="0.7" />
+      </g>
+      
+
+    </g>
   );
 };
 
-export default AiSparkleButton; 
+// Export the SVG version as the default
+const AiSparkleButton = SvgAiSparkleButton;
+
+export default AiSparkleButton;
+export { SvgAiSparkleButton }; 

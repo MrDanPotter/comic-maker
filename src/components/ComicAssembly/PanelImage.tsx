@@ -12,6 +12,8 @@ interface PanelImageProps {
   points: Point[];
   dropZone: BoundingBox;
   isResizing?: boolean;
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
 }
 
 const PanelPolygon = styled.path<{ $isDragging: boolean; $isResizing: boolean }>`
@@ -39,6 +41,8 @@ const PanelImage: React.FC<PanelImageProps> = ({
   height,
   points,
   isResizing = false,
+  onMouseEnter,
+  onMouseLeave,
 }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -156,6 +160,8 @@ const PanelImage: React.FC<PanelImageProps> = ({
         d={svgPath}
         fill={`url(#pattern-${panelId})`}
         onMouseDown={handleMouseDown}
+        onMouseEnter={onMouseEnter}
+        onMouseLeave={onMouseLeave}
         $isDragging={isDragging}
         $isResizing={isResizing}
       />

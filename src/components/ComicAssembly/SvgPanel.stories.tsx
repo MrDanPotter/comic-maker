@@ -28,6 +28,7 @@ type Story = StoryObj<typeof meta>;
 const baseArgs = {
   pageId: 'page-1',
   onPanelsUpdate: console.log,
+  onPanelImageUpdate: console.log,
 };
 
 // Single empty panel

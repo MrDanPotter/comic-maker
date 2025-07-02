@@ -77,6 +77,7 @@ const ComicPage: React.FC<ComicPageProps> = ({
         panels={panels} 
         pageId={pageId} 
         onPanelsUpdate={onPanelsUpdate}
+        onPanelImageUpdate={onPanelImageUpdate}
       />
       <DragDropLayer 
         panels={panels} 
