@@ -298,31 +298,22 @@ const handlePanelMouseEnter = (panelId: string) => {
     }
   };
 
-  // Track mouse position globally
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  // Track mouse position with ref to avoid re-renders
+  const mousePosition = React.useRef({ x: 0, y: 0 });
 
   // Update mouse position on mouse move
   React.useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
+      mousePosition.current = { x: e.clientX, y: e.clientY };
     };
     
     document.addEventListener('mousemove', handleMouseMove);
     return () => document.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
-  // Log mouse position changes (throttled to avoid spam)
-  React.useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      console.log(`📍 Mouse position updated: (${mousePosition.x}, ${mousePosition.y})`);
-    }, 100); // Only log every 100ms to avoid console spam
-    
-    return () => clearTimeout(timeoutId);
-  }, [mousePosition]);
-
   const createMouseLeaveHandler = (panelId: string) => () => {
     console.log(`🐭 Mouse LEAVE panel: ${panelId}`);
-    console.log(`📍 Current mouse position: (${mousePosition.x}, ${mousePosition.y})`);
+    console.log(`📍 Current mouse position: (${mousePosition.current.x}, ${mousePosition.current.y})`);
     
     const panel = localPanels.find(p => p.id === panelId);
     if (!panel) {
@@ -343,8 +334,8 @@ const handlePanelMouseEnter = (panelId: string) => {
     const rect = svgContainer.getBoundingClientRect();
     console.log(`📐 SVG container rect:`, rect);
     
-    const relativeX = mousePosition.x - rect.left;
-    const relativeY = mousePosition.y - rect.top;
+    const relativeX = mousePosition.current.x - rect.left;
+    const relativeY = mousePosition.current.y - rect.top;
     console.log(`📍 Relative mouse position: (${relativeX}, ${relativeY})`);
     
     // Check if mouse is still within the panel bounds
