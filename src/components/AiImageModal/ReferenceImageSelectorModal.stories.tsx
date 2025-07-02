@@ -125,6 +125,7 @@ export const EmptyState: Story = {
             systemContext: '',
             useOpenAIImageGeneration: true,
             referenceImages: [], // Empty reference images
+            apiKeyAcknowledgement: false,
           },
         },
       });

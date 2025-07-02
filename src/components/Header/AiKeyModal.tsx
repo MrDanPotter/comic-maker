@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import Modal from '../shared/Modal';
+import { useAppDispatch, useAppSelector } from '../../store/store';
+import { setApiKeyAcknowledgement, selectApiKeyAcknowledgement } from '../../store/slices/appStateSlice';
 
 interface AiKeyModalProps {
   isOpen: boolean;
@@ -40,6 +42,36 @@ const Input = styled.input`
   &::placeholder {
     color: #999;
   }
+`;
+
+const CheckboxContainer = styled.div`
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 24px 0;
+  padding: 16px;
+  background: #f8f9fa;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+`;
+
+const Checkbox = styled.input`
+  margin: 0;
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  flex-shrink: 0;
+  margin-top: 2px;
+`;
+
+const CheckboxLabel = styled.label`
+  font-family: 'Roboto', sans-serif;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: #333;
+  cursor: pointer;
+  user-select: none;
+  margin: 0;
 `;
 
 const GuaranteeSection = styled.div`
@@ -217,12 +249,14 @@ const Button = styled.button<{ $isPrimary?: boolean; $isDisabled?: boolean }>`
 `;
 
 const AiKeyModal: React.FC<AiKeyModalProps> = ({ isOpen, onClose, onSubmit }) => {
+  const dispatch = useAppDispatch();
   const [apiKey, setApiKey] = useState('');
   const [openAccordion, setOpenAccordion] = useState<string>('guarantee');
+  const apiKeyAcknowledgement = useAppSelector(selectApiKeyAcknowledgement);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (apiKey.trim()) {
+    if (apiKey.trim() && apiKeyAcknowledgement) {
       onSubmit(apiKey.trim());
     }
   };
@@ -230,12 +264,19 @@ const AiKeyModal: React.FC<AiKeyModalProps> = ({ isOpen, onClose, onSubmit }) =>
   const handleClose = () => {
     setApiKey('');
     setOpenAccordion('guarantee');
+    dispatch(setApiKeyAcknowledgement(false));
     onClose();
   };
 
   const toggleAccordion = (section: string) => {
     setOpenAccordion(openAccordion === section ? 'guarantee' : section);
   };
+
+  const handleAcknowledgementChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    dispatch(setApiKeyAcknowledgement(e.target.checked));
+  };
+
+  const isSubmitDisabled = !apiKey.trim() || !apiKeyAcknowledgement;
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title="Bring Your Own Key" maxWidth="700px" minWidth="400px">
@@ -292,6 +333,7 @@ const AiKeyModal: React.FC<AiKeyModalProps> = ({ isOpen, onClose, onSubmit }) =>
                 <RiskList>
                   <RiskItem><strong>Pasting keys into random websites is discouraged.</strong> You have to take us at our word that we are not storing or misusing your key.</RiskItem>
                   <RiskItem><strong>Billing exposure.</strong> Every prompt counts against your OpenAI quota. We will provide estimates for the cost of the prompt.</RiskItem>
+                  <RiskItem><strong>Unexpected charges.</strong> We are not responsible for any unexpected charges or billing errors.</RiskItem>
                 </RiskList>
               </AccordionInner>
             </AccordionContent>
@@ -351,6 +393,18 @@ const AiKeyModal: React.FC<AiKeyModalProps> = ({ isOpen, onClose, onSubmit }) =>
           </AccordionItem>
         </AccordionContainer>
 
+        <CheckboxContainer>
+          <Checkbox
+            id="api-key-acknowledgement"
+            type="checkbox"
+            checked={apiKeyAcknowledgement}
+            onChange={handleAcknowledgementChange}
+          />
+          <CheckboxLabel htmlFor="api-key-acknowledgement">
+            I have read this information and acknowledge the risks of entering my key
+          </CheckboxLabel>
+        </CheckboxContainer>
+
         <ButtonContainer>
           <Button type="button" onClick={handleClose}>
             Cancel
@@ -358,8 +412,8 @@ const AiKeyModal: React.FC<AiKeyModalProps> = ({ isOpen, onClose, onSubmit }) =>
           <Button 
             type="submit" 
             $isPrimary 
-            $isDisabled={!apiKey.trim()}
-            disabled={!apiKey.trim()}
+            $isDisabled={isSubmitDisabled}
+            disabled={isSubmitDisabled}
           >
             Submit
           </Button>
