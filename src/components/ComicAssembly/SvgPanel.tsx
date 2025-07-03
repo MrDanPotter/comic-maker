@@ -324,18 +324,34 @@ const handlePanelMouseEnter = (panelId: string) => {
     const dropZone = panel.dropZone || { top: 0, left: 0, width: 0, height: 0 };
     console.log(`📦 Panel dropZone:`, dropZone);
     
-    // Get the SVG container's position
-    const svgContainer = document.querySelector('.comic-page-svg');
+    // Find the specific SVG container for this page by looking for the event target's parent
+    // We need to find the SVG container that contains this specific panel
+    const svgContainers = document.querySelectorAll('.comic-page-svg');
+    let svgContainer = null;
+    
+    // Find the SVG container that contains this panel
+    for (const container of Array.from(svgContainers)) {
+      const panelElement = container.querySelector(`[data-panel-id="${panelId}"]`);
+      if (panelElement) {
+        svgContainer = container;
+        break;
+      }
+    }
+    
     if (!svgContainer) {
-      console.log(`❌ SVG container not found`);
+      console.log(`❌ SVG container not found for panel: ${panelId}`);
       return;
     }
     
     const rect = svgContainer.getBoundingClientRect();
     console.log(`📐 SVG container rect:`, rect);
     
+    // Both mouse position and getBoundingClientRect() are viewport-relative
+    // So we can directly subtract to get coordinates relative to the SVG container
     const relativeX = mousePosition.current.x - rect.left;
     const relativeY = mousePosition.current.y - rect.top;
+    console.log(`📍 Mouse position (viewport): (${mousePosition.current.x}, ${mousePosition.current.y})`);
+    console.log(`📍 SVG container rect: left=${rect.left}, top=${rect.top}`);
     console.log(`📍 Relative mouse position: (${relativeX}, ${relativeY})`);
     
     // Check if mouse is still within the panel bounds
@@ -434,7 +450,7 @@ const handlePanelMouseEnter = (panelId: string) => {
           const dropZone = panel.dropZone || { top: 0, left: 0, width: 0, height: 0 };
 
           return (
-            <AnimatedGroup key={panel.id} $isResizing={isResizing}>
+            <AnimatedGroup key={panel.id} $isResizing={isResizing} data-panel-id={panel.id}>
               {panel.imageUrl ? (
                 <PanelImage
                   src={panel.imageUrl}
