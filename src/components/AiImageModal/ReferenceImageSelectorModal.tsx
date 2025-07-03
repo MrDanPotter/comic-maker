@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { ChevronDown, ChevronRight, AlertTriangle } from 'react-feather';
+import { ChevronRight, AlertTriangle } from 'react-feather';
 import { useAppSelector } from '../../store/store';
 import { selectReferenceImages, ReferenceImage } from '../../store/slices/appStateSlice';
 import { selectAllImages } from '../../store/slices/imageLibrarySlice';
@@ -97,12 +97,6 @@ const SectionTitle = styled.h3`
   margin: 0 0 16px 0;
   padding-bottom: 8px;
   border-bottom: 2px solid #f0f0f0;
-`;
-
-const SectionDivider = styled.div`
-  height: 1px;
-  background: #e0e0e0;
-  margin: 32px 0;
 `;
 
 const WarningContainer = styled.div`

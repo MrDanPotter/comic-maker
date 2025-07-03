@@ -79,7 +79,6 @@ export const selectImagePageInfo = (state: { imageLibrary: ImageLibraryState; co
   const image = state.imageLibrary.images.find(img => img.id === imageId);
   if (!image || !image.usedInPanels.length) return [];
   
-  const pageInfo: Array<{ pageNumber: number; pageId: string; panelIds: string[] }> = [];
   const pageMap = new Map<string, { pageNumber: number; pageId: string; panelIds: string[] }>();
   
   for (const panelId of image.usedInPanels) {

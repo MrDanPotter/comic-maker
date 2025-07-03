@@ -116,11 +116,6 @@ async function addReferenceImagesToContent(content: any[], referenceImages: Refe
     sortedReferenceImages.unshift(...styleImages);
   }
 
-  // Add character and scene references
-  const characterAndSceneRefs = referenceImages?.filter(refImage => 
-    refImage.type === 'character' as ReferenceImageType || refImage.type === 'scene' as ReferenceImageType
-  ) || [];
-
   // Add reference images as base64 data
   for (const refImage of sortedReferenceImages) {
     try {

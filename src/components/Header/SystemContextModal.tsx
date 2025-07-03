@@ -179,7 +179,7 @@ const ReferenceImageName = styled.span`
   color: #333;
 `;
 
-const ReferenceImageType = styled.span`
+const ReferenceImageTypeContainer = styled.span`
   font-family: 'Roboto', sans-serif;
   font-size: 0.8rem;
   color: #667eea;
@@ -469,7 +469,7 @@ const SystemContextModal: React.FC<SystemContextModalProps> = ({
                 </ReferenceImageThumbnail>
                 <ReferenceImageInfo>
                   <ReferenceImageName>{image.name}</ReferenceImageName>
-                  <ReferenceImageType>{image.type}</ReferenceImageType>
+                  <ReferenceImageTypeContainer>{image.type}</ReferenceImageTypeContainer>
                   {(image.type === 'character' || image.type === 'scene') && (
                     <NameInputContainer>
                       <NameInputLabel htmlFor={`name-${image.id}`}>
