@@ -84,15 +84,11 @@ const SvgPanel: React.FC<SvgPanelProps> = ({ panels, pageId, onPanelsUpdate, onP
   const [hoveredPanelId, setHoveredPanelId] = useState<string | null>(null);
 
   // Log hovered panel changes
-  React.useEffect(() => {
-    console.log(`🔄 Hovered panel changed to: ${hoveredPanelId}`);
-  }, [hoveredPanelId]);
   const [showAiModal, setShowAiModal] = useState(false);
   const [selectedPanelId, setSelectedPanelId] = useState<string | null>(null);
 
   // Update local panels when prop changes
   React.useEffect(() => {
-    console.log(`📋 Updating local panels:`, panels.map(p => ({ id: p.id, hasImage: !!p.imageUrl })));
     setLocalPanels(panels);
   }, [panels]);
 
@@ -289,12 +285,8 @@ const SvgPanel: React.FC<SvgPanelProps> = ({ panels, pageId, onPanelsUpdate, onP
 
   // AI-related handlers
 const handlePanelMouseEnter = (panelId: string) => {
-    console.log(`🐭 Mouse ENTER panel: ${panelId}`);
     if (aiEnabled && apiKey) {
-      console.log(`✨ Setting hovered panel to: ${panelId}`);
       setHoveredPanelId(panelId);
-    } else {
-      console.log(`❌ AI not enabled or no API key`);
     }
   };
 
@@ -312,17 +304,12 @@ const handlePanelMouseEnter = (panelId: string) => {
   }, []);
 
   const createMouseLeaveHandler = (panelId: string) => () => {
-    console.log(`🐭 Mouse LEAVE panel: ${panelId}`);
-    console.log(`📍 Current mouse position: (${mousePosition.current.x}, ${mousePosition.current.y})`);
-    
     const panel = localPanels.find(p => p.id === panelId);
     if (!panel) {
-      console.log(`❌ Panel not found: ${panelId}`);
       return;
     }
     
     const dropZone = panel.dropZone || { top: 0, left: 0, width: 0, height: 0 };
-    console.log(`📦 Panel dropZone:`, dropZone);
     
     // Find the specific SVG container for this page by looking for the event target's parent
     // We need to find the SVG container that contains this specific panel
@@ -339,20 +326,15 @@ const handlePanelMouseEnter = (panelId: string) => {
     }
     
     if (!svgContainer) {
-      console.log(`❌ SVG container not found for panel: ${panelId}`);
       return;
     }
     
     const rect = svgContainer.getBoundingClientRect();
-    console.log(`📐 SVG container rect:`, rect);
     
     // Both mouse position and getBoundingClientRect() are viewport-relative
     // So we can directly subtract to get coordinates relative to the SVG container
     const relativeX = mousePosition.current.x - rect.left;
     const relativeY = mousePosition.current.y - rect.top;
-    console.log(`📍 Mouse position (viewport): (${mousePosition.current.x}, ${mousePosition.current.y})`);
-    console.log(`📍 SVG container rect: left=${rect.left}, top=${rect.top}`);
-    console.log(`📍 Relative mouse position: (${relativeX}, ${relativeY})`);
     
     // Check if mouse is still within the panel bounds
     const isWithinPanel = 
@@ -361,16 +343,9 @@ const handlePanelMouseEnter = (panelId: string) => {
       relativeY >= dropZone.top && 
       relativeY <= dropZone.top + dropZone.height;
     
-    console.log(`🔍 Mouse within panel bounds: ${isWithinPanel}`);
-    console.log(`   X check: ${relativeX} >= ${dropZone.left} && ${relativeX} <= ${dropZone.left + dropZone.width}`);
-    console.log(`   Y check: ${relativeY} >= ${dropZone.top} && ${relativeY} <= ${dropZone.top + dropZone.height}`);
-    
     // Only hide if mouse is truly outside the panel
     if (!isWithinPanel) {
-      console.log(`👋 Hiding AI button for panel: ${panelId}`);
       setHoveredPanelId(null);
-    } else {
-      console.log(`✅ Keeping AI button visible for panel: ${panelId}`);
     }
   };
 
@@ -494,7 +469,6 @@ const handlePanelMouseEnter = (panelId: string) => {
         {aiEnabled && apiKey && localPanels.map(panel => {
           const dropZone = panel.dropZone || { top: 0, left: 0, width: 0, height: 0 };
           const isVisible = hoveredPanelId === panel.id;
-          console.log(`🎨 Rendering AI button for panel ${panel.id}: visible=${isVisible}`);
           return (
             <AiSparkleButton
               key={`ai-button-${panel.id}`}
