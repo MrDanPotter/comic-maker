@@ -242,6 +242,7 @@ function App() {
         if (e.target?.result) {
           const newImage = {
             id: `image-${Date.now()}-${file.name}`,
+            name: file.name,
             url: e.target.result as string,
             isUsed: false,
             usedInPanels: [],

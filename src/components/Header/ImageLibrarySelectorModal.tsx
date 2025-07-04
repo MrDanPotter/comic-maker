@@ -93,7 +93,7 @@ const ImageLibrarySelectorModal: React.FC<ImageLibrarySelectorModalProps> = ({
           id: selectedImage.id,
           url: selectedImage.url,
           type: imageType,
-          name: selectedImage.url.split('/').pop() || 'image.jpg'
+          name: selectedImage.name
         };
         onImageSelected(referenceImage);
         onClose();

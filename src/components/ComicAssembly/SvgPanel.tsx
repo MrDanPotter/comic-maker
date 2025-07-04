@@ -366,6 +366,7 @@ const handlePanelMouseEnter = (panelId: string) => {
       // Add AI-generated image to the library
       const newImage = {
         id: `ai-image-${Date.now()}`,
+        name: 'AI Generated Image',
         url: imageUrl,
         isUsed: true,
         usedInPanels: [selectedPanelId],
