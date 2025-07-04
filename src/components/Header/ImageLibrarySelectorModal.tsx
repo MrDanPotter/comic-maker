@@ -5,7 +5,7 @@ import { selectAllImages } from '../../store/slices/imageLibrarySlice';
 import { ReferenceImage } from '../../store/slices/appStateSlice';
 import type { ReferenceImageType } from '../../types/comic';
 import Modal from '../shared/Modal';
-import Image from '../shared/Image';
+import ReferenceImageCard from '../shared/ReferenceImageCard/ReferenceImageCard';
 
 interface ImageLibrarySelectorModalProps {
   isOpen: boolean;
@@ -23,37 +23,7 @@ const ImageGrid = styled.div`
   padding: 16px;
 `;
 
-const ImageCard = styled.div<{ $isSelected: boolean }>`
-  border: 2px solid ${props => props.$isSelected ? '#667eea' : '#e0e0e0'};
-  border-radius: 8px;
-  padding: 8px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  background: ${props => props.$isSelected ? '#f0f4ff' : 'white'};
-  
-  &:hover {
-    border-color: #667eea;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
-  }
-`;
 
-const ImageContainer = styled.div`
-  width: 100%;
-  height: 80px;
-  border-radius: 4px;
-  overflow: hidden;
-  margin-bottom: 8px;
-`;
-
-const ImageName = styled.div`
-  font-family: 'Roboto', sans-serif;
-  font-size: 0.8rem;
-  color: #555;
-  text-align: center;
-  word-break: break-word;
-  line-height: 1.2;
-`;
 
 const ButtonContainer = styled.div`
   display: flex;
@@ -147,26 +117,13 @@ const ImageLibrarySelectorModal: React.FC<ImageLibrarySelectorModalProps> = ({
         <>
           <ImageGrid>
             {images.map((image) => (
-              <ImageCard
+              <ReferenceImageCard
                 key={image.id}
-                $isSelected={selectedImageId === image.id}
+                image={image}
+                isSelected={selectedImageId === image.id}
                 onClick={() => handleImageSelect(image.id)}
-              >
-                <ImageContainer>
-                  <Image
-                    src={image.url}
-                    alt={image.url.split('/').pop() || 'image'}
-                    width="100%"
-                    height="80px"
-                    borderRadius="4px"
-                    expandOnClick={true}
-                    title="Click to view full resolution"
-                  />
-                </ImageContainer>
-                <ImageName>
-                  {image.url.split('/').pop() || 'image.jpg'}
-                </ImageName>
-              </ImageCard>
+                showStatusIndicator={false}
+              />
             ))}
           </ImageGrid>
           
