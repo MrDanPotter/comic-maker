@@ -70,7 +70,9 @@ const characterImageNoName = {
 
 export const Default: Story = {
   args: {
-    image: styleImage,
+    url: styleImage.url,
+    alt: styleImage.name,
+    type: styleImage.type,
     isSelected: false,
     statusText: 'Referenced',
     statusColor: '#4caf50',
@@ -80,7 +82,10 @@ export const Default: Story = {
 
 export const Selected: Story = {
   args: {
-    image: characterImage,
+    url: characterImage.url,
+    alt: characterImage.name,
+    type: characterImage.type,
+    customName: characterImage.customName,
     isSelected: true,
     statusText: 'Referenced',
     statusColor: '#4caf50',
@@ -90,7 +95,10 @@ export const Selected: Story = {
 
 export const Unreferenced: Story = {
   args: {
-    image: sceneImage,
+    url: sceneImage.url,
+    alt: sceneImage.name,
+    type: sceneImage.type,
+    customName: sceneImage.customName,
     isSelected: false,
     statusText: 'Not referenced',
     statusColor: '#ff9800',
@@ -100,7 +108,9 @@ export const Unreferenced: Story = {
 
 export const Clickable: Story = {
   args: {
-    image: styleImage,
+    url: styleImage.url,
+    alt: styleImage.name,
+    type: styleImage.type,
     isSelected: false,
     statusText: 'Referenced',
     statusColor: '#4caf50',
@@ -111,7 +121,9 @@ export const Clickable: Story = {
 
 export const WithExpandButton: Story = {
   args: {
-    image: styleImage,
+    url: styleImage.url,
+    alt: styleImage.name,
+    type: styleImage.type,
     isSelected: false,
     statusText: 'Referenced',
     statusColor: '#4caf50',
@@ -121,7 +133,10 @@ export const WithExpandButton: Story = {
 
 export const WithRemoveButton: Story = {
   args: {
-    image: characterImage,
+    url: characterImage.url,
+    alt: characterImage.name,
+    type: characterImage.type,
+    customName: characterImage.customName,
     isSelected: false,
     statusText: 'Referenced',
     statusColor: '#4caf50',
@@ -132,7 +147,10 @@ export const WithRemoveButton: Story = {
 
 export const SelectedWithRemove: Story = {
   args: {
-    image: sceneImage,
+    url: sceneImage.url,
+    alt: sceneImage.name,
+    type: sceneImage.type,
+    customName: sceneImage.customName,
     isSelected: true,
     statusText: 'Not referenced',
     statusColor: '#ff9800',
@@ -143,7 +161,9 @@ export const SelectedWithRemove: Story = {
 
 export const NoStatusIndicator: Story = {
   args: {
-    image: characterImageNoName,
+    url: characterImageNoName.url,
+    alt: characterImageNoName.name,
+    type: characterImageNoName.type,
     isSelected: false,
     statusText: 'Referenced',
     statusColor: '#4caf50',
@@ -153,7 +173,10 @@ export const NoStatusIndicator: Story = {
 
 export const WithExpandAndRemove: Story = {
   args: {
-    image: sceneImage,
+    url: sceneImage.url,
+    alt: sceneImage.name,
+    type: sceneImage.type,
+    customName: sceneImage.customName,
     isSelected: false,
     statusText: 'Referenced',
     statusColor: '#4caf50',
@@ -164,7 +187,10 @@ export const WithExpandAndRemove: Story = {
 
 export const AllFeatures: Story = {
   args: {
-    image: characterImage,
+    url: characterImage.url,
+    alt: characterImage.name,
+    type: characterImage.type,
+    customName: characterImage.customName,
     isSelected: true,
     statusText: 'Not referenced',
     statusColor: '#ff9800',
@@ -176,7 +202,9 @@ export const AllFeatures: Story = {
 
 export const StyleReference: Story = {
   args: {
-    image: styleImage,
+    url: styleImage.url,
+    alt: styleImage.name,
+    type: styleImage.type,
     isSelected: false,
     statusText: 'Referenced',
     statusColor: '#4caf50',
@@ -193,7 +221,10 @@ export const StyleReference: Story = {
 
 export const CharacterReference: Story = {
   args: {
-    image: characterImage,
+    url: characterImage.url,
+    alt: characterImage.name,
+    type: characterImage.type,
+    customName: characterImage.customName,
     isSelected: false,
     statusText: 'Referenced',
     statusColor: '#4caf50',
@@ -210,7 +241,10 @@ export const CharacterReference: Story = {
 
 export const SceneReference: Story = {
   args: {
-    image: sceneImage,
+    url: sceneImage.url,
+    alt: sceneImage.name,
+    type: sceneImage.type,
+    customName: sceneImage.customName,
     isSelected: false,
     statusText: 'Referenced',
     statusColor: '#4caf50',

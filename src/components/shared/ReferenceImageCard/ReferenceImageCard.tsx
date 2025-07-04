@@ -1,12 +1,13 @@
 import React, { useRef } from 'react';
 import styled from 'styled-components';
 import { X, Maximize2 } from 'react-feather';
-import { ReferenceImage } from '../../../store/slices/appStateSlice';
-import { Image } from '../../../types/comic';
 import ImageComponent, { ImageRef } from '../Image';
 
 interface ReferenceImageCardProps {
-  image: ReferenceImage | Image;
+  url: string;
+  alt?: string;
+  type?: string;
+  customName?: string;
   isSelected?: boolean;
   statusText?: string;
   statusColor?: string;
@@ -58,13 +59,7 @@ const ImageType = styled.span`
   text-transform: capitalize;
 `;
 
-const ImageSource = styled.span`
-  font-family: 'Roboto', sans-serif;
-  font-size: 0.8rem;
-  color: #667eea;
-  font-weight: 500;
-  text-transform: capitalize;
-`;
+
 
 const CustomName = styled.span`
   font-family: 'Roboto', sans-serif;
@@ -139,7 +134,10 @@ const ExpandButton = styled.button<{ $hasRemoveButton: boolean }>`
 `;
 
 const ReferenceImageCard: React.FC<ReferenceImageCardProps> = ({
-  image,
+  url,
+  alt,
+  type,
+  customName,
   isSelected = false,
   statusText,
   statusColor = '#4caf50',
@@ -150,15 +148,6 @@ const ReferenceImageCard: React.FC<ReferenceImageCardProps> = ({
 }) => {
   const imageRef = useRef<ImageRef>(null);
 
-  // Type guards to determine image type
-  const isReferenceImage = (img: ReferenceImage | Image): img is ReferenceImage => {
-    return 'type' in img && 'name' in img;
-  };
-
-  const isLibraryImage = (img: ReferenceImage | Image): img is Image => {
-    return 'source' in img && 'isUsed' in img;
-  };
-
   const handleExpand = () => {
     if (onExpand) {
       onExpand();
@@ -168,27 +157,7 @@ const ReferenceImageCard: React.FC<ReferenceImageCardProps> = ({
   };
 
   const getImageAlt = () => {
-    if (isReferenceImage(image)) {
-      return image.name;
-    }
-    return `Image ${image.id}`;
-  };
-
-  const getImageType = () => {
-    if (isReferenceImage(image)) {
-      return image.type;
-    }
-    return image.source;
-  };
-
-  const getCustomName = () => {
-    if (isReferenceImage(image)) {
-      return image.customName;
-    }
-    if (isLibraryImage(image) && image.source === 'ai' && image.prompt) {
-      return image.prompt;
-    }
-    return undefined;
+    return alt || 'Image';
   };
 
   const getStatusDisplay = () => {
@@ -234,7 +203,7 @@ const ReferenceImageCard: React.FC<ReferenceImageCardProps> = ({
       <ImageContainer>
         <ImageComponent
           ref={imageRef}
-          src={image.url}
+          src={url}
           alt={getImageAlt()}
           width="100%"
           height="100%"
@@ -244,13 +213,11 @@ const ReferenceImageCard: React.FC<ReferenceImageCardProps> = ({
       </ImageContainer>
       
       <ImageInfo>
-        {isReferenceImage(image) ? (
-          <ImageType>{getImageType()}</ImageType>
-        ) : (
-          <ImageSource>{getImageType()}</ImageSource>
+        {type && (
+          <ImageType>{type}</ImageType>
         )}
-        {getCustomName() && (
-          <CustomName>"{getCustomName()}"</CustomName>
+        {customName && (
+          <CustomName>"{customName}"</CustomName>
         )}
         {getStatusDisplay()}
       </ImageInfo>

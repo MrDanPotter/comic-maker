@@ -628,7 +628,10 @@ const AiImageModal: React.FC<AiImageModalProps> = ({
                       return (
                         <ReferenceImageCard
                           key={image.id}
-                          image={image}
+                          url={image.url}
+                          alt={image.name}
+                          type={image.type}
+                          customName={image.customName}
                           statusText={statusText}
                           statusColor={statusColor}
                           showStatusIndicator={true}

@@ -119,7 +119,9 @@ const ImageLibrarySelectorModal: React.FC<ImageLibrarySelectorModalProps> = ({
             {images.map((image) => (
               <ReferenceImageCard
                 key={image.id}
-                image={image}
+                url={image.url}
+                alt={image.url.split('/').pop() || 'image'}
+                customName={image.source === 'ai' && image.prompt ? image.prompt : undefined}
                 isSelected={selectedImageId === image.id}
                 onClick={() => handleImageSelect(image.id)}
                 showStatusIndicator={false}

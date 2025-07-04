@@ -334,7 +334,10 @@ const ReferenceImageSelectorModal: React.FC<ReferenceImageSelectorModalProps> = 
                 return (
                   <ReferenceImageCard
                     key={image.id}
-                    image={image}
+                    url={image.url}
+                    alt={image.name}
+                    type={`${image.type} Reference`}
+                    customName={image.customName}
                     isSelected={isSelected}
                     statusText={statusText}
                     statusColor={statusColor}
@@ -393,7 +396,9 @@ const ReferenceImageSelectorModal: React.FC<ReferenceImageSelectorModalProps> = 
                   return (
                     <ReferenceImageCard
                       key={image.id}
-                      image={image}
+                      url={image.url}
+                      alt={image.url.split('/').pop() || 'image'}
+                      customName={image.source === 'ai' && image.prompt ? image.prompt : undefined}
                       isSelected={isSelected}
                       statusText={statusText}
                       statusColor={statusColor}
