@@ -39,21 +39,85 @@ code {
 }
 
 @media print {
-  /* Hide template selector and image library during print */
-  body > div > div:first-child > div:first-child,
-  body > div > div:first-child > div:last-child {
+  /* Hide header during print */
+  header {
     display: none !important;
   }
 
-  /* Reset the comic container margin to center the comic page */
-  body > div > div:first-child > div:nth-child(2) {
+  /* Hide template selector and image library side panels during print */
+  .DesktopSidePanels {
+    display: none !important;
+  }
+
+  /* Hide bottom panel during print */
+  .BottomPanel {
+    display: none !important;
+  }
+
+  /* Reset the comic container styling for print */
+  .ComicContainer {
     margin: 0 !important;
     padding: 0 !important;
     overflow: visible !important;
+    flex: none !important;
   }
 
-  /* Remove background color during print */
+  /* Remove background color and shadows during print */
   body {
     background: none !important;
+  }
+
+  /* Ensure comic pages print properly */
+  .PageContainer {
+    margin: 0 !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  /* Hide page controls during print */
+  .PageControlsWrapper {
+    display: none !important;
+  }
+
+  /* Hide page controls during print */
+  .PageControls {
+    display: none !important;
+  }
+
+  /* Hide print button during print */
+  .PrintButton {
+    display: none !important;
+  }
+
+  /* Ensure the app container doesn't interfere with print layout */
+  .AppContainer {
+    display: block !important;
+    flex-direction: column !important;
+    min-height: auto !important;
+    padding-top: 0 !important;
+    background: none !important;
+  }
+
+  /* Hide all modals during print */
+  .ModalOverlay {
+    display: none !important;
+  }
+
+  /* Hide any other UI overlays during print */
+  [role="dialog"],
+  [aria-modal="true"] {
+    display: none !important;
+  }
+
+  /* Hide tooltips during print */
+  .Tooltip {
+    display: none !important;
+  }
+
+  /* Hide AI sparkle buttons during print */
+  .AiSparkleButton {
+    display: none !important;
   }
 }

@@ -31,6 +31,10 @@ const Container = styled.div`
   &:hover {
     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
   }
+  
+  &.PageControls {
+    /* This class is used for print styles */
+  }
 `;
 
 const PageNumber = styled.div`
@@ -146,7 +150,7 @@ const PageControls: React.FC<PageControlsProps> = ({
   isLastPage = false 
 }) => {
   return (
-    <Container>
+    <Container className="PageControls">
       {!isFirstPage && onMoveUp && (
         <ArrowButton onClick={onMoveUp} title="Move page up">
           <ArrowUpIcon />

@@ -23,6 +23,7 @@ const SvgAiSparkleButton: React.FC<SvgAiSparkleButtonProps> = ({
   
   return (
     <g
+      className="AiSparkleButton"
       opacity={isVisible ? 1 : 0}
       transform={`translate(${centerX}, ${centerY}) ${isHovered ? 'scale(1.05)' : 'scale(1)'} translate(${-centerX}, ${-centerY})`}
       style={{

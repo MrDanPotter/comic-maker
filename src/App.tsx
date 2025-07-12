@@ -34,6 +34,10 @@ const AppContainer = styled.div<{ $isResponsive: boolean }>`
   background: #e9ecef;
   flex-direction: ${props => props.$isResponsive ? 'column' : 'row'};
   padding-top: 60px; /* Account for fixed header */
+  
+  &.AppContainer {
+    /* This class is used for print styles */
+  }
 `;
 
 const ComicContainer = styled.div<{ $isResponsive: boolean }>`
@@ -43,6 +47,10 @@ const ComicContainer = styled.div<{ $isResponsive: boolean }>`
   margin-right: ${props => props.$isResponsive ? '0' : '300px'};
   margin-bottom: ${props => props.$isResponsive ? '100px' : '0'};
   overflow-y: auto;
+  
+  &.ComicContainer {
+    /* This class is used for print styles */
+  }
 `;
 
 const DesktopSidePanels = styled.div<{ $isResponsive: boolean }>`
@@ -61,6 +69,10 @@ const DesktopSidePanels = styled.div<{ $isResponsive: boolean }>`
     right: 0;
     width: 300px;
   }
+  
+  &.DesktopSidePanels {
+    /* This class is used for print styles */
+  }
 `;
 
 const BottomPanel = styled.div<{ $isResponsive: boolean; $isVisible: boolean }>`
@@ -74,6 +86,10 @@ const BottomPanel = styled.div<{ $isResponsive: boolean; $isVisible: boolean }>`
   height: ${props => props.$isVisible ? '300px' : '60px'};
   transition: height 0.3s ease;
   z-index: 10;
+  
+  &.BottomPanel {
+    /* This class is used for print styles */
+  }
 `;
 
 const BottomControls = styled.div`
@@ -330,13 +346,13 @@ function App() {
       onDragEnd={handleDragEnd}
       onDragStart={handleDragStart}
     >
-      <AppContainer $isResponsive={isResponsive}>
+      <AppContainer $isResponsive={isResponsive} className="AppContainer">
         <Header />
-        <DesktopSidePanels $isResponsive={isResponsive}>
+        <DesktopSidePanels $isResponsive={isResponsive} className="DesktopSidePanels">
           <TemplateSelector onTemplateSelect={handleTemplateSelect} templates={layouts} />
         </DesktopSidePanels>
         
-        <ComicContainer $isResponsive={isResponsive}>
+        <ComicContainer $isResponsive={isResponsive} className="ComicContainer">
           {reduxPages.map((page, index) => (
             <ComicPage
               key={page.id}
@@ -359,11 +375,11 @@ function App() {
         
         {/* TODO: Don't like that we have a DesktopSidePanels and a BottomPanel here.  It made it so that we had to 
         render ImageLibrary in two places. */}
-        <DesktopSidePanels $isResponsive={isResponsive}>
+        <DesktopSidePanels $isResponsive={isResponsive} className="DesktopSidePanels">
           <ImageLibrary images={reduxImages} onImageUpload={handleImageUpload} />
         </DesktopSidePanels>
 
-        <BottomPanel $isResponsive={isResponsive} $isVisible={activePanel !== 'none'}>
+        <BottomPanel $isResponsive={isResponsive} $isVisible={activePanel !== 'none'} className="BottomPanel">
           <BottomControls>
             <ToggleButton 
               $isActive={activePanel === 'templates'}

@@ -24,6 +24,10 @@ const ModalOverlay = styled.div<{ $isOpen: boolean }>`
   justify-content: center;
   z-index: 2000;
   backdrop-filter: blur(4px);
+  
+  &.ModalOverlay {
+    /* This class is used for print styles */
+  }
 `;
 
 const ModalContainer = styled.div<{ $maxWidth?: string; $minWidth?: string; $padding?: string }>`
@@ -101,7 +105,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, maxWidt
   };
 
   return (
-    <ModalOverlay $isOpen={isOpen} onClick={handleOverlayClick}>
+    <ModalOverlay $isOpen={isOpen} onClick={handleOverlayClick} className="ModalOverlay">
       <ModalContainer $maxWidth={maxWidth} $minWidth={minWidth} $padding={padding} onClick={handleContainerClick}>
         {title && (
           <ModalHeader>

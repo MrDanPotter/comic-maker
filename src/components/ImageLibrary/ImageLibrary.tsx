@@ -55,6 +55,10 @@ const PrintButton = styled.button`
   @media print {
     display: none;
   }
+  
+  &.PrintButton {
+    /* This class is used for print styles */
+  }
 `;
 
 const UploadButton = styled.label`
@@ -157,7 +161,7 @@ const ImageLibrary: React.FC<ImageLibraryProps> = ({ onImageUpload, images, isHo
   return (
     <LibraryContainer $isHorizontal={isHorizontal}>
       <ButtonContainer $isHorizontal={isHorizontal}>
-        <PrintButton onClick={handlePrint}>Print</PrintButton>
+        <PrintButton onClick={handlePrint} className="PrintButton">Print</PrintButton>
         <UploadButton>
           Upload Images
           <input

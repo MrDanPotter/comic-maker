@@ -54,6 +54,10 @@ const Tooltip = styled.div<{ $isVisible: boolean }>`
     border: 6px solid transparent;
     border-bottom-color: #333;
   }
+  
+  &.Tooltip {
+    /* This class is used for print styles */
+  }
 `;
 
 const HelpTooltip: React.FC<HelpTooltipProps> = ({ 
@@ -83,7 +87,7 @@ const HelpTooltip: React.FC<HelpTooltipProps> = ({
       size={size}
     >
       <HelpCircle />
-      <Tooltip $isVisible={isVisible}>
+      <Tooltip $isVisible={isVisible} className="Tooltip">
         {content}
       </Tooltip>
     </HelpIcon>

@@ -36,11 +36,19 @@ const PageContainer = styled.div`
     border-radius: 0;
     break-inside: avoid;
   }
+  
+  &.PageContainer {
+    /* This class is used for print styles */
+  }
 `;
 
 const PageControlsWrapper = styled.div`
   @media print {
     display: none;
+  }
+  
+  &.PageControlsWrapper {
+    /* This class is used for print styles */
   }
 `;
 
@@ -60,8 +68,8 @@ const ComicPage: React.FC<ComicPageProps> = ({
   draggedImageUrl
 }) => {
   return (
-    <PageContainer>
-      <PageControlsWrapper>
+    <PageContainer className="PageContainer">
+      <PageControlsWrapper className="PageControlsWrapper">
         <PageControls 
           displayNumber={displayNumber} 
           onDelete={onDelete}
