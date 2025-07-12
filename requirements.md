@@ -5,3 +5,5 @@ AI assisted template generators.  Create new page templates, or remix existing o
 Sort image library by page where the image is used.
 
 Implement storyteller, where user inputs a story, and the system breaks it up into many different beats / images.  Then user has the ability to expand certain aspects of the story to draw out sections of the story
+
+Implement a little fun distraction for when the image generation is taking too long.

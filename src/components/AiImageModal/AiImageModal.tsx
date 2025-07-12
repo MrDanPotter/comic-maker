@@ -523,7 +523,7 @@ const AiImageModal: React.FC<AiImageModalProps> = ({
 
   return (
     <>
-      <Modal isOpen={isOpen} onClose={handleClose} maxWidth="1000px" minWidth="800px" padding="0">
+      <Modal isOpen={isOpen} onClose={handleClose} maxWidth="1000px" minWidth="800px" padding="0" closeOnOverlayClick={false}>
         <ModalContent>
           <LeftPanel>
             <ModalHeader>AI Image Generation</ModalHeader>

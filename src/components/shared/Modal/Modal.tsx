@@ -9,6 +9,7 @@ interface ModalProps {
   maxWidth?: string;
   minWidth?: string;
   padding?: string;
+  closeOnOverlayClick?: boolean;
 }
 
 const ModalOverlay = styled.div<{ $isOpen: boolean }>`
@@ -87,14 +88,20 @@ const CloseButton = styled.button`
   }
 `;
 
-const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, maxWidth, minWidth, padding }) => {
+const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, maxWidth, minWidth, padding, closeOnOverlayClick = true }) => {
   // Prevent click inside modal from closing
   const handleContainerClick = (e: React.MouseEvent) => {
     e.stopPropagation();
   };
 
+  const handleOverlayClick = (e: React.MouseEvent) => {
+    if (closeOnOverlayClick) {
+      onClose();
+    }
+  };
+
   return (
-    <ModalOverlay $isOpen={isOpen} onClick={onClose}>
+    <ModalOverlay $isOpen={isOpen} onClick={handleOverlayClick}>
       <ModalContainer $maxWidth={maxWidth} $minWidth={minWidth} $padding={padding} onClick={handleContainerClick}>
         {title && (
           <ModalHeader>
